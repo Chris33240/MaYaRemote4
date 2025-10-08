@@ -1,0 +1,66 @@
+x Limiter la taille mini des packets à 20
+x Préparer le message LIST_COMMANDS-R pour BLE-Read
+
+x Tester et activer le système de fichier.
+
+x Ajouter une charactéristique dédiée aux notifications sans code.
+    1 = Notification sans code (sans payload)           -> vers BLEnotify
+    2 = Notification avec code (avec ou sans payload)   -> vers BLEnotifyCode
+
+[ANNULE] Identifiant de commands :
+commands : std::map<<int>, <commandData>> : keys = 0, 1, 2, 3, 10, 11, 12 -> utiliser (int)freekey() basé sur la valeur Max.
+commandsDico : std::map<<std::string>, <int>> keys = "LIST_COMMANDS", "IR_MCE_POWER", "IR_RC_0x0800040F", "IR_RC_0x0800040F_1"....-> utiliser (std::string)freekey()
+
+x Lecture de la list des commandes disponible :
+    1- Créer une caractéristique et une commande : READ_COMMANDS_COUNT
+    2- La command retourne : 80
+    3- Créer une class “ListCommandsHandler” pour transmettre chaque commande individuellement et  de manière successive via la requête READ par groupes de paquets.
+    4- Chacun des groupes de paquets retourne : 
+        {"command": "IR_CAPTURE", "requestType": "WRITE", "commandHandler": "3"}
+
+x Les commandes devront être stockées dans des fichiers individuels (1 fichier pour 1 commande). nom des fichiers <commandName>.<cde> Exemple: IR_SONY_POWER.cde
+
+x Au démarrage le contrôleur charge l’objet “commands” avec le contenu du bootloader puis avec les fichiers .cde,
+ si la commande existe déjà dans le bootloader celle-ci est remplacée.
+
+x A l’instar de l’objet “commands”, le bootloader peut rester unique pour toutes les commandes.
+[NOTE]: en principe le bootloader est chargé dans la mémoire flash statique et ne devrait pas engendrer l’allocation d’un grand bloc de mémoire RAM. Sauf peut-être lors de la lecture de la variable correspondante, À vérifier.
+
+- Supprimer les commandes READ de la liste des commandes (Bootloader, fichiers) ????
+
+X Vérifier la charge des différents modules et fonctions (Intensité consommée, Taille en mémoire RAM et Flash)
+
+X Implémenter une option "enableMemoryReduction" pour lire les commandes directement en mémoire Flash et non plus dans la liste "commands" (dans le cas ou la Flah est disponible)
+Cette commande doit permettre de diminuer la taille de la mémoire RAM utilisée (au détriment de la vitesse d'exécution).
+Dans ce cas, si "enableMemoryReduction" est actif, la liste descommandes ne contient que les commandes du Bootloader (non Flash).
+Par défaut, lors de l'execution d'une commande, sa clé est obtenue dans la liste des clés pour pouvoir chercher et relire la commande en Flash.
+
+---------------------------------------------
+Tentative de réduction de la taille mémoire : 
+
+enableMemoryReduction = True
+Heap libre: 108000, Stack high water mark: 5000
+Mémoire libre : 102000, pile : 5884
+
+enableMemoryReduction = False
+Heap libre: 52700, Stack high water mark: 5000
+Mémoire libre : 47000, pile : 5580
+---------------------------------------------
+
+X Les commandes crées par register_device_test() puis chargées dans les listes "commands2" et "commands2Keys"
+  et n'existant pas en Flash provoquent des erreurs de chargement gérés:
+    1- Leurs chargement dans initCommands() provoque une erreur gérée.
+    2- Leurs chargement dans printSerializedCommandsKeys() provoque une erreur gérée.
+    3- Leurs chargement lors de la lecture du catalogue de commandes depuis le dispositif BLE provoque une erreur gérée.
+    Dans ce dernier cas, le client BLE devrait s'attendre à recevoir seulement les fichiers de commandes valide
+    et ainsi eviter les requettes READ et Timeout inutiles qui se produisent à la fin.
+
+- Ajouter une fonction de compression des données sur la com BLE. Encapsulant soit le message complet (avec le header) soit seulement les paquets à la suite du Header.
+    Abandonné : Le taux de compression n'etant pas suffisant.
+X Ajouter la fonction de tranmission des signaux Raw. (variable bool 'Raw' dans additionnalPayload)
+X Supprimer LOADING_RAW_DATA
+X Activer tous les protocoles
+- Develloper la fonctionnalité de synchronisation des données entre dispositifs.
+
+- Migrer les fonctions C++17 vers C++11. par exemple: std::vector<uint8_t> buffer (avec buffrer.data.data(), buffer.size()).
+    et forcer la compilation avec build_flags = -std=gnu++11

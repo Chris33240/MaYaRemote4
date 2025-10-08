@@ -1,0 +1,75 @@
+Structure json pur le transport et l'execution de taches json :
+NOTE : Pourquoi passer les valeurs dans des chaines :
+        Parceque une valeur 0 (pour un int) ne signifie pas forcement qu'elle est invalide, dans ce cas utiliser empty.
+{
+"taskType":"EXECUTE",
+"commandName":"IR_4_0xA90_1",
+"directData":{
+    "protocol":"3",
+    "data":"238"
+    },
+"payload":{
+    "frequency":"36",
+    "toggleMask":"0x8000",
+    "repeat":"2"
+    }
+}
+
+NOUVELLE PROPOSITION:
+{
+                            //"type": "command",           // "command, "script", "api_call"
+"action": "send_ir",         // "list_cmd", list_dir", "capture_ir", "send_ir", "delete_cmd"
+"data": {
+    "payload_type: "IR_SEND"
+    "payload" : {
+        "command_name": "IR_4_0xA90_1",
+        "direct_data": {"protocol": "3", "data": "238"},
+        "additionnal_payload": {"frequency": "36", "toggleMask": "0x8000", "repeat": "2"}
+    }
+}
+}
+
+
+Structure json "Commands_json_bootloader" et "Commands_json" :
+Ceci est le format json utilisé pour décrire une commande,
+il est utilisé pour les commandes issues du bootloader ou des fichiers de commandes stockés en Flash.
+{
+   "IR_SONY_POWER": {                   //Clé unique pour le nom de la commande.
+    "commandHandler": "3",              //"3" = Commande d'emission infrarouge
+    "requestType": "WRITE",             //"WRITE" : commande utilisable en écriture depuis un dispositif BLE, "READ" : commande utilisable en lecture.
+    "attributs": "w",                   //"w" : l'attribus "w" autorise l'effacement de la commande (en Flash). (Non géré actuellement)
+    "commandPayloads": [                //Contient les données utiles pour l'envoi d'une commande (Le contenu dépendant du type de commande "commandHandler", pour infrarouge par exemple)
+        "900",
+        "0xA90",
+        "12",
+        "2"
+    ]
+    },
+    "IR_MCE_POWER": {
+    "commandHandler": "3",
+    "requestType": "WRITE",
+    "attributs": "w",
+    "commandPayloads": [
+        "901",
+        "0xC800F040CLL",
+        "36",
+        "0x8000",
+        "true"
+    ]
+    },
+};
+
+Structure json pour lecture du catalogue des commandes via la requette ble READ :
+Ce format ressemble au précédent mais il est différent et ne comprends pas de Payloads.
+// Exemple : {"command": "IR_CAPTURE", "status": "ERROR_READING_FILE", "requestType": "WRITE", "attributs": "w", "commandHandler": "3"}
+le status "OK" ou "ERROR_READING_FILE" est utilisé pour signaler un message ou fichier de commande invalide.
+
+Header encapsulé dans le 1er paquet (taille limite : 20 Caractères Maxi) :
+    Format: "HEADER:nombres de paquets, taile des paquets"
+    Exemple: "HEADER:700;20"
+
+Structure d'un message en réponse à une requette READ pour la lecture d'une caractéristic :
+La mise en paquet est controlé en fonction du nom de la requette READ.
+	Exemple :
+	LAST_CAPTURE 	-> (transmission par paquets)
+	READ_FREE_HEAP 	-> (transmission simple)

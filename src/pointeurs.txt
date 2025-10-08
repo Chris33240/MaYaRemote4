@@ -1,0 +1,17 @@
+/*
+	Pointeur : variable contenant l'adresse d'une autre variable
+	%d -> affiche une adresse de variable ou pointeur
+	
+	[VARIABLES]
+		maVariable  : valeur de la variable
+		&maVariable : adresse de la variable
+	
+	[POINTEURS]
+    	déclaration et initialisation d'un pointeur :
+		<type> *monPointeur = nullptr; ou <type> *monPointeur = &maVariable;
+	
+
+		monPointeur  : adresse de la variable pointée
+		*monPointeur : valeur de la variable pointée
+		&monPointeur : adresse du pointeur
+*/

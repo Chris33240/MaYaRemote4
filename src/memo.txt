@@ -1,0 +1,10 @@
+[MEMO] Spécificateurs de Formats courants :
+
+%hu : Affiche un entier non signé (unint16-t, short unsigned).
+%u : Affiche un entier non signé (unint32-t, integer unsigned).
+%s : Affiche une chaîne de caractères (string).
+%d ou %i : Entier signé décimal
+%f : Nombre à virgule flottante
+%c : Caractère unique
+%x ou %X : Entier hexadécimal (minuscules ou majuscules)
+%p : Adresse de pointeur

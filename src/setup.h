@@ -1,0 +1,22 @@
+// Capture
+#define CAPTURE_BUTTON_DELAY 5000
+#define CAPTURE_TIMEOUT 30000
+#define BLINK_LED_CAPTURE_INTERVAL 200
+#define BLINK_LED_CAPTURE_DONE_INTERVAL 25
+#define BLINK_LED_CAPTURE_DONE_DURATION 500
+
+// Execute
+#define BLINK_LED_EXECUTE_INTERVAL 60
+#define BLINK_LED_EXECUTE_DURATION 480
+
+// File System
+#define ENABLED_IO_FILESYSTEM_SAVING true
+#define FORMAT_FILE_SYSTEM_IF_FAILED false
+#define COMMANDS_JSON_FILENAME "/commands.json" // File name must begin with "/" and not exced 31 charactères.
+#define COMMAND_EXTENSION_FILENAME "cde"
+#define SAVE_COMMAND_JSONPRETTY false
+// #define LOADING_RAW_DATA true
+#define ENABLED_MEMORY_REDUCTION true
+
+// Packets handler
+#define DEFAULT_CHUNK_SIZE 20
