@@ -4,7 +4,7 @@ MaYaRemote est un projet de télécommande universelle Infrarouge basé sur Plat
 Le dispositif dispose d'une serveur bluetooth BLE pouvant se connecter à l'application MaYa (client Android) pour éxécuter des commandes.  
 
 ## ✨ Fonctionnalités
-- Envoi de commandes **IR** (signaux infrarouges) prenant en charge une multitude de protocoles supportées par la librairie IRremote8266 (version actuelle : 2.8.6).
+- Envoi de commandes **IR** (signaux infrarouges) prenant en charge une multitude de protocoles supportées par la librairie IRremoteESP8266 (version actuelle : 2.8.6).
 https://github.com/crankyoldgit/IRremoteESP8266
 - Compatible avec le microcontrôleur ESP32 et d'autres (supporté par IRremoteESP8266).
 
@@ -70,6 +70,6 @@ Recepteur infrarouge 38kHz VS1838 (ou équivalent)
 Exemple de ressources utilisées pour la carte 'dfrobot_firebeetle2_esp32e_dfr0654'
 board_build.partitions = huge_app.csv
 HARDWARE: ESP32 240MHz, 320KB RAM, 4MB Flash
-RAM:   [=         ]  12.5% (used 40932 bytes from 327680 bytes)
-Flash: [=====     ]  48.1% (used 1512017 bytes from 3145728 bytes)
+RAM:   [=         ]  14.1% (used 46324 bytes from 327680 bytes)
+Flash: [=====     ]  54.1% (used 1701233 bytes from 3145728 bytes)
 

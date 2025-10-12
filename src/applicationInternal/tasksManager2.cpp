@@ -48,10 +48,13 @@ void TasksManager2::executeTask(const std::string &jsonTask)
     Task2 task = deserializeTask2(jsonTask.c_str());
     std::string taskType = task.taskType;
     std::string commandName = task.commandName;
+
+    bool directSend = task.directData.isEnabled;
     std::string protocol = task.directData.protocolID;
     std::string dataCode = task.directData.dataCode;
     std::string bits = task.directData.bits;
 
+    bool additionalPayload = task.payload.isEnabled;
     std::string frequency = task.payload.frequency;
     std::string toogleMask = task.payload.toggleMask;
     std::string repeat = task.payload.repeat;
@@ -60,37 +63,40 @@ void TasksManager2::executeTask(const std::string &jsonTask)
     // std::string jsonTask = R"({"taskType":"EXECUTE","commandName":"IR_4_0xA90_1","directData":{"protocol":"3","data":"238"},"payload":{"frequency":"36","toggleMask":"0x0","repeat":"2"}})";
     Serial.printf("Executing jsonTask: '%s'\r\n", jsonTask.c_str());
 
-    // std::string additionnalPayload = R"({"taskType": "EXECUTE", "taskPayload": {"commandName": "IR_MCE_POWER", "frequency": "36", "toggleMask": "0x8000", "repeat": ""}})";
-    // std::string additionnalPayload = serializeAdditionnalPayload(task.taskType, task.payload, false).c_str();
-
-    // std::string additionnalPayload = R"({"payload": {"frequency": "36", "toggleMask": "0x8000", "repeat": ""}})";
+    // std::string additionnalPayload = R"({"payload": {"frequency": "36", "toggleMask": "0x8000", "repeat": "", "raw": "0"}})";
     std::string additionnalPayload2 = serializeAdditionnalPayload2(task.payload, false).c_str();
 
-    boolean directSend = !protocol.empty() && !dataCode.empty();
-    if (!directSend)
+    // boolean directSend = !protocol.empty() && !dataCode.empty();
+
+    if (taskType == "EXECUTE")
     {
-        if (taskType == "EXECUTE")
+        if (!directSend)
         {
-            // Mode "NORMAL", execute une commande à partir du nom de la commande et d'éventuelles Payloads.
-            // Les paramétres necessaires à l'execution de la commande sont obtenues par lecture des fichiers de commandes.
+            //--> CHARACTERISTIC_COMMAND2_UUID, --> CHARACTERISTIC_EXECUTE_COMMAND_UUID
+            // Mode "NORMAL", execute une commande enregistrée.
             Serial.println("-- Mode: EXECUTE COMMAND");
-            executeCommand2(commandName, additionnalPayload2);
+            executeRegisteredCommand(commandName, additionnalPayload2);
         }
-        else if (taskType == "DELETE")
+        else
         {
-            Serial.println("-- Mode: DELETE COMMAND");
-            unregisterCommand(commandName);
-            deleteCommand2(commandName);
+            // --> CHARACTERISTIC_COMMAND2_UUID
+            // Mode DIRECT SEND, mode spécial pour l'envoide signaux IR sans données ni fichiers de commande prés-enregistrées.
+            Serial.println("-- Mode: DIRECT SEND");
+            if (protocol.empty() || dataCode.empty())
+            {
+                Serial.printf("unable to send IR with protocol:%s, dataCode: %s", protocol, dataCode);
+                return;
+            }
+            commandData2 commandData;
+            commandData = makeCommandData2(IR, "WRITE", "w", {protocol, "", "", bits.c_str(), "", "", "", "", "", "", "", dataCode.c_str()});
+            executeUnregisteredCommand(commandData, additionnalPayload2);
         }
     }
-    else
+    else if (taskType == "DELETE")
     {
-        // Mode DIRECT SEND, execute une commande à partir du protocol et du code et du nombres de bits.
-        // Tous les paramétres necessaire à l'execution de la commande sont issues du dispositif BLE et ne necessite pas de lecture de fichiers de commande
-        Serial.println("-- Mode: DIRECT SEND");
-        commandData2 commandData;
-        // commandData =  makeCommandData2(IR, "WRITE", "w", {protocol, "", "", bits.c_str(), "", "", "", "", "",  "", "", dataCodeHexStr.c_str()});
-        commandData = makeCommandData2(IR, "WRITE", "w", {protocol, "", "", bits.c_str(), "", "", "", "", "", "", "", dataCode.c_str()});
-        executeDirectCommand(commandData, additionnalPayload2);
+        //--> CHARACTERISTIC_COMMAND2_UUID, --> CHARACTERISTIC_DELETE_COMMAND_UUID
+        Serial.println("-- Mode: DELETE COMMAND");
+        unregisterCommand(commandName);
+        //deleteCommandFile2(commandName);
     }
 }

@@ -4,10 +4,10 @@
 #include "commands_json.h"
 #include "io.h"
 
-/// @brief Charge les commandes du bootloader.
+/// @brief Met à jour les données de commandes à partir des fchiers.
 /// @param commands Map des commandes existantes.
 /// @param errorCount Compteur d'erreurs pour suivre les fichiers corrompus ou manquants.
-void loadBootLoaderCommands(std::map<std::string, commandData2> &commands, int &errorCount)
+void updateCommandsFromFiles(std::map<std::string, commandData2> &commands, int &errorCount)
 {
     Serial.println("");
     Serial.printf("Loading commands from bootloader.\r\n");
@@ -21,7 +21,7 @@ void loadBootLoaderCommands(std::map<std::string, commandData2> &commands, int &
         {
             std::pair<std::string, commandData2> pair = loadCommand(commandName);
             data = pair.second;
-            commands[commandName] = data;
+            commands[commandName] = data; // Overwriting command if the key already exist.
         }
         catch (const std::exception &e)
         {
@@ -150,7 +150,7 @@ void saveCommand2(const std::string commandName, commandData2 command, const Str
 /// @brief Supprime un fichier de commande avec montage/Démontage du système de fichier.
 /// @param commands Map des commandes.
 /// @param commandName Nom de la commande à supprimer.
-void deleteCommand(std::map<std::string, commandData2> &commands, const std::string commandName)
+void deleteCommandFile(std::map<std::string, commandData2> &commands, const std::string commandName)
 {
     String fileName = makeFileCommandName(commandName);
     String path = Io::combinePath("", fileName);
@@ -244,12 +244,12 @@ void loadCommandFiles(std::map<std::string, commandData2> &commands, int &errorC
     }
 }
 
-/// @brief Charge toutes les clés de commandes depuis les fichiers avec montage/Démontage du système de fichier.
+/// @brief Charge toutes les clés contenues dans les fichiers de commande.
 /// @param commandsKeys Liste des noms de commandes.
 /// @param errorCount Compteur d’erreurs.
 /// @param dirname Répertoire de départ. Defaut = "/" (racine)
 /// @param levels Profondeur récursive. Défaut = 0 (aucun niveau)
-void loadCommandsKeys(std::set<std::string> &commandsKeys, int &errorCount, const String &dirname, uint8_t levels)
+void loadCommandsKeysFromFiles(std::set<std::string> &commandsKeys, int &errorCount, const String &dirname, uint8_t levels)
 {
     Serial.println();
     Serial.printf("Loading command files in directory: %s\r\n", dirname);
@@ -423,3 +423,70 @@ void listDir2(const String &dirname, uint8_t levels, FileCallback onFileAction)
     listFilesInDirectory(dirname, levels, [&](const FileInfo &fileInfo)
                          { onFileAction(fileInfo); });
 }
+
+/*
+/// @brief Charge tous les fichiers de commandes dans un répertoire avec montage/Démontage du système de fichier.
+/// @param errorCount Compteur d’erreurs.
+/// @param dirname Répertoire de départ. Defaut = "/" (racine)
+/// @param levels Profondeur récursive. Défaut = 0 (aucun niveau)
+void updateCommandFiles(int &errorCount, const String &dirname, uint8_t levels)
+{
+    Serial.println();
+    Serial.printf("Updating command files in directory: %s\r\n", dirname);
+
+    try
+    {
+        // 🔹 1. Collecter NOUVEAU les fichiers AVANT traitement
+        std::vector<FileInfo> fileList;
+        fsMount2();
+        listFilesInDirectory(dirname, levels, [&](const FileInfo &fileInfo)
+                             {
+            // Ne pas faire d'opératon sur les fichiers à l'interieur du callback.
+            if (fileInfo.path.endsWith(String(".") + COMMAND_EXTENSION_FILENAME)) {
+                // Seul les fichiers command sont chargés
+                fileList.push_back(fileInfo);
+            } });
+        fsUnMount2();
+
+        // 🔹 2. Traiter les fichiers APRÈS la collecte
+        for (auto &fileInfo : fileList)
+        {
+            try
+            {
+                fsMount2();
+                auto pair = loadCommand3(fileInfo.path);
+                fsUnMount2();
+                std::string commandName = pair.first;
+                commandData2 commandData = pair.second;
+                //saveCommand(commandName, commandData);
+                fsMount2();
+                saveCommand2(commandName, commandData, fileInfo.path);
+                fsUnMount2();
+                //commands[pair.first] = pair.second;
+
+                Serial.print(F("Fichier mis à jour: "));
+                Serial.println(fileInfo.path);
+                Serial.println(fileInfo.name);
+            }
+            catch (const std::exception &e)
+            {
+                Serial.print(F("Erreur lors de la mise à jour du fichier: "));
+                Serial.println(fileInfo.path);
+                Serial.print(F("Message: "));
+                Serial.println(e.what());
+
+                errorCount++;
+            }
+        }
+    }
+    catch (const std::exception &e)
+    {
+        Serial.print(F("Erreur d'accès au répertoire: "));
+        Serial.println(dirname);
+        Serial.print(F("Message: "));
+        Serial.println(e.what());
+        errorCount++;
+    }
+}
+*/
+

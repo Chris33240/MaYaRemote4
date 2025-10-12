@@ -109,38 +109,47 @@ void init_infraredSender(void)
   init_infraredSender_HAL();
 }
 
-void sendIRcode(IRprotocols protocol, std::list<std::string> commandPayloads, std::string additionalPayload)
+//void sendIRcode(IRprotocols protocol, std::list<std::string> commandPayloads, std::string additionalPayload)
+//{
+//  sendIRcode_HAL(protocol, commandPayloads, additionalPayload);
+//}
+
+void sendIRcode2(std::list<std::string> commandPayloads, std::string additionalPayload)
 {
-  sendIRcode_HAL(protocol, commandPayloads, additionalPayload);
+  nsIR::sendIRcode_HAL2(commandPayloads, additionalPayload);
 }
 
-// void sendIRcode2(nsIR::IRprotocols2 protocol, std::list<std::string> commandPayloads, std::string additionalPayload)
-//{
-//   nsIR::sendIRcode_HAL2(protocol, commandPayloads, additionalPayload);
-// }
-
-void sendIRcode3(nsIR::IRprotocols2 protocol, std::list<std::string> commandPayloads, std::string additionalPayload)
+void sendSonyR2(std::list<std::string> commandPayloads)
 {
-  nsIR::sendIRcode_HAL3(protocol, commandPayloads, additionalPayload);
+  nsIR::sendSonyR2_HAL(commandPayloads);
+}
+
+void sendMceT(std::list<std::string> commandPayloads)
+{
+  nsIR::sendMceT_HAL(commandPayloads);
 }
 
 // --- IR receiver ------------------------------------------------------------
 void start_infraredReceiver(void)
 {
   start_infraredReceiver_HAL();
-};
+}
+
 void shutdown_infraredReceiver(void)
 {
   shutdown_infraredReceiver_HAL();
-};
+}
+
 void infraredReceiver_loop(void)
 {
   infraredReceiver_loop_HAL();
-};
+}
+
 bool get_irReceiverEnabled()
 {
   return get_irReceiverEnabled_HAL();
 }
+
 void set_irReceiverEnabled(bool aIrReceiverEnabled)
 {
   if (aIrReceiverEnabled)

@@ -155,29 +155,6 @@ const String commands_json_bootloader = R"(
         "payload9"
     ]
     },
-    "IR_SONY_POWER": {
-    "commandHandler": "3",
-    "requestType": "WRITE",
-    "attributs": "",
-    "commandPayloads": [
-        "1000",
-        "0xA90",
-        "12",
-        "2"
-    ]
-    },
-    "IR_MCE_POWER": {
-    "commandHandler": "3",
-    "requestType": "WRITE",
-    "attributs": "",
-    "commandPayloads": [
-        "1001",
-        "0xC800F040CLL",
-        "36",
-        "0x8000",
-        "true"
-    ]
-    },
     "IR_4_0xA90": {
     "commandHandler": "3",
     "requestType": "WRITE",
@@ -219,8 +196,8 @@ const String commands_json_bootloader = R"(
 }
 )";
 
-//register_command2("SONY_POWER2"             , makeCommandData(IR, {std::to_string(IR_PROTOCOL_SONY2), "0xA90", "12", "2"}));
-//register_command2("MCE_POWER2"             , makeCommandData(IR, {std::to_string(IR_PROTOCOL_MCE), "0xC800F040CLL", "36", "0x8000", "True"}));
+//registerCommand("SONY_POWER2"             , makeCommandData(IR, {std::to_string(IR_PROTOCOL_SONY2), "0xA90", "12", "2"}));
+//registerCommand("MCE_POWER2"             , makeCommandData(IR, {std::to_string(IR_PROTOCOL_MCE), "0xC800F040CLL", "36", "0x8000", "True"}));
 //unsigned short MCE[67] = {2700, 850, 450, 450, 450, 450, 450, 850, 450, 900, 1350, 850, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 400, 450, 450, 450, 450, 900, 450, 450, 450, 450, 400, 450, 900, 450, 450, 450, 450, 450, 450, 450, 450, 900, 850, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 900, 450, 400, 950, 400, 450, 450};
 
 // Be carfull : Command Key is sorted by ascendencing in map object 'commands2'

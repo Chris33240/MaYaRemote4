@@ -7,16 +7,17 @@
 /*
 Exemple:
 {
-"taskType":"EXECUTE",
-"commandName":"IR_4_0xA90_1",
-"directData":{
-    "protocol":"3",
-    "data":"238"
+"taskType": "EXECUTE",
+"commandName": "IR_4_0xA90_1",
+"directData": {
+    "protocol": "3",
+    "data": "238"
     },
-"payload":{
-    "frequency":"36",
-    "toggleMask":"0x8000",
-    "repeat":"2"
+"payload": {
+    "frequency": "36",
+    "toggleMask": "0x8000",
+    "repeat": "2"
+    "raw": "0"
     }
 }
 */
@@ -27,7 +28,6 @@ Exemple:
 Task2 deserializeTask2(const char *json)
 {
   JsonDocument doc;
-  // Créez un document JSON
   // StaticJsonDocument<256> doc;
 
   DeserializationError error = deserializeJson(doc, json);
@@ -41,28 +41,34 @@ Task2 deserializeTask2(const char *json)
     return task;
   }
 
-  /*
-    // Créez un objet Task à partir du JSON désérialisé
-    task.taskType = doc["taskType"].as<std::string>();
-    //task.taskPayload.commandName = doc["taskPayload"]["commandName"].as<std::string>();
-    task.commandName = doc["commandName"].as<std::string>();
-    task.directData.protocolID = doc["directData"]["protocol"].as<std::string>();
-    task.directData.dataCode = doc["directData"]["data"].as<std::string>();
-    task.directData.bits = doc["directData"]["bits"].as<std::string>();
-    task.payload.frequency = doc["payload"]["frequency"].as<std::string>();
-    task.payload.toggleMask = doc["payload"]["toggleMask"].as<std::string>();
-    task.payload.repeat = doc["payload"]["repeat"].as<std::string>();
-  */
-
   task.taskType = doc["taskType"].isNull() ? "" : doc["taskType"].as<std::string>();
   task.commandName = doc["commandName"].isNull() ? "" : doc["commandName"].as<std::string>();
-  task.directData.protocolID = doc["directData"]["protocol"].isNull() ? "" : doc["directData"]["protocol"].as<std::string>();
-  task.directData.dataCode = doc["directData"]["data"].isNull() ? "" : doc["directData"]["data"].as<std::string>();
-  task.directData.bits = doc["directData"]["bits"].isNull() ? "" : doc["directData"]["bits"].as<std::string>();
-  task.payload.frequency = doc["payload"]["frequency"].isNull() ? "" : doc["payload"]["frequency"].as<std::string>();
-  task.payload.toggleMask = doc["payload"]["toggleMask"].isNull() ? "" : doc["payload"]["toggleMask"].as<std::string>();
-  task.payload.repeat = doc["payload"]["repeat"].isNull() ? "" : doc["payload"]["repeat"].as<std::string>();
-  task.payload.raw = doc["payload"]["raw"].isNull() ? "" : doc["payload"]["raw"].as<std::string>();
+
+  // ✅ DirectData activé seulement si le bloc existe
+  if (!doc["directData"].isNull())
+  {
+    task.directData.isEnabled = true;
+    task.directData.protocolID = doc["directData"]["protocol"].isNull() ? "" : doc["directData"]["protocol"].as<std::string>();
+    task.directData.dataCode = doc["directData"]["data"].isNull() ? "" : doc["directData"]["data"].as<std::string>();
+    task.directData.bits = doc["directData"]["bits"].isNull() ? "" : doc["directData"]["bits"].as<std::string>();
+  }
+  else
+  {
+    task.directData.isEnabled = false;
+  }
+
+  if (!doc["payload"].isNull())
+  {
+    task.payload.isEnabled = true;
+    task.payload.frequency = doc["payload"]["frequency"].isNull() ? "" : doc["payload"]["frequency"].as<std::string>();
+    task.payload.toggleMask = doc["payload"]["toggleMask"].isNull() ? "" : doc["payload"]["toggleMask"].as<std::string>();
+    task.payload.repeat = doc["payload"]["repeat"].isNull() ? "" : doc["payload"]["repeat"].as<std::string>();
+    task.payload.raw = doc["payload"]["raw"].isNull() ? "" : doc["payload"]["raw"].as<std::string>();
+  }
+  else
+  {
+    task.payload.isEnabled = false;
+  }
 
   return task;
 }
@@ -75,7 +81,8 @@ Exemple:
 "payload":{
     "frequency":"36",
     "toggleMask":"0x8000",
-    "repeat":"2"
+    "repeat":"2",
+    "raw": "0"
     }
 }
 */

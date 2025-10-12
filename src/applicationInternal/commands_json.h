@@ -1,7 +1,7 @@
 #include <ArduinoJson.h>
 #include "commandHandler.h"
 
-std::map<std::string, commandData2> deserializeBootLoader(String input);
+std::map<std::string, commandData2> deserializeCommands(String input);
 std::map<std::string, commandData2> from_json_BootLoader(const JsonDocument &doc);
 
 String serializeCommand(const std::string &commandName, const commandData2 &commandData, bool JsonPretty);

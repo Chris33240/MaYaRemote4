@@ -202,7 +202,7 @@ unsigned long *pUpdateSleepTimer = &updateSleepTimer;
 void onButtonCaptureIRPressDelayed()
 {
   Serial.println("Bouton de capture IR pressé (avec délai) !");
-  executeCommand2("IR_CAPTURE", "");
+  executeRegisteredCommand("IR_CAPTURE", "");
 }
 
 /// @brief Boucle principale du firmware (Arduino).
@@ -247,7 +247,7 @@ void loop(unsigned long *pIMUTaskTimer, unsigned long *pUpdateStatusTimer)
   {
     // We can use executeCommand rather than TaskManager because TaskManager is planned
     // to avoid stack overflow when task is executed from BLE and we don't use BLE here.
-    executeCommand2(command, "");
+    executeRegisteredCommand(command, "");
   }
 
   // TasksManager::update();

@@ -21,6 +21,16 @@ namespace helpers
         }
     }
 
+    inline std::string convertStringListToString(std::list<std::string> listOfStrings)
+    {
+        std::string result;
+        for (const auto &word : listOfStrings)
+        {
+            result += word + ",";
+        }
+        return result;
+    }
+
     inline std::string longString(int lenght)
     {
         std::string str;

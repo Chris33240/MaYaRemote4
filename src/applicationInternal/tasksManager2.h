@@ -6,6 +6,7 @@
 
 struct DirectData
 {
+  bool isEnabled;
   std::string protocolID;
   std::string dataCode;
   std::string bits;
@@ -13,6 +14,7 @@ struct DirectData
 
 struct Payload
 {
+  bool isEnabled;
   std::string frequency;
   std::string toggleMask;
   std::string repeat;

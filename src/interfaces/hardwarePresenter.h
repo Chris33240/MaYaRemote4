@@ -73,9 +73,10 @@ enum IRprotocols
   IR_PROTOCOL_SAMSUNG36 = 6
 };
 
-void sendIRcode(IRprotocols protocol, std::list<std::string> commandPayloads, std::string additionalPayload);
-void sendIRcode2(nsIR::IRprotocols2 protocol, std::list<std::string> commandPayloads, std::string additionalPayload);
-void sendIRcode3(nsIR::IRprotocols2 protocol, std::list<std::string> commandPayloads, std::string additionalPayload);
+//void sendIRcode(IRprotocols protocol, std::list<std::string> commandPayloads, std::string additionalPayload);
+void sendIRcode2(std::list<std::string> commandPayloads, std::string additionalPayload);
+void sendSonyR2(std::list<std::string> commandPayloads);
+void sendMceT(std::list<std::string> commandPayloads);
 
 // --- IR receiver ------------------------------------------------------------
 void start_infraredReceiver(void);

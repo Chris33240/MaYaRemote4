@@ -85,16 +85,13 @@ void registerIrCapture()
 
     // Registered command with free Key
     std::string key = "IR_" + protocol + "_" + dataStr; // Ex: "RC6_0x21354";
-    int x = 0;
-    int &ref = x;
-    std::string freeKey = getFreeKey(key, x);
     commandData2 commandData = makeCommandData2(IR, "WRITE", "w", payloads);
-    register_command2(freeKey, commandData);
+    std::string freeKey = registerCommand(key, commandData, true, false);
 
     //  Save commands
-#if (ENABLED_IO_FILESYSTEM && ENABLED_IO_FILESYSTEM_SAVING)
-    saveCommand(freeKey, commandData);
-#endif
+//#if (ENABLED_IO_FILESYSTEM && ENABLED_IO_FILESYSTEM_SAVING)
+//    saveCommand(freeKey, commandData);
+//#endif
 
     // Send message to Gui
     pGlobalStatusLED->startBlinkingForDuration(BLINK_LED_CAPTURE_DONE_INTERVAL, BLINK_LED_CAPTURE_DONE_DURATION);

@@ -24,7 +24,7 @@
 /// @param input Chaîne JSON à désérialiser.
 /// @param loadingRawData Indique si l'on charge les données brutes.
 /// @return Map associant le nom de la commande à ses données.
-std::map<std::string, commandData2> deserializeBootLoader(String input)
+std::map<std::string, commandData2> deserializeCommands(String input)
 {
   JsonDocument doc;
 

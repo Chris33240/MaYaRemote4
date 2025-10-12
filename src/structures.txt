@@ -1,31 +1,66 @@
-Structure json pur le transport et l'execution de taches json :
-NOTE : Pourquoi passer les valeurs dans des chaines :
-        Parceque une valeur 0 (pour un int) ne signifie pas forcement qu'elle est invalide, dans ce cas utiliser empty.
+### Structure pour l'execution des commandes (chargées dans commands):
+Il existe 2 facons d'executer les données selon si les données sont enrgistrées ou non.
+    - executeUnregisterdCommand     // Fabriquer les données à la volée avant d'executer la commande
+    - executeRegisteredCommand      // Les données sont issues du catalogue ou des fichiers de commandes
+Le dispatcheur pour l'execution des commandes utilise la variable 'commandHandler' quel que soit la méthode,
+les données sont stockées sous forme de list de paramétres (string) générique 'payload' et d'une string 'additionnalPayload'.
+commandHandler décrit à la fois la maniere d'extraire et de former les données et la fonction a executer.
+    Ex: 3 pour transmettre un signal infrarouge IR avec les données issues de 'decode_results'
+
+struct commandData2
 {
-"taskType":"EXECUTE",
-"commandName":"IR_4_0xA90_1",
-"directData":{
-    "protocol":"3",
-    "data":"238"
+  commandHandlers commandHandler;           // Défini le type de données contenus dans commandPayloads (Ex: 3 pour les données IR 'decode_results') 
+  std::string requestType;                  // Défini comment s'utilise le dispositif BLE pour la commande "WRITE" : écriture BLE, "READ" : lecture BLE.
+  std::string attributs;                    // Attributs pour les autorisations d'ecriture (effacement) "w" autorise l'effacement (en Flash). (Non géré actuellement)
+  std::list<std::string> commandPayloads;   // Contient les données propre à la commande (son type de données est décrit par commandHandler)
+};
+
+### Structure json pur le transport et l'execution de taches json :
+les taches peuvent être être transmise depuis le dispositif BLE sur 3 canaux BLE.
+    - CHARACTERISTIC_COMMAND2_UUID          // execution de taches complexe (- rapide).
+    - CHARACTERISTIC_EXECUTE_COMMAND_UUID   // execution d'une commande (+ rapide).
+    - CHARACTERISTIC_DELETE_COMMAND_UUID    // suppression d'une commande (+ rapide).
+A noter que certaine valeur transmises peuvent être null (ou empty), dans ce cas le programme peut leurs attribuer une valeur par défaut.
+--> CHARACTERISTIC_COMMAND2_UUID:
+{
+"taskType": "EXECUTE",
+"commandName": "IR_4_0xA90_1",
+"directData": {
+    "protocol": "3",
+    "data": "238"
     },
-"payload":{
-    "frequency":"36",
-    "toggleMask":"0x8000",
-    "repeat":"2"
+"payload": {
+    "frequency": "36",
+    "toggleMask": "0x8000",
+    "repeat": "2",
+    "raw": "0"
     }
 }
 
-NOUVELLE PROPOSITION:
+--> CHARACTERISTIC_EXECUTE_COMMAND_UUID:
+Attention : Seul "IR_MCE_POWER" est transmis dans le message BLE!
+{"taskType": "EXECUTE", "taskPayload": {"commandName": "IR_MCE_POWER"}}
+
+--> CHARACTERISTIC_DELETE_COMMAND_UUID:
+Attention : Seul "IR_MCE_POWER" est transmis dans le message BLE!
+{"taskType": "DELETE", "taskPayload": {"commandName": "IR_MCE_POWER"}}
+
+
+
+NOUVELLE PROPOSITION (ABANDONEE):
+Il est important de définir un rôle pour chaque clé json:
+- action: défini l'action à executer avec le type de données
+- payloadType: défini le type de données, il ne décrit pas quoi faire avec ces données.
+Ex: send_ir (associé à payloadType: 3)
+Ex: delete_ir (associé à payloadType: 3)
+Ex: delete (pas d'association)
+
 {
-                            //"type": "command",           // "command, "script", "api_call"
-"action": "send_ir",         // "list_cmd", list_dir", "capture_ir", "send_ir", "delete_cmd"
-"data": {
-    "payload_type: "IR_SEND"
-    "payload" : {
-        "command_name": "IR_4_0xA90_1",
-        "direct_data": {"protocol": "3", "data": "238"},
-        "additionnal_payload": {"frequency": "36", "toggleMask": "0x8000", "repeat": "2"}
-    }
+"action": "send_ir",         // EX/ "list_cmd", list_dir", "capture_ir", "send_ir", "delete_cmd"
+"datas" : {
+    "command_name": "IR_4_0xA90_1",
+    "direct_data": {"protocol": "3", "data": "238"},
+    "additionnal_payload": {"frequency": "36", "toggleMask": "0x8000", "repeat": "2"}
 }
 }
 

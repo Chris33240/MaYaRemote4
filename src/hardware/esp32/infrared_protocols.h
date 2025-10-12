@@ -133,14 +133,14 @@ namespace nsIR
     CARRIER_AC84, // 125
     YORK,
     /* Now not standard IRremote8266 protocol*/
-    SONY_R2 = 1000,
-    MCE_T = 1001,
+    //SONY_R2 = 1000,
+    //MCE_T = 1001,
     // Add new entries before this one, and update it to point to the last entry.
     // kLastDecodeType = IR_PROTOCOL_MCE // Not used for now
   };
 } // Namespace
 
-// --- Protocol de la librarie 'IRremote8266' ----------------:
+// --- Protocol de la librarie 'IRremoteESP8266' ----------------:
 // enum decode_type_t {
 //   UNKNOWN = -1,
 //   UNUSED = 0,

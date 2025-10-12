@@ -132,6 +132,24 @@ void receiveMQTTmessage_cb(std::string topic, std::string payload);
 #endif
 
 // ************* Fonctions en test *******************
+/*
+namespace nsCH {
+enum payloadTypes
+{
+  SPECIAL = 0,
+  SCENE = 1,
+  GUI = 2,
+  IR = 3,
+#if (ENABLE_WIFI_AND_MQTT == 1)
+  MQTT = 4,
+#endif
+#if (ENABLE_KEYBOARD_BLE == 1)
+  BLE_KEYBOARD = 5,
+#endif
+};
+}
+*/
+
 struct commandData2
 {
   commandHandlers commandHandler;
@@ -164,15 +182,13 @@ void printCommands(std::map<std::string, commandData2> commands);
 // Register commands
 commandData2 makeCommandData2(commandHandlers a, std::string d, std::string e, std::list<std::string> b);
 void register_device_test();
-void register_command2(std::string command, commandData2 aCommandData);
-std::string getFreeKey(std::string command, int &id);
-[[deprecated("Don't use this routine any more. Use the new one instead. 'getFreeKey(std::string command, std::set<std::string>& commandsKeys, int& id)'")]]
-std::string getFreeKey(std::string command, std::map<std::string, commandData2> &commands, int &id);
+std::string registerCommand(std::string command, commandData2 aCommandData, bool saveToFS = false, bool forceMemory = false);
+void unregisterCommand(std::string commandName);
+std::string getFreeKey(std::string command);
 std::string getFreeKey(std::string command, std::set<std::string> &commandsKeys, int &id);
 
 // Execute commands
-void unregisterCommand(std::string commandName);
-void deleteCommand2(std::string commandName);
-void executeDirectCommand(commandData2 commandData, std::string additionalPayload);
-void executeCommand2(std::string commandName, std::string additionalPayload = "");
+void executeUnregisteredCommand(commandData2 commandData, std::string additionalPayload);
+bool findCommandData(const std::string& commandName, commandData2& commandDataOut);
+void executeRegisteredCommand(std::string commandName, std::string additionalPayload = "");
 void executeCommandWithData2(std::string commandName, commandData2 commandData, std::string additionalPayload);

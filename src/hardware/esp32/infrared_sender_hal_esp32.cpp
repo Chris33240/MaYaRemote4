@@ -10,6 +10,7 @@
 // #include <applicationInternal/commands_json.h>
 #include <applicationInternal/commands_tasks_json.h>
 #include "infrared_utils.h"
+#include <helpers/omote_log.h>
 // #include "system_info.h"
 
 // uint8_t IR_LED_GPIO = IR_SEND_PIN; // IR LED output
@@ -199,10 +200,9 @@ namespace nsIR
   /// Cette fonction utilise une liste de payloads standardisés (12 champs)
   /// et un payload additionnel (ex: fréquence, toggleMask, répétition).
   ///
-  /// @param protocol Protocole IR à utiliser.
   /// @param commandPayloads Liste des payloads (résultats décodés).
   /// @param additionalPayload Paramètres additionnels sérialisés.
-  void sendIRcode_HAL3(int protocol, std::list<std::string> commandPayloads, std::string additionalPayload)
+  void sendIRcode_HAL2(std::list<std::string> commandPayloads, std::string additionalPayload)
   {
     // IRremoteESP8266 protocols returns results object witch is converted in Payloads with 12 entries. Entries order is the same for all of this protocols.
     // Specific protocols like SONY-R2 or MCE_T is working with Payloads of respectitively 3 and 4 entries.
@@ -220,6 +220,7 @@ namespace nsIR
     // les chaines vide sont interprétées comme des valeurs 0, false....etc
     // ---------------------------------------------------------------------------------------
     // const nsIR::IRprotocols2 enumProtocol = static_cast<nsIR::IRprotocols2>(protocol);
+    int protocol;
     bool isRepeat;
     std::string data1Str;
     uint64_t data1; // value or state[] ???
@@ -234,95 +235,96 @@ namespace nsIR
     std::string dataStr;
     uint64_t data; // decoded data
 
-    // Serial.printf("[DEBUG] Protocol: %s\r\n", protocol);
-    if (protocol != nsIR::SONY_R2 && protocol != nsIR::MCE_T)
+    if (commandPayloads.size() >= 12)
     {
-      if (commandPayloads.size() >= 12 - 1)
-      {
-        std::string strValue;
-        auto it = commandPayloads.begin();
-        // --- protocol ---
-        // protocol was deleted before from commandPayloads by executeCommmandwithPayloads function
+      std::string strValue;
+      auto it = commandPayloads.begin();
+      // --- protocol ---
+      strValue = helpers::noNullOrBlank(&(*it));
+      omote_log_v("  generic IR, protocol: %s, payload: %s\r\n", strValue.c_str(), helpers::convertStringListToString(commandPayloads).c_str());
+      protocol = (strValue).empty() ? 0 : helpers::convertToType<int>(strValue);
+      protocol = protocol ? protocol : 0;
+      Serial.printf("[DEBUG] protocol: %s (%u)\r\n", strValue.c_str(), protocol);
 
-        // --- isRepeat ---
-        isRepeat = helpers::IsTrue(*it);
-        Serial.printf("[DEBUG] isRepeat: %d\r\n", isRepeat);
+      it++;
+      // --- isRepeat ---
+      isRepeat = helpers::IsTrue(*it);
+      Serial.printf("[DEBUG] isRepeat: %d\r\n", isRepeat);
 
-        it++;
-        // --- value or state[] to simple hexadecimal ---
-        // Ex: 0xC800F040C
-        strValue = helpers::noNullOrBlank(&(*it));
-        data1Str;
-        data1 = (strValue).empty() ? 0 : helpers::convertToType<uint64_t>(strValue, 0);
-        data1 = data1 ? data1 : 0x0; // data
-        Serial.printf("[DEBUG] value or state[] to simple hexadecimal: %s (%" PRIu64 ")\r\n", strValue.c_str(), data1);
+      it++;
+      // --- value or state[] to simple hexadecimal ---
+      // Ex: 0xC800F040C
+      strValue = helpers::noNullOrBlank(&(*it));
+      data1Str;
+      data1 = (strValue).empty() ? 0 : helpers::convertToType<uint64_t>(strValue, 0);
+      data1 = data1 ? data1 : 0x0; // data
+      Serial.printf("[DEBUG] value or state[] to simple hexadecimal: %s (%" PRIu64 ")\r\n", strValue.c_str(), data1);
 
-        it++;
-        // --- nBits ---
-        strValue = helpers::noNullOrBlank(&(*it));
-        nbits = (strValue).empty() ? 0 : helpers::convertToType<uint16_t>(strValue);
-        // nbits = nbits? nbits : 15; // nbits
-        Serial.printf("[DEBUG] nbits: %s (%hu)\r\n", strValue.c_str(), nbits);
+      it++;
+      // --- nBits ---
+      strValue = helpers::noNullOrBlank(&(*it));
+      nbits = (strValue).empty() ? 0 : helpers::convertToType<uint16_t>(strValue);
+      // nbits = nbits? nbits : 15; // nbits
+      Serial.printf("[DEBUG] nbits: %s (%hu)\r\n", strValue.c_str(), nbits);
 
-        it++;
-        // --- Lenght ---
-        length = (*it).empty() ? 0 : std::stoi(*it);
-        Serial.printf("[DEBUG] length: %u\r\n", length);
+      it++;
+      // --- Lenght ---
+      length = (*it).empty() ? 0 : std::stoi(*it);
+      Serial.printf("[DEBUG] length: %u\r\n", length);
 
-        it++;
-        // --- HasACState ---
-        hasAcState = helpers::IsTrue(*it);
-        Serial.printf("[DEBUG] hasAcState: %d\r\n", hasAcState);
+      it++;
+      // --- HasACState ---
+      hasAcState = helpers::IsTrue(*it);
+      Serial.printf("[DEBUG] hasAcState: %d\r\n", hasAcState);
 
-        it++;
-        // --- Raw bugffer ---
-        strValue = helpers::noNullOrBlank(&(*it));
-        Serial.printf("[DEBUG] rawBuffer: %s\r\n", strValue.c_str());
-        rawBuf = stringToRawBuf(strValue);
+      it++;
+      // --- Raw bugffer ---
+      strValue = helpers::noNullOrBlank(&(*it));
+      Serial.printf("[DEBUG] rawBuffer: %s\r\n", strValue.c_str());
+      rawBuf = stringToRawBuf(strValue);
 
-        it++;
-        // --- value if the decode_type doesn't have an A/C state. ---
-        // Ex: 0xC800F040C
-        strValue = helpers::noNullOrBlank(&(*it));
-        data2 = (strValue).empty() ? 0 : helpers::convertToType<uint64_t>(strValue, 0);
-        data2 = data2 ? data1 : 0x0;
-        Serial.printf("[DEBUG] value without A/C state: %s (%" PRIu64 ")\r\n", strValue.c_str(), data2);
+      it++;
+      // --- value if the decode_type doesn't have an A/C state. ---
+      // Ex: 0xC800F040C
+      strValue = helpers::noNullOrBlank(&(*it));
+      data2 = (strValue).empty() ? 0 : helpers::convertToType<uint64_t>(strValue, 0);
+      data2 = data2 ? data1 : 0x0;
+      Serial.printf("[DEBUG] value without A/C state: %s (%" PRIu64 ")\r\n", strValue.c_str(), data2);
 
-        it++;
-        // --- Decoded ACState codes to hexa ---
-        strValue = helpers::noNullOrBlank(&(*it));
-        Serial.printf("[DEBUG] Decoded ACState: %s\r\n", strValue.c_str());
-        dataAC = hexStringToByteArray(strValue);
+      it++;
+      // --- Decoded ACState codes to hexa ---
+      strValue = helpers::noNullOrBlank(&(*it));
+      Serial.printf("[DEBUG] Decoded ACState: %s\r\n", strValue.c_str());
+      dataAC = hexStringToByteArray(strValue);
 
-        it++;
-        // --- Decoded Adress part to hexa ---
-        strValue = helpers::noNullOrBlank(&(*it));
-        address = (strValue).empty() ? 0 : helpers::convertToType<uint32_t>(strValue, 0);
-        address = address ? address : 0x0;
-        Serial.printf("[DEBUG] address: %s (%" PRIu32 ")\r\n", strValue.c_str(), address);
+      it++;
+      // --- Decoded Adress part to hexa ---
+      strValue = helpers::noNullOrBlank(&(*it));
+      address = (strValue).empty() ? 0 : helpers::convertToType<uint32_t>(strValue, 0);
+      address = address ? address : 0x0;
+      Serial.printf("[DEBUG] address: %s (%" PRIu32 ")\r\n", strValue.c_str(), address);
 
-        it++;
-        // --- Decoded Command part to hexa ---
-        strValue = helpers::noNullOrBlank(&(*it));
-        command = (strValue).empty() ? 0 : helpers::convertToType<uint32_t>(strValue, 0);
-        command = command ? command : 0x0;
-        Serial.printf("[DEBUG] command: %s (%" PRIu32 ")\r\n", strValue.c_str(), command);
+      it++;
+      // --- Decoded Command part to hexa ---
+      strValue = helpers::noNullOrBlank(&(*it));
+      command = (strValue).empty() ? 0 : helpers::convertToType<uint32_t>(strValue, 0);
+      command = command ? command : 0x0;
+      Serial.printf("[DEBUG] command: %s (%" PRIu32 ")\r\n", strValue.c_str(), command);
 
-        it++;
-        // --- Decoded Value to hexa ---
-        // Ex: 0xC800F040CLL
-        strValue = helpers::noNullOrBlank(&(*it));
-        dataStr = strValue;
-        // Serial.printf("[DEBUG] dataStr: %s\r\n", strValue.c_str());
-        //  https://cplusplus.com/reference/string/stoull/
-        // std::string::size_type sz = 0;   // alias of size_t
-        // data = (strValue).empty() ? 0 : std::stoull(strValue, &sz, 0);
-        data = (strValue).empty() ? 0 : helpers::convertToType<uint64_t>(strValue, 0);
-        data = data ? data : 0x0; // data
-        Serial.printf("[DEBUG] code: %s (%" PRIu64 ")\r\n", strValue.c_str(), data);
+      it++;
+      // --- Decoded Value to hexa ---
+      // Ex: 0xC800F040CLL
+      strValue = helpers::noNullOrBlank(&(*it));
+      dataStr = strValue;
+      // Serial.printf("[DEBUG] dataStr: %s\r\n", strValue.c_str());
+      //  https://cplusplus.com/reference/string/stoull/
+      // std::string::size_type sz = 0;   // alias of size_t
+      // data = (strValue).empty() ? 0 : std::stoull(strValue, &sz, 0);
+      data = (strValue).empty() ? 0 : helpers::convertToType<uint64_t>(strValue, 0);
+      data = data ? data : 0x0; // data
+      Serial.printf("[DEBUG] code: %s (%" PRIu64 ")\r\n", strValue.c_str(), data);
 
-        Serial.printf("Some paraméters for commmandPayload, protocol: '%u' %hu bits, data: %s (%" PRIu64 ")\r\n", protocol, nbits, data1Str.c_str(), data);
-      }
+      Serial.printf("Some paraméters for commmandPayload, protocol: '%u' %hu bits, data: %s (%" PRIu64 ")\r\n", protocol, nbits, data1Str.c_str(), data);
     }
 
     // -----------------------------------------------------------------------------------------
@@ -1330,24 +1332,26 @@ namespace nsIR
       break;
     }
 
-    /* Now not standard IRremote8266 protocol*/
-    case nsIR::SONY_R2:
-    {
-      sendSonyR2(commandPayloads);
-      break;
-    }
+      /*
+      // Now not standard IRremote8266 protocol
+      case nsIR::SONY_R2:
+      {
+        sendSonyR2_HAL(commandPayloads);
+        break;
+      }
 
-    case nsIR::MCE_T:
-    {
-      sendMceT(commandPayloads);
-      break;
-    }
+      case nsIR::MCE_T:
+      {
+        sendMceT_HAL(commandPayloads);
+        break;
+      }
+      */
     }
   }
 
-  void sendSonyR2(const std::list<std::string> &commandPayloads)
+  void sendSonyR2_HAL(const std::list<std::string> &commandPayloads)
   {
-    if (commandPayloads.size() >= 3)
+    if (commandPayloads.size() >= 4)
     {
       // Serial.println("Send SONY xxxxxx");
       //  Création d'un itérateur pour parcourir la liste
@@ -1355,6 +1359,10 @@ namespace nsIR
       // Extraction et conversion des éléments de la liste
       // auto current = commandPayloads.begin();
       // std::string dataStr = *current;
+
+      // Protocol:
+      
+      it++;
       std::string dataStr = *it++;
       // https://cplusplus.com/reference/string/stoull/
       std::string::size_type sz = 0; // alias of size_t
@@ -1377,14 +1385,16 @@ namespace nsIR
     }
   }
 
-  void sendMceT(const std::list<std::string> &commandPayloads)
+  void sendMceT_HAL(const std::list<std::string> &commandPayloads)
   {
-    if (commandPayloads.size() >= 4)
+    if (commandPayloads.size() >= 5)
     {
       // Création d'un itérateur pour parcourir la liste
       auto it = commandPayloads.begin();
       // Extraction et conversion des éléments de la liste
+      // Protocol:
 
+      it++;
       // Code : Ex: 0xC800F040CLL
       std::string dataStr = *it++;
       // https://cplusplus.com/reference/string/stoull/
@@ -1418,20 +1428,3 @@ namespace nsIR
   }
 
 } // Namespace
-/*
-unsigned short convertStringToUnsignedShort(std::string& input, unsigned short defaultValue) {
-     try {
-        //int value = std::stoi(payload.frequency);
-        //frequency = (value >= 1 && value <= SHRT_MAX) ? static_cast<short>(value) : 36;
-        unsigned short value;
-        input = (input == "null" || input.empty())? "" : input;
-        value = std::stoi(input);
-        if (value >= 1 && value <= USHRT_MAX) {
-          return value;
-        }
-      } catch (...) {
-        return defaultValue;
-      //frequency = (frequency >= 1 && frequency <= SHRT_MAX) ? frequency : 36;
-      }
-}
-*/
