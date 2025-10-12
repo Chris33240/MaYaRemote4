@@ -6,14 +6,17 @@
 #include "helpers/helpers.h"
 #include "ble_uuid.h"
 #include "ble_server_hal_esp32.h"
-#include "applicationInternal/list_commands_handler.h"
 #include "infrared_receiver_hal_esp32.h"
 #include "applicationInternal/tasksManager2.h"
+#include "applicationInternal/list_commands_handler.h"
+#include <applicationInternal/list_commandsData_handler.h>
 //#include <applicationInternal/micro_miniz.h>
 //#include <applicationInternal/gZip.h>
 
-/// Gestionnaire de commandes pour le serveur BLE
+/// Gestionnaire de listes de commandes pour le serveur BLE
 ListCommandsHandler listCommandsHandler;
+/// Gestionnaire de listes des données de commandes pour le serveur BLE
+ListCommandsDataHandler listCommandsDataHandler;
 /// Gestionnaire de paquets pour le serveur BLE
 PacketsHandler packetsCommand;
 
@@ -62,20 +65,17 @@ void MyCallbacks::onRead(BLECharacteristic *pCharacteristic)
     {"command": "IR_RC6_0x0800040F", "requestType": "WRITE", "commandHandler": "3"}
     */
 
-    std::string str;
-    if (enableMemoryReduction)
-    {
-      const std::set<std::string> &commandsKeys = getCommands2Keys();
-      str = listCommandsHandler.readCommand2Keys(commandsKeys);
-    }
-    else
-    {
-      const std::map<std::string, commandData2> &commands = getCommands2();
-      str = listCommandsHandler.readCommand2(commands);
-    }
-    // std::string str = listCommandsHandler.readCommand2(commands);
+    std::string str = listCommandsHandler.readCommandKeys();
 
     Serial.print(F("[BLE-onRead] listCommands packet: "));
+    Serial.println(str.c_str());
+    pCharacteristic->setValue(str);
+  }
+    else if (uuid == CHARACTERISTIC_LIST_COMMANDS_DATA_UUID)
+  {
+    std::string str = listCommandsDataHandler.readCommandsDataKeys();
+
+    Serial.print(F("[BLE-onRead] listCommandsData packet: "));
     Serial.println(str.c_str());
     pCharacteristic->setValue(str);
   }
@@ -118,7 +118,7 @@ void MyCallbacks::onWrite(BLECharacteristic *pCharacteristic)
       Serial.println(message.c_str());
       // PacketsHandler& packetsCommand = getPacketsCommand();
 
-      // std::string jsonTask = R"({"taskType":"EXECUTE","commandName":"IR_4_0xA90_1","directData":{"protocol":"3","data":"238"},"payload":{"frequency":"36","toggleMask":"0x0","repeat":"2"}})";
+      // std::string jsonTask = R"({"taskType":"EXECUTE","commandName":"IR_4_0xA90_1","directData":{"protocol":"3","data":"238"},"addPayload":{"frequency":"36","toggleMask":"0x0","repeat":"2"}})";
       // TasksManager2::addTask(jsonTask);
 
       packetsCommand.setOnTimeoutCallback([]()
@@ -134,7 +134,7 @@ void MyCallbacks::onWrite(BLECharacteristic *pCharacteristic)
                                                     //  Be carfull !!! Notify call inside this callback cause stack overflow !!!
                                                     //////sendBleNotifyCode_HAL("106");
                                                     // Message complet :
-                                                    // std::string jsonTask = R"({"taskType":"EXECUTE","commandName":"IR_4_0xA90_1","directData":{"protocol":"3","data":"238"},"payload":{"frequency":"36","toggleMask":"0x0","repeat":"2"}})";
+                                                    // std::string jsonTask = R"({"taskType":"EXECUTE","commandName":"IR_4_0xA90_1","directData":{"protocol":"3","data":"238"},"addPayload":{"frequency":"36","toggleMask":"0x0","repeat":"2"}})";
                                                     TasksManager2::addTask(jsonTask);
                                                   });
       // Received paquet : Packet header= "HEADER:7", packet1="..." , packet2="..." ...etc

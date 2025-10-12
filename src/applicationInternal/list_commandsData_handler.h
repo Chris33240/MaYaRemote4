@@ -1,19 +1,19 @@
 #include <Arduino.h>
 
-#ifndef LISTCOMMANDSHANDLER_H
-#define LISTCOMMANDSHANDLER_H
+#ifndef LISTCOMMANDSHANDLERDATA_H
+#define LISTCOMMANDSHANDLERDATA_H
 
 #include <map>
 #include <string>
 #include "packets_handler.h"
 #include "commandHandler.h"
 
-class ListCommandsHandler
+class ListCommandsDataHandler
 {
 public:
-    ListCommandsHandler();
-    std::string readCommandKeys();
-    std::string readCommandKeys(const std::set<std::string> &commandsKeys);
+    ListCommandsDataHandler();
+    std::string readCommandsDataKeys();
+    std::string readCommandsDataKeys(const std::set<std::string> &commandsKeys);
 
 private:
     bool isInit;

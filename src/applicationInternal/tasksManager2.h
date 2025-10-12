@@ -1,12 +1,13 @@
 #include <string>
 #include <queue>
+#include "applicationInternal/commandHandler.h"
 
 #ifndef TASKSMANAGER2_H
 #define TASKSMANAGER2_H
 
 struct DirectData
 {
-  bool isEnabled;
+  bool hasData;
   std::string protocolID;
   std::string dataCode;
   std::string bits;
@@ -14,7 +15,7 @@ struct DirectData
 
 struct Payload
 {
-  bool isEnabled;
+  bool hasData;
   std::string frequency;
   std::string toggleMask;
   std::string repeat;
@@ -26,7 +27,8 @@ struct Task2
   std::string taskType;
   std::string commandName;
   DirectData directData;
-  Payload payload;
+  Payload additionalPayload;
+  commandData2 commandData;
 };
 
 class TasksManager2

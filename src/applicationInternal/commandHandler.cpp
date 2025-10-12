@@ -469,7 +469,7 @@ void printCommands(std::map<std::string, commandData2> commands)
 /// @return Objet commandData2 initialisé.
 commandData2 makeCommandData2(commandHandlers a, std::string d, std::string e, std::list<std::string> b)
 {
-  commandData2 c = {a, d, e, b};
+  commandData2 c = {true, a, d, e, b};
   return c;
 }
 

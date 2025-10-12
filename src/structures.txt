@@ -29,7 +29,7 @@ A noter que certaine valeur transmises peuvent être null (ou empty), dans ce ca
     "protocol": "3",
     "data": "238"
     },
-"payload": {
+"addPayload": {
     "frequency": "36",
     "toggleMask": "0x8000",
     "repeat": "2",
@@ -60,7 +60,7 @@ Ex: delete (pas d'association)
 "datas" : {
     "command_name": "IR_4_0xA90_1",
     "direct_data": {"protocol": "3", "data": "238"},
-    "additionnal_payload": {"frequency": "36", "toggleMask": "0x8000", "repeat": "2"}
+    "addPayload": {"frequency": "36", "toggleMask": "0x8000", "repeat": "2"}
 }
 }
 

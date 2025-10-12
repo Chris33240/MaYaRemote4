@@ -13,7 +13,7 @@ Exemple:
     "protocol": "3",
     "data": "238"
     },
-"payload": {
+"addPayload": {
     "frequency": "36",
     "toggleMask": "0x8000",
     "repeat": "2"
@@ -47,27 +47,50 @@ Task2 deserializeTask2(const char *json)
   // ✅ DirectData activé seulement si le bloc existe
   if (!doc["directData"].isNull())
   {
-    task.directData.isEnabled = true;
+    task.directData.hasData = true;
     task.directData.protocolID = doc["directData"]["protocol"].isNull() ? "" : doc["directData"]["protocol"].as<std::string>();
     task.directData.dataCode = doc["directData"]["data"].isNull() ? "" : doc["directData"]["data"].as<std::string>();
     task.directData.bits = doc["directData"]["bits"].isNull() ? "" : doc["directData"]["bits"].as<std::string>();
   }
   else
   {
-    task.directData.isEnabled = false;
+    task.directData.hasData = false;
   }
 
-  if (!doc["payload"].isNull())
+  if (!doc["addPayload"].isNull())
   {
-    task.payload.isEnabled = true;
-    task.payload.frequency = doc["payload"]["frequency"].isNull() ? "" : doc["payload"]["frequency"].as<std::string>();
-    task.payload.toggleMask = doc["payload"]["toggleMask"].isNull() ? "" : doc["payload"]["toggleMask"].as<std::string>();
-    task.payload.repeat = doc["payload"]["repeat"].isNull() ? "" : doc["payload"]["repeat"].as<std::string>();
-    task.payload.raw = doc["payload"]["raw"].isNull() ? "" : doc["payload"]["raw"].as<std::string>();
+    task.additionalPayload.hasData = true;
+    task.additionalPayload.frequency = doc["addPayload"]["frequency"].isNull() ? "" : doc["addPayload"]["frequency"].as<std::string>();
+    task.additionalPayload.toggleMask = doc["addPayload"]["toggleMask"].isNull() ? "" : doc["addPayload"]["toggleMask"].as<std::string>();
+    task.additionalPayload.repeat = doc["addPayload"]["repeat"].isNull() ? "" : doc["addPayload"]["repeat"].as<std::string>();
+    task.additionalPayload.raw = doc["addPayload"]["raw"].isNull() ? "" : doc["addPayload"]["raw"].as<std::string>();
   }
   else
   {
-    task.payload.isEnabled = false;
+    task.additionalPayload.hasData = false;
+  }
+
+  if (!doc["commandData"].isNull())
+  {
+    task.commandData.hasData = true;
+    // task.commandData.commandHandler = static_cast<commandHandlers>(doc["commandData"]["commandHandler"].as<int>());
+    task.commandData.commandHandler = doc["commandData"]["commandHandler"].isNull() ? static_cast<commandHandlers>(0) : static_cast<commandHandlers>(doc["commandData"]["commandHandler"].as<int>());
+    task.commandData.requestType = doc["commandData"]["requestType"].isNull() ? "" : doc["commandData"]["requestType"].as<std::string>();
+    task.commandData.attributs = doc["commandData"]["attributs"].isNull() ? "" : doc["commandData"]["attributs"].as<std::string>();
+    // task.commandData.commandPayloads = doc["commandData"]["commandPayloads"].isNull() ? "" : doc["commandData"]["commandPayloads"].as<std::string>();
+    if (!doc["commandData"]["commandPayloads"].isNull() && doc["commandData"]["commandPayloads"].is<JsonArrayConst>())
+    {
+      auto payloads = doc["commandData"]["commandPayloads"].as<JsonArrayConst>();
+      for (size_t i = 0; i < payloads.size(); ++i)
+      {
+        std::string payload = payloads[i].as<std::string>();
+        task.commandData.commandPayloads.push_back(payload);
+      }
+    }
+  }
+  else
+  {
+    task.commandData.hasData = false;
   }
 
   return task;
@@ -78,7 +101,7 @@ Task2 deserializeTask2(const char *json)
 /*
 Exemple:
 {
-"payload":{
+"addPayload":{
     "frequency":"36",
     "toggleMask":"0x8000",
     "repeat":"2",
@@ -105,10 +128,10 @@ Payload deserializeAdditionnalPayload2(const char *json)
     return payload;
   }
 
-  payload.frequency = doc["payload"]["frequency"].as<std::string>();
-  payload.toggleMask = doc["payload"]["toggleMask"].as<std::string>();
-  payload.repeat = doc["payload"]["repeat"].as<std::string>();
-  payload.raw = doc["payload"]["raw"].as<std::string>();
+  payload.frequency = doc["addPayload"]["frequency"].as<std::string>();
+  payload.toggleMask = doc["addPayload"]["toggleMask"].as<std::string>();
+  payload.repeat = doc["addPayload"]["repeat"].as<std::string>();
+  payload.raw = doc["addPayload"]["raw"].as<std::string>();
 
   return payload;
 }
@@ -141,7 +164,7 @@ String serializeAdditionnalPayload2(const Payload &payload, bool JsonPretty)
 void to_json(JsonDocument &doc, const Payload &payload)
 {
   auto root = doc.to<JsonObject>();
-  auto payloads = root["payload"].to<JsonObject>();
+  auto payloads = root["addPayload"].to<JsonObject>();
   payloads["frequency"] = payload.frequency;
   payloads["toggleMask"] = payload.toggleMask;
   payloads["repeat"] = payload.repeat;

@@ -152,6 +152,7 @@ enum payloadTypes
 
 struct commandData2
 {
+  bool hasData;
   commandHandlers commandHandler;
   std::string requestType;
   std::string attributs;
