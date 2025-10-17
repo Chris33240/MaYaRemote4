@@ -18,7 +18,6 @@
 #include "system_info.h"
 #include "commands_json_bootloader.h"
 #include "commands_json.h"
-#include "commands_list_json.h"
 #include "command_ir_capture.h"
 #include "commands_io.h"
 #include "helpers/helpers.h"
@@ -469,7 +468,7 @@ void printCommands(std::map<std::string, commandData2> commands)
 /// @return Objet commandData2 initialisé.
 commandData2 makeCommandData2(commandHandlers a, std::string d, std::string e, std::list<std::string> b)
 {
-  commandData2 c = {true, a, d, e, b};
+  commandData2 c = {true, a, d, e, "", b};
   return c;
 }
 
@@ -579,6 +578,7 @@ bool findCommandData(const std::string &commandName, commandData2 &commandDataOu
   if (it != commands2.end())
   {
     commandDataOut = it->second;
+    commandDataOut.status1 = "OK";
     return true;
   }
 
@@ -589,10 +589,12 @@ bool findCommandData(const std::string &commandName, commandData2 &commandDataOu
     {
       auto pair = loadCommand(commandName);
       commandDataOut = pair.second;
+      commandDataOut.status1 = "OK";
       return true;
     }
     catch (...)
     {
+      commandDataOut.status1 = "ERROR_READING_FILE";
       omote_log_e("command: failed to load command '%s' from storage\r\n", commandName.c_str());
     }
   }

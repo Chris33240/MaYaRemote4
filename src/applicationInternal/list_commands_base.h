@@ -1,3 +1,4 @@
+/*
 #pragma once
 
 #include <Arduino.h>
@@ -24,3 +25,4 @@ private:
     PacketsHandler packets;   // Adapter si le vrai type est différent
     onCurrentCommandCallback _onCurrentCommand;
 };
+*/

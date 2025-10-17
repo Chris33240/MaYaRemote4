@@ -6,10 +6,10 @@
 /// Un mutex est utilisé pour se protéger des accès concurrent à la file de tâches
 /// à l'intérieur des fonctions "add" et "update".
 #include <mutex>
-#include "TasksManager2.h"
+#include "TasksManager.h"
 #include "commandHandler.h"
-#include "commands_tasks_json.h"
 #include "system_info.h"
+#include "commands_tasks_json.h"
 
 std::queue<std::string> tasks2;
 std::mutex mtxTasks2; // Mutex pour protéger la variable `tasks` et sa fonction callback.
@@ -101,10 +101,10 @@ void TasksManager2::executeTask(const std::string &jsonTask)
         unregisterCommand(commandName);
         // deleteCommandFile2(commandName);
     }
-    else if (taskType == "ADDING" && hasCommandData)
+    else if (taskType == "RESTORE" && hasCommandData)
     {
         //--> CHARACTERISTIC_COMMAND2_UUID
-        Serial.println("-- Mode: ADDING COMMAND");
+        Serial.println("-- Mode: RESTORE COMMAND");
         registerCommand(task.commandName, task.commandData, true, false);
     }
 }

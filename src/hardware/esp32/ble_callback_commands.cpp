@@ -7,7 +7,7 @@
 #include "ble_uuid.h"
 #include "ble_server_hal_esp32.h"
 #include "infrared_receiver_hal_esp32.h"
-#include "applicationInternal/tasksManager2.h"
+#include "applicationInternal/tasksManager.h"
 #include "applicationInternal/list_commands_handler.h"
 #include <applicationInternal/list_commandsData_handler.h>
 //#include <applicationInternal/micro_miniz.h>

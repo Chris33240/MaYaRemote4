@@ -1,9 +1,9 @@
 /// @file list_commands_handler.cpp
 /// @brief Gestion de l'envoi séquentiel des commandes via BLE, avec découpage en paquets.
 #include "list_commands_handler.h"
-#include "commands_list_json.h"
 #include "interfaces/hardwarePresenter.h"
 #include "commands_io.h"
+#include "commands_json.h"
 
 /// @brief Constructeur de ListCommandsHandler.
 ListCommandsHandler::ListCommandsHandler() : currentCommandIndex(0), isInitCommand(false)
@@ -42,21 +42,22 @@ std::string ListCommandsHandler::readCommandKeys(const std::set<std::string> &co
 
         const std::string &commandName = *command;
         commandData2 data;
-        std::string status;
+        //std::string status;
 
         if (findCommandData(commandName, data))
         {
-            status = "OK";
+            //status = "OK";
         }
         else
         {
             data = makeCommandData2(SPECIAL, "", "", {}); // Empty data not used
-            status = "ERROR_READING_FILE";
+            //status = "ERROR_READING_FILE";
             Serial.printf("[DEBUG] Failed to read serialized commands %u/%u: '%s'.\r\n", currentCommandIndex + 1, commandsKeys.size(), commandName.c_str());
         }
 
-        const std::string &commandStr = serialize2(commandName, data, status);
-        packets.makePackets(commandStr);
+        //const std::string &commandStr = serialize2(commandName, data);
+        const String &commandStr = serializeCommandWithStatus(commandName, data, false);
+        packets.makePackets(commandStr.c_str());
 
         Serial.printf("[DEBUG] serialized commands %u/%u: '%s'.\r\n", currentCommandIndex + 1, commandsKeys.size(), commandStr.c_str());
 

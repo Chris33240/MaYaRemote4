@@ -19,7 +19,7 @@
 #include "applicationInternal/commandHandler.h"
 #include "applicationInternal/timeout.h"
 #include "applicationInternal/command_ir_capture.h"
-#include "applicationInternal/tasksManager2.h"
+#include "applicationInternal/tasksManager.h"
 
 // SET_LOOP_TASK_STACK_SIZE( 16*1024 ); // 16KB
 

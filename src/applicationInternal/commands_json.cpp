@@ -64,11 +64,13 @@ std::map<std::string, commandData2> from_json_BootLoader(const JsonDocument &doc
 
   return commandMap;
 }
-
-// ------------- Serialization/Deserialization des fichiers de commandData ---------------
-
 /*
+
+// ------------- Serialization/Deserialization des fichiers de commandData --------
+
+// ------------------------------------------------------
 Exemple de structure de fichiers de commande json :
+// ------------------------------------------------------
 
 Nom du fichier : “IR_2_0xC800F040C.cde”
 {
@@ -97,6 +99,7 @@ Nom du fichier : “IR_MCE_POWER.cde”
     "IR_MCE_POWER": {
     "commandHandler": "3",
     "requestType": "WRITE",
+    "attributs": "w",
     "commandPayloads": [
         "901",
         "0xC800F040CLL",
@@ -108,16 +111,23 @@ Nom du fichier : “IR_MCE_POWER.cde”
 
 */
 
+// ------------------ Serialiser Commands pour listCommands -----------------------
+
 /// @brief Sérialise une commande en chaîne JSON.
 /// @param commandName Nom de la commande.
 /// @param commandData Données de la commande.
 /// @param JsonPretty Indique si la sortie doit être formatée joliment.
 /// @return Chaîne JSON représentant la commande.
-String serializeCommand(const std::string &commandName, const commandData2 &commandData, bool JsonPretty)
+String serializeCommandWithStatus(const std::string &commandName, const commandData2 &commandData, bool JsonPretty)
 {
   String output;
   JsonDocument doc;
-  to_json_Command(doc, commandName, commandData);
+  auto root = doc.to<JsonObject>();
+  auto commandObj = root[commandName].to<JsonObject>();
+
+  to_json_CommandBase(commandObj, commandData);
+  to_json_CommandWithStatus(commandObj, commandData);
+
   if (JsonPretty)
   {
     serializeJsonPretty(doc, output);
@@ -129,23 +139,87 @@ String serializeCommand(const std::string &commandName, const commandData2 &comm
   return output;
 }
 
-/// @brief Remplit un JsonDocument à partir d'une commande.
-/// @param doc Document JSON à remplir.
+// ------------------ Serialiser Commands pour sauvegarde fichier de commande -----------------------
+
+/// @brief Sérialise une commande en chaîne JSON.
 /// @param commandName Nom de la commande.
 /// @param commandData Données de la commande.
-void to_json_Command(JsonDocument &doc, const std::string &commandName, const commandData2 &commandData)
+/// @param JsonPretty Indique si la sortie doit être formatée joliment.
+/// @return Chaîne JSON représentant la commande.
+String serializeCommandWithPayloads(const std::string &commandName, const commandData2 &commandData, bool JsonPretty)
 {
+  String output;
+  JsonDocument doc;
   auto root = doc.to<JsonObject>();
   auto commandObj = root[commandName].to<JsonObject>();
 
-  commandObj["requestType"] = commandData.requestType;
-  commandObj["attributs"] = commandData.attributs;
-  commandObj["commandHandler"] = commandData.commandHandler;
-  auto payloads = commandObj["commandPayloads"].to<JsonArray>();
-  for (const auto &payload : commandData.commandPayloads)
+  to_json_CommandBase(commandObj, commandData);
+  to_json_CommandWithPayloads(commandObj, commandData);
+
+  if (JsonPretty)
   {
-    payloads.add(payload);
+    serializeJsonPretty(doc, output);
   }
+  else
+  {
+    serializeJson(doc, output);
+  }
+  return output;
+}
+
+// ------------------ Serialiser Commands pour listCommandsData -----------------------
+
+/// @brief Sérialise une commande en chaîne JSON.
+/// @param commandName Nom de la commande.
+/// @param commandData Données de la commande.
+/// @param JsonPretty Indique si la sortie doit être formatée joliment.
+/// @return Chaîne JSON représentant la commande.
+String serializeCommandWithStatusAndPayloads(const std::string &commandName, const commandData2 &commandData, bool JsonPretty)
+{
+  String output;
+  JsonDocument doc;
+  auto root = doc.to<JsonObject>();
+  auto commandObj = root[commandName].to<JsonObject>();
+
+  to_json_CommandBase(commandObj, commandData);
+  to_json_CommandWithStatus(commandObj, commandData);
+  to_json_CommandWithPayloads(commandObj, commandData);
+
+  if (JsonPretty)
+  {
+    serializeJsonPretty(doc, output);
+  }
+  else
+  {
+    serializeJson(doc, output);
+  }
+  return output;
+}
+
+// Fonction de base : sérialisation sans status
+void to_json_CommandBase(JsonObject &commandObj, const commandData2 &commandData)
+{
+    commandObj["requestType"] = commandData.requestType;
+    commandObj["attributs"] = commandData.attributs;
+    commandObj["commandHandler"] = commandData.commandHandler;
+}
+
+// Fonction qui ajoute le status
+void to_json_CommandWithStatus(JsonObject &commandObj, const commandData2 &commandData)
+{
+    // Ajout du status
+    commandObj["status"] = commandData.status1;
+}
+
+// Fonction qui ajoute le Payloads
+void to_json_CommandWithPayloads(JsonObject &commandObj, const commandData2 &commandData)
+{
+    // Ajout du Payloads
+       auto payloads = commandObj["commandPayloads"].to<JsonArray>();
+    for (const auto &payload : commandData.commandPayloads)
+    {
+        payloads.add(payload);
+    }
 }
 
 /// @brief Désérialise une chaîne JSON en une paire nom-commande.

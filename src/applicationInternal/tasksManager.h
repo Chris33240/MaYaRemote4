@@ -2,8 +2,8 @@
 #include <queue>
 #include "applicationInternal/commandHandler.h"
 
-#ifndef TASKSMANAGER2_H
-#define TASKSMANAGER2_H
+#ifndef TASKSMANAGER_H
+#define TASKSMANAGER_H
 
 struct DirectData
 {
@@ -43,4 +43,4 @@ private:
 
 };
 
-#endif // TASKSMANAGER2_H
+#endif // TASKSMANAGER_H

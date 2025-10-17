@@ -1,3 +1,4 @@
+/*
 #include "list_commands_base.h"
 #include "interfaces/hardwarePresenter.h"
 
@@ -53,3 +54,4 @@ void ListCommandsBase::reset()
     isInitCommand = false;
     currentCommandIndex = 0;
 }
+*/

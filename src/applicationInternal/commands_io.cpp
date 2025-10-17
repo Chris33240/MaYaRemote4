@@ -130,7 +130,8 @@ void saveCommand(const std::string commandName, commandData2 command)
 /// @param path Chemin complet du fichier.
 void saveCommand2(const std::string commandName, commandData2 command, const String &path)
 {
-    String jsonString = serializeCommand(commandName, command, SAVE_COMMAND_JSONPRETTY);
+    //String jsonString = serializeCommand(commandName, command, SAVE_COMMAND_JSONPRETTY, false);
+    String jsonString = serializeCommandWithPayloads(commandName, command, SAVE_COMMAND_JSONPRETTY);
     try
     {
 

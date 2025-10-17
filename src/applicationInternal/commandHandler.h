@@ -156,6 +156,7 @@ struct commandData2
   commandHandlers commandHandler;
   std::string requestType;
   std::string attributs;
+  std::string status1;
   std::list<std::string> commandPayloads;
 };
 
