@@ -86,7 +86,8 @@ void registerIrCapture()
     // Registered command with free Key
     std::string key = "IR_" + protocol + "_" + dataStr; // Ex: "RC6_0x21354";
     commandData2 commandData = makeCommandData2(IR, "WRITE", "w", payloads);
-    std::string freeKey = registerCommand(key, commandData, true, false);
+    //std::string freeKey = registerCommand(key, commandData, true, false);
+    std::string freeKey = registerCommand2(key, commandData, false, true, false);
 
     //  Save commands
 //#if (ENABLED_IO_FILESYSTEM && ENABLED_IO_FILESYSTEM_SAVING)

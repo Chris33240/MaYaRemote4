@@ -184,7 +184,9 @@ void printCommands(std::map<std::string, commandData2> commands);
 // Register commands
 commandData2 makeCommandData2(commandHandlers a, std::string d, std::string e, std::list<std::string> b);
 void register_device_test();
+[[deprecated("Don't use this routine any more. Use the new one instead. 'registerCommand2()'")]]
 std::string registerCommand(std::string command, commandData2 aCommandData, bool saveToFS = false, bool forceMemory = false);
+std::string registerCommand2(std::string key, commandData2 aCommandData, bool overwriteIfExists, bool saveToFS, bool forceMemory);
 void unregisterCommand(std::string commandName);
 std::string getFreeKey(std::string command);
 std::string getFreeKey(std::string command, std::set<std::string> &commandsKeys, int &id);
@@ -192,5 +194,6 @@ std::string getFreeKey(std::string command, std::set<std::string> &commandsKeys,
 // Execute commands
 void executeUnregisteredCommand(commandData2 commandData, std::string additionalPayload);
 bool findCommandData(const std::string& commandName, commandData2& commandDataOut);
+bool findCommandDataFiles(const std::string &commandName, commandData2 &commandDataOut);
 void executeRegisteredCommand(std::string commandName, std::string additionalPayload = "");
 void executeCommandWithData2(std::string commandName, commandData2 commandData, std::string additionalPayload);

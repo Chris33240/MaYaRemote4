@@ -10,7 +10,7 @@
 void updateCommandsFromFiles(std::map<std::string, commandData2> &commands, int &errorCount)
 {
     Serial.println("");
-    Serial.printf("Loading commands from bootloader.\r\n");
+    Serial.printf("Updating commands from files.\r\n");
     for (const auto &pair : commands)
     {
         std::string commandName = pair.first;
@@ -25,11 +25,11 @@ void updateCommandsFromFiles(std::map<std::string, commandData2> &commands, int 
         }
         catch (const std::exception &e)
         {
-            Serial.print(F("File not found or corrupted, trying to create new file command: "));
-            Serial.println(commandName.c_str());
-            saveCommand(commandName, data);
-            Serial.print(F("File not found or corrupted, new file command has been created sucessfuly: "));
-            Serial.println(commandName.c_str());
+            //Serial.print(F("File not found or corrupted, trying to create new file command: "));
+            //Serial.println(commandName.c_str());
+            //saveCommand(commandName, data);
+            //Serial.print(F("File not found or corrupted, new file command has been created sucessfuly: "));
+            //Serial.println(commandName.c_str());
             errorCount++;
         }
     }
@@ -149,9 +149,8 @@ void saveCommand2(const std::string commandName, commandData2 command, const Str
 }
 
 /// @brief Supprime un fichier de commande avec montage/Démontage du système de fichier.
-/// @param commands Map des commandes.
 /// @param commandName Nom de la commande à supprimer.
-void deleteCommandFile(std::map<std::string, commandData2> &commands, const std::string commandName)
+void deleteCommandFile(const std::string commandName)
 {
     String fileName = makeFileCommandName(commandName);
     String path = Io::combinePath("", fileName);

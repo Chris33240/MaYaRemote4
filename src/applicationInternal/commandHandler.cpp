@@ -476,8 +476,10 @@ commandData2 makeCommandData2(commandHandlers a, std::string d, std::string e, s
 /// @brief Enregistre des commandes de test directement depuis le code.
 void register_device_test()
 {
-  registerCommand("IR_SONY_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::SONY), "0xA90", "12", "2"}), false, true);
-  registerCommand("IR_MCE_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::RC6), "0xC800F040CLL", "36", "0x8000", "True"}), false, true);
+  //registerCommand("IR_SONY_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::SONY), "0xA90", "12", "2"}), false, true);
+  //registerCommand("IR_MCE_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::RC6), "0xC800F040CLL", "36", "0x8000", "True"}), false, true);
+  registerCommand2("IR_SONY_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::SONY), "0xA90", "12", "2"}), false, false, true);
+  registerCommand2("IR_MCE_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::RC6), "0xC800F040CLL", "36", "0x8000", "True"}), false, false, true);
 }
 
 /// @brief Enregistre une commande dans le système et retourne une clé unique.
@@ -512,6 +514,69 @@ bool isForceMemory = forceMemory || !isSaveToFS || (isSaveToFS && !enableMemoryR
   return key;
 }
 
+/// @brief Enregistre une commande dans le système et retourne une clé unique.
+/// @param key Nom de la commande souhaitée (clé).
+/// @param aCommandData Données de la commande.
+/// @param overwriteIfExists True = écraser la commande existante, False = générer une nouvelle clé.
+/// @param saveToFS Sauvegarder dans le filesystem ou non.
+/// @param forceMemory Forcer stockage en mémoire.
+/// @return Retourne la clé finale utilisée.
+std::string registerCommand2(std::string key, commandData2 aCommandData, bool overwriteIfExists, bool saveToFS, bool forceMemory)
+{
+    // 1️⃣ Vérifie si la clé existe déjà
+    bool keyAlreadyExists = commands2Keys.find(key) != commands2Keys.end();
+
+    // 2️⃣ Gérer le conflit selon overwriteIfExists
+    if (keyAlreadyExists && !overwriteIfExists)
+    {
+        // 🔹 Générer une nouvelle clé si on ne veut pas écraser
+        key = getFreeKey(key);
+    }
+    else if (keyAlreadyExists && overwriteIfExists)
+    {
+        // 🔹 On veut écraser la commande existante
+        //   -> supprimer d'abord l'ancienne entrée en mémoire
+        commands2.erase(key);
+
+        //   -> supprimer le fichier existant seulement si nécessaire
+#if (ENABLED_IO_FILESYSTEM && ENABLED_IO_FILESYSTEM_SAVING)
+        if (saveToFS)
+            deleteCommandFile(key);  // Suppression propre du fichier
+#endif
+    }
+
+    // 3️⃣ Ajouter la clé au set des clés connues
+    commands2Keys.insert(key);
+
+    // 4️⃣ Sauvegarde dans le filesystem si activé et demandé
+    bool availableFS = false;
+#if (ENABLED_IO_FILESYSTEM && ENABLED_IO_FILESYSTEM_SAVING)
+    availableFS = true;
+    if (saveToFS)
+        saveCommand(key, aCommandData);
+#else
+    omote_log_w("Filesystem saving disabled");
+#endif
+
+    // 5️⃣ Déterminer si on force le stockage en mémoire
+    bool isSaveToFS = availableFS && saveToFS;
+    bool isForceMemory = forceMemory || !isSaveToFS || (isSaveToFS && !enableMemoryReduction);
+
+    // 🔹 Stockage en mémoire uniquement si nécessaire
+    if (isForceMemory)
+    {
+        // ⚡ L'opérateur [] écrase automatiquement la valeur précédente
+        commands2[key] = aCommandData;
+    }
+
+    // 6️⃣ Debug / suivi
+    Serial.print(F(">> Command registered with key: "));
+    Serial.println(key.c_str());
+    printCommandsCountKeys(commands2Keys);
+
+    return key;
+}
+
 /// @brief Désenregistre et supprime une commande existante.
 /// @warning cette fonction ne supprime pas le fichier.
 /// @param commandName Nom de la commande à supprimer.
@@ -519,7 +584,7 @@ void unregisterCommand(std::string commandName)
 {
   commands2.erase(commandName);
   commands2Keys.erase(commandName);
-  deleteCommandFile(commands2, commandName);
+  deleteCommandFile(commandName);
 }
 
 /// @brief Génère une clé unique pour une commande.
@@ -569,7 +634,7 @@ void executeUnregisteredCommand(commandData2 commandData, std::string additional
   }
 }
 
-/// @brief Recherche une commande en mémoire ou via loadCommand.
+/// @brief Recherche une commande en mémoire ou dans les fichiers.
 /// @return true si trouvée, false sinon. Remplit commandDataOut si succès.
 bool findCommandData(const std::string &commandName, commandData2 &commandDataOut)
 {
@@ -585,6 +650,16 @@ bool findCommandData(const std::string &commandName, commandData2 &commandDataOu
   // 2️⃣ Si activé, recherche sur disque
   if (enableMemoryReduction)
   {
+    return findCommandDataFiles(commandName, commandDataOut);
+  }
+
+  return false;
+}
+
+/// @brief Recherche une commande dans les fichiers.
+/// @return true si trouvée, false sinon. Remplit commandDataOut si succès.
+bool findCommandDataFiles(const std::string &commandName, commandData2 &commandDataOut)
+{
     try
     {
       auto pair = loadCommand(commandName);
@@ -597,9 +672,8 @@ bool findCommandData(const std::string &commandName, commandData2 &commandDataOu
       commandDataOut.status1 = "ERROR_READING_FILE";
       omote_log_e("command: failed to load command '%s' from storage\r\n", commandName.c_str());
     }
-  }
-
-  return false;
+    
+    return false;
 }
 
 /// @brief Exécute une commande pré-enrgistrées par son nom.
@@ -794,7 +868,7 @@ void executeCommandWithData2(std::string commandName, commandData2 commandData, 
       Serial.printf("FileSystem : '%u' used Bytes / '%u' total Bytes\r\n", usedBytes, totalBytes);
 #endif
     }
-    else if (commandName == "DELETE_COMMANDS")
+    else if (commandName == "DELETE_ALL_FILES_COMMANDS")
     {
       int errorCount = 0;
 #if (ENABLED_IO_FILESYSTEM)

@@ -105,6 +105,6 @@ void TasksManager2::executeTask(const std::string &jsonTask)
     {
         //--> CHARACTERISTIC_COMMAND2_UUID
         Serial.println("-- Mode: RESTORE COMMAND");
-        registerCommand(task.commandName, task.commandData, true, false);
+        registerCommand2(task.commandName, task.commandData, false, true, false);
     }
 }

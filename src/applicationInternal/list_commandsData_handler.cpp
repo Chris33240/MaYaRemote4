@@ -48,25 +48,26 @@ std::string ListCommandsDataHandler::readCommandsDataKeys(const std::set<std::st
         // data = pair.second;
         // status = "OK";
 
-        if (findCommandData(commandName, data))
+        if (findCommandDataFiles(commandName, data))
         {
             // status = "OK";
+            const String &commandStr = serializeCommandWithStatusAndPayloads(commandName, data, false);
+            packets.makePackets(commandStr.c_str());
+
+            Serial.printf("[DEBUG] serialized commands %u/%u: '%s'.\r\n", currentCommandIndex + 1, commandsKeys.size(), commandStr.c_str());
+
+            isInitCommand = true;
         }
         else
         {
             // data = makeCommandData2(SPECIAL, "", "", {}); // Empty data not used
             // status = "ERROR_READING_FILE";
-            Serial.printf("[DEBUG] Failed to read serialized commands %u/%u: '%s'.\r\n", currentCommandIndex + 1, commandsKeys.size(), commandName.c_str());
+            Serial.printf("[DEBUG] Failed to find commands %u/%u: '%s'.\r\n", currentCommandIndex + 1, commandsKeys.size(), commandName.c_str());
         }
 
         // const std::string &commandStr = serialize2(commandName, data, status);
-        //const String &commandStr = serializeCommand(commandName, data, false, true);
-        const String &commandStr = serializeCommandWithStatusAndPayloads(commandName, data, false);
-        packets.makePackets(commandStr.c_str());
+        // const String &commandStr = serializeCommand(commandName, data, false, true);
 
-        Serial.printf("[DEBUG] serialized commands %u/%u: '%s'.\r\n", currentCommandIndex + 1, commandsKeys.size(), commandStr.c_str());
-
-        isInitCommand = true;
         currentCommandIndex++;
     }
 
