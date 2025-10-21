@@ -249,7 +249,7 @@ void loadCommandFiles(std::map<std::string, commandData2> &commands, int &errorC
 /// @param errorCount Compteur d’erreurs.
 /// @param dirname Répertoire de départ. Defaut = "/" (racine)
 /// @param levels Profondeur récursive. Défaut = 0 (aucun niveau)
-void loadCommandsKeysFromFiles(std::set<std::string> &commandsKeys, int &errorCount, const String &dirname, uint8_t levels)
+void loadCommandsKeysFromFiles(std::set<std::string> &commandsKeys, int &errorCount, int &filesCount, const String &dirname, uint8_t levels)
 {
     Serial.println();
     Serial.printf("Loading command files in directory: %s\r\n", dirname);
@@ -278,6 +278,7 @@ void loadCommandsKeysFromFiles(std::set<std::string> &commandsKeys, int &errorCo
                 fsUnMount2();
                 // commands[pair.first] = pair.second;
                 commandsKeys.insert(pair.first);
+                filesCount+=1;
 
                 Serial.print(F("Clé chargé depuis le fichier: "));
                 Serial.println(fileInfo.path);

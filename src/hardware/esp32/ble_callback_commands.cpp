@@ -10,8 +10,8 @@
 #include "applicationInternal/tasksManager.h"
 #include "applicationInternal/list_commands_handler.h"
 #include <applicationInternal/list_commandsData_handler.h>
-//#include <applicationInternal/micro_miniz.h>
-//#include <applicationInternal/gZip.h>
+// #include <applicationInternal/micro_miniz.h>
+// #include <applicationInternal/gZip.h>
 
 /// Gestionnaire de listes de commandes pour le serveur BLE
 ListCommandsHandler listCommandsHandler;
@@ -46,6 +46,15 @@ void MyCallbacks::onRead(BLECharacteristic *pCharacteristic)
     Serial.println(count);
     pCharacteristic->setValue(count);
 
+    /// Lecture du nombre de fichiers de commandes
+  }
+  else if (uuid == CHARACTERISTIC_COMMANDS_FILES_COUNT_UUID)
+  {
+    int count = getCommandsFilesCount();
+    Serial.print(F("[BLE-OnRead] CommandsFilesCount: "));
+    Serial.println(count);
+    pCharacteristic->setValue(count);
+
     /// Lecture de la liste des commandes
   }
   else if (uuid == CHARACTERISTIC_LIST_COMMANDS_UUID)
@@ -71,7 +80,7 @@ void MyCallbacks::onRead(BLECharacteristic *pCharacteristic)
     Serial.println(str.c_str());
     pCharacteristic->setValue(str);
   }
-    else if (uuid == CHARACTERISTIC_LIST_COMMANDS_DATA_UUID)
+  else if (uuid == CHARACTERISTIC_LIST_COMMANDS_DATA_UUID)
   {
     std::string str = listCommandsDataHandler.readCommandsDataKeys();
 
@@ -124,8 +133,7 @@ void MyCallbacks::onWrite(BLECharacteristic *pCharacteristic)
       packetsCommand.setOnTimeoutCallback([]()
                                           {
                                             // Serial.println("[Timeout] expired BLE Write Packet (Command)");
-                                            sendBleNotifyCode_HAL("105");
-                                          });
+                                            sendBleNotifyCode_HAL("105"); });
       packetsCommand.setOnMessageCompleteCallback([](const std::string &jsonTask)
                                                   {
                                                     // printSystemInfo();
@@ -135,8 +143,7 @@ void MyCallbacks::onWrite(BLECharacteristic *pCharacteristic)
                                                     //////sendBleNotifyCode_HAL("106");
                                                     // Message complet :
                                                     // std::string jsonTask = R"({"taskType":"EXECUTE","commandName":"IR_4_0xA90_1","directData":{"protocol":"3","data":"238"},"addPayload":{"frequency":"36","toggleMask":"0x0","repeat":"2"}})";
-                                                    TasksManager2::addTask(jsonTask);
-                                                  });
+                                                    TasksManager2::addTask(jsonTask); });
       // Received paquet : Packet header= "HEADER:7", packet1="..." , packet2="..." ...etc
       packetsCommand.setPacket(message.c_str());
       sendBleNotifyCode_HAL("107");

@@ -15,7 +15,7 @@ void saveCommand2(const std::string commandName, commandData2 command, const Str
 void deleteCommandFile(const std::string commandName);
 
 void loadCommandFiles(std::map<std::string, commandData2> &commands, int &errorCount, const String &dirname = "/", uint8_t levels = 0);
-void loadCommandsKeysFromFiles(std::set<std::string> &commandsKeys, int &errorCount, const String &dirname = "/", uint8_t levels = 0);
+void loadCommandsKeysFromFiles(std::set<std::string> &commandsKeys, int &errorCount, int &filesCount, const String &dirname = "/", uint8_t levels = 0);
 void deleteAllFiles(int &errorCount, const String &dirname = "/", uint8_t levels = 0);
 void deleteFile(const FileInfo &fileInfo, int &errorCount);
 void printFilesInfo(const String &dirname = "/", uint8_t levels = 0);

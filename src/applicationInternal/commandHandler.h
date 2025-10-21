@@ -165,6 +165,7 @@ struct commandData2
 const std::map<std::string, commandData2> &getCommands2();
 [[deprecated("Don't use this routine any more. Use the new one instead. 'getCommandsCountKeys()'")]]
 const std::size_t getCommandsCount();
+const uint16_t getCommandsFilesCount();
 const std::set<std::string> &getCommands2Keys();
 const std::size_t getCommandsCountKeys();
 
@@ -176,6 +177,7 @@ void printSerializedCommands(const std::map<std::string, commandData2> &commands
 [[deprecated("Don't use this routine any more. Use the new one instead. 'printSerializedCommandsCountKeys()'")]]
 void printCommandsCount(const std::map<std::string, commandData2> &commands);
 void printSerializedCommandsKeys(const std::set<std::string> &commandskeys);
+void printCommandsFilesCount();
 void printCommandsCountKeys(const std::set<std::string> &commandsKeys);
 
 [[deprecated("Don't use this routine any more. Use the new one instead. 'printSerializedCommands()'")]]

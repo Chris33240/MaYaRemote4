@@ -41,6 +41,7 @@ BLECharacteristic *pCharacteristic_READ_TOTAL_BYTES = nullptr;
 /// @brief Service Commands
 BLEService *pService_Commands = nullptr; // commands + notify code
 BLECharacteristic *pCharacteristic_READ_COMMANDS_COUNT = nullptr;
+BLECharacteristic *pCharacteristic_READ_COMMANDS_FILES_COUNT = nullptr;
 BLECharacteristic *pCharacteristic_READ_LIST_COMMANDS = nullptr;
 BLECharacteristic *pCharacteristic_READ_LIST_COMMANDS_DATA = nullptr;
 BLECharacteristic *pCharacteristic_READ_LAST_CAPTURE = nullptr;
@@ -124,13 +125,18 @@ void init_ble_server_HAL()
   pCharacteristic_READ_TOTAL_BYTES->setCallbacks(new MyCallbacksSystemInfos());
 
   // ------------- SERVICE COMMANDS --------------------------
-  pService_Commands = pMyServer->createService(BLEUUID(SERVICE_COMMANDS_UUID), 22);
+  pService_Commands = pMyServer->createService(BLEUUID(SERVICE_COMMANDS_UUID), 24);
 
   pCharacteristic_READ_COMMANDS_COUNT = pService_Commands->createCharacteristic(
       CHARACTERISTIC_COMMANDS_COUNT_UUID,
       BLECharacteristic::PROPERTY_READ);
   addDescriptor(pCharacteristic_READ_COMMANDS_COUNT, CHARACTERISTIC_COMMANDS_COUNT_DESCRIPTOR_UUID, "Nombres de commandes");
   pCharacteristic_READ_COMMANDS_COUNT->setCallbacks(new MyCallbacks());
+
+  pCharacteristic_READ_COMMANDS_FILES_COUNT = pService_Commands->createCharacteristic(
+      CHARACTERISTIC_COMMANDS_FILES_COUNT_UUID,
+      BLECharacteristic::PROPERTY_READ);
+  pCharacteristic_READ_COMMANDS_FILES_COUNT->setCallbacks(new MyCallbacks());
 
   pCharacteristic_READ_LIST_COMMANDS = pService_Commands->createCharacteristic(
       CHARACTERISTIC_LIST_COMMANDS_UUID,
