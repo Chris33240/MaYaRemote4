@@ -73,18 +73,28 @@ Task2 deserializeTask2(const char *json)
   if (!doc["commandData"].isNull())
   {
     task.commandData.hasData = true;
-    // task.commandData.commandHandler = static_cast<commandHandlers>(doc["commandData"]["commandHandler"].as<int>());
-    task.commandData.commandHandler = doc["commandData"]["commandHandler"].isNull() ? static_cast<commandHandlers>(0) : static_cast<commandHandlers>(doc["commandData"]["commandHandler"].as<int>());
-    task.commandData.requestType = doc["commandData"]["requestType"].isNull() ? "" : doc["commandData"]["requestType"].as<std::string>();
-    task.commandData.attributs = doc["commandData"]["attributs"].isNull() ? "" : doc["commandData"]["attributs"].as<std::string>();
-    // task.commandData.commandPayloads = doc["commandData"]["commandPayloads"].isNull() ? "" : doc["commandData"]["commandPayloads"].as<std::string>();
-    if (!doc["commandData"]["commandPayloads"].isNull() && doc["commandData"]["commandPayloads"].is<JsonArrayConst>())
+
+    // On suppose qu’il n’y a qu’une seule clé dans commandData (par ex. "IR_4_0xA90_1")
+    JsonObject commandDataObj = doc["commandData"].as<JsonObject>();
+
+    if (!commandDataObj.isNull())
     {
-      auto payloads = doc["commandData"]["commandPayloads"].as<JsonArrayConst>();
-      for (size_t i = 0; i < payloads.size(); ++i)
+      // On suppose qu’il n’y a qu’une seule clé dans commandData (par ex. "IR_4_0xA90_1")
+      JsonObject inner = commandDataObj.begin()->value().as<JsonObject>();
+
+      // task.commandData.commandHandler = static_cast<commandHandlers>(doc["commandData"]["commandHandler"].as<int>());
+      task.commandData.commandHandler = inner["commandHandler"].isNull() ? static_cast<commandHandlers>(0) : static_cast<commandHandlers>(inner["commandHandler"].as<int>());
+      task.commandData.requestType = inner["requestType"].isNull() ? "" : inner["requestType"].as<std::string>();
+      task.commandData.attributs = inner["attributs"].isNull() ? "" : inner["attributs"].as<std::string>();
+      // task.commandData.commandPayloads = inner["commandPayloads"].isNull() ? "" : doc["commandData"]["commandPayloads"].as<std::string>();
+      if (!inner["commandPayloads"].isNull() && inner["commandPayloads"].is<JsonArrayConst>())
       {
-        std::string payload = payloads[i].as<std::string>();
-        task.commandData.commandPayloads.push_back(payload);
+        auto payloads = inner["commandPayloads"].as<JsonArrayConst>();
+        for (size_t i = 0; i < payloads.size(); ++i)
+        {
+          std::string payload = payloads[i].as<std::string>();
+          task.commandData.commandPayloads.push_back(payload);
+        }
       }
     }
   }
