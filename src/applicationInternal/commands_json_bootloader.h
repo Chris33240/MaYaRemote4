@@ -97,7 +97,7 @@ const String commands_json_bootloader = R"(
     "commandPayloads": [
     ]
     },
-    "DELETE_COMMANDS": {
+    "DELETE_ALL_FILES_CMD": {
     "commandHandler": "0",
     "requestType": "WRITE",
     "attributs": "",

@@ -75,7 +75,7 @@ bool fsMount_HAL()
 #elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
    isMounted = nsLittleFS::mount();
 #else
-   #error "No filesystem selected"
+#error "No filesystem selected"
 #endif
    return isMounted;
 }
@@ -88,7 +88,7 @@ void fsUnMount_HAL()
 #elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
    nsLittleFS::unMount();
 #else
-   #error "No filesystem selected"
+#error "No filesystem selected"
 #endif
    isMounted = false;
 }
@@ -112,7 +112,7 @@ void printFreeSpace()
 #elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
    nsLittleFS::printFreeSpace();
 #else
-   #error "No filesystem selected"
+#error "No filesystem selected"
 #endif
 }
 
@@ -126,7 +126,7 @@ unsigned int getUsedBytes_HAL()
 #elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
    return nsLittleFS::getUsedBytes();
 #else
-   #error "No filesystem selected"
+#error "No filesystem selected"
 #endif
 }
 
@@ -140,7 +140,7 @@ unsigned int getTotalBytes_HAL()
 #elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
    return nsLittleFS::getTotalBytes();
 #else
-   #error "No filesystem selected"
+#error "No filesystem selected"
 #endif
 }
 
@@ -168,6 +168,7 @@ String readFile(fs::FS &fs, const String &path)
    }
 
    String text = file.readString();
+   file.close();
 
    return text;
 }
@@ -202,6 +203,7 @@ void writeFile(fs::FS &fs, const String &path, const String &message)
    {
       throw std::runtime_error(("Writing: file failed: " + path).c_str());
    }
+   file.close();
 }
 
 /// @brief Ajoute du contenu à la fin d’un fichier.
@@ -234,6 +236,7 @@ void appendFile(fs::FS &fs, const String &path, const String &message)
    {
       throw std::runtime_error(("Appending: append failed: " + path).c_str());
    }
+   file.close();
 }
 
 /// @brief Renomme un fichier.
@@ -310,6 +313,7 @@ void listDir(fs::FS &fs, const String &dirname, uint8_t levels)
    }
    if (!root.isDirectory())
    {
+      root.close();
       throw std::runtime_error(("ListDir: not a directory: " + dirname).c_str());
    }
 
@@ -332,8 +336,10 @@ void listDir(fs::FS &fs, const String &dirname, uint8_t levels)
          Serial.print("\tSIZE: ");
          Serial.println(file.size());
       }
+      file.close();
       file = root.openNextFile();
    }
+   root.close();
 }
 
 /// @brief Affiche le contenu d’un répertoire et sous-répertoires.
@@ -364,6 +370,7 @@ void listFilesInDirectory(fs::FS &fs, const String &dirname, uint8_t levels, Fil
    }
    if (!root.isDirectory())
    {
+      root.close();
       throw std::runtime_error(("ListDir: not a directory: " + dirname).c_str());
    }
 
@@ -381,17 +388,21 @@ void listFilesInDirectory(fs::FS &fs, const String &dirname, uint8_t levels, Fil
       }
       else
       {
+         FileInfo fileInfo;
+         fileInfo.name = file.name();
+         fileInfo.path = file.path();
+         fileInfo.size = file.size();
+         file.close();
+         
          if (onFile)
          {
-            FileInfo fileInfo;
-            fileInfo.name = file.name();
-            fileInfo.path = file.path();
-            fileInfo.size = file.size();
             onFile(fileInfo);
          }
       }
+
       file = root.openNextFile();
    }
+   root.close();
 }
 
 void testFileIO(const String &path)

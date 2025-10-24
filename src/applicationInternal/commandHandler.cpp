@@ -893,7 +893,7 @@ void executeCommandWithData2(std::string commandName, commandData2 commandData, 
       Serial.printf("FileSystem : '%u' used Bytes / '%u' total Bytes\r\n", usedBytes, totalBytes);
 #endif
     }
-    else if (commandName == "DELETE_ALL_FILES_COMMANDS")
+    else if (commandName == "DELETE_ALL_FILES_CMD")
     {
       int errorCount = 0;
 #if (ENABLED_IO_FILESYSTEM)
