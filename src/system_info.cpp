@@ -13,10 +13,13 @@
 void printSystemInfo()
 {
     uint32_t freeHeap = ESP.getFreeHeap();
+    uint32_t totalHeap = ESP.getHeapSize();
     UBaseType_t stackHighWaterMark = uxTaskGetStackHighWaterMark(NULL);
     // Serial.printf("Heap libre : %u octets, Stack high water mark : %u mots\n", freeHeap, stackHighWaterMark);
     Serial.print("Heap libre: ");
     Serial.print(freeHeap);
+    Serial.print(", Heap total: ");
+    Serial.print(totalHeap);
     Serial.print(", Stack high water mark: ");
     Serial.println(stackHighWaterMark);
     // heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);

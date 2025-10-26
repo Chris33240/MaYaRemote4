@@ -651,11 +651,14 @@ void executeUnregisteredCommand(commandData2 commandData, std::string additional
 {
   try
   {
+    omote_log_d("command: will execute unregistered command with additionalPayload '%s'\r\n", additionalPayload.c_str());
     executeCommandWithData2("", commandData, additionalPayload);
+    sendBleNotifyCode("108");
   }
   catch (...)
   {
-    omote_log_e("executeDirectCommand: unknow internal error\r\n");
+    omote_log_e("executeUnregisteredCommand: unknow internal error during execution\r\n");
+    sendBleNotifyCode("109");
   }
 }
 
@@ -716,13 +719,14 @@ void executeRegisteredCommand(std::string commandName, std::string additionalPay
 
   try
   {
-    omote_log_d("command: will execute command '%s' with additionalPayload '%s'\r\n",
-                commandName.c_str(), additionalPayload.c_str());
+    omote_log_d("command: will execute registered command '%s' with additionalPayload '%s'\r\n", commandName.c_str(), additionalPayload.c_str());
     executeCommandWithData2(commandName, commandData, additionalPayload);
+    sendBleNotifyCode("108");
   }
   catch (...)
   {
-    omote_log_e("executeCommand: unknown internal error during execution\r\n");
+    omote_log_e("executeRegisteredCommand: unknown internal error during execution\r\n");
+    sendBleNotifyCode("109");
   }
 }
 

@@ -46,25 +46,6 @@ Attention : Seul "IR_MCE_POWER" est transmis dans le message BLE!
 {"taskType": "DELETE", "taskPayload": {"commandName": "IR_MCE_POWER"}}
 
 
-
-NOUVELLE PROPOSITION (ABANDONEE):
-Il est important de définir un rôle pour chaque clé json:
-- action: défini l'action à executer avec le type de données
-- payloadType: défini le type de données, il ne décrit pas quoi faire avec ces données.
-Ex: send_ir (associé à payloadType: 3)
-Ex: delete_ir (associé à payloadType: 3)
-Ex: delete (pas d'association)
-
-{
-"action": "send_ir",         // EX/ "list_cmd", list_dir", "capture_ir", "send_ir", "delete_cmd"
-"datas" : {
-    "command_name": "IR_4_0xA90_1",
-    "direct_data": {"protocol": "3", "data": "238"},
-    "addPayload": {"frequency": "36", "toggleMask": "0x8000", "repeat": "2"}
-}
-}
-
-
 Structure json "Commands_json_bootloader" et "Commands_json" :
 Ceci est le format json utilisé pour décrire une commande,
 il est utilisé pour les commandes issues du bootloader ou des fichiers de commandes stockés en Flash.
@@ -108,3 +89,19 @@ La mise en paquet est controlé en fonction du nom de la requette READ.
 	Exemple :
 	LAST_CAPTURE 	-> (transmission par paquets)
 	READ_FREE_HEAP 	-> (transmission simple)
+
+
+### Les codes de notifications:
+______________________________________________________________________________________________________________________________________
+code    Usage                                       Désignation
+______________________________________________________________________________________________________________________________________
+101     liste commandes (sans et avec données)      timeout expiré entre 2 lectures succéssives de paquets.
+102     capture IR                                  (NON UTILISE) timeout pour signaler une capture IR réussie.
+103     capture IR                                  timeout expiré avant la capture IR.
+104     capture IR                                  timeout expiré entre 2 lectures succéssives de paquets.
+105     Execute commande                            timeout expiré entre 2 écritures succéssives de paquets.
+106     Execute commande                            (NON UTILISE) le dispositif BLE a complété le message recu.
+107     Execute commande                            le dispositif BLE a recu un paquet.
+108     Execute commande                            execution de la commande réussie.
+109     Execute commande                            execution de la commande en echec.
+______________________________________________________________________________________________________________________________________

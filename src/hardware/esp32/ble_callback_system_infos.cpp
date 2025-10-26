@@ -24,6 +24,13 @@ void MyCallbacksSystemInfos::onRead(BLECharacteristic *pCharacteristic)
         Serial.println(freeHeap);
         pCharacteristic->setValue(freeHeap);
     }
+    else if (uuid == CHARACTERISTIC_TOTAL_HEAP_UUID)
+    {
+        uint32_t totalHeap = ESP.getHeapSize();
+        Serial.print(F("[BLE-OnRead] Total heap: "));
+        Serial.println(totalHeap);
+        pCharacteristic->setValue(totalHeap);
+    }
     else if (uuid == CHARACTERISTIC_HWATER_MARK_UUID)
     {
         UBaseType_t stackHighWaterMark = uxTaskGetStackHighWaterMark(NULL);

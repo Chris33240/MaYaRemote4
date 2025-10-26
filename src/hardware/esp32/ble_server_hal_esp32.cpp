@@ -33,6 +33,7 @@ BLEServer *pMyServer = nullptr;
 /// @brief Service System Infos
 BLEService *pService_SystemInfos = nullptr;
 BLECharacteristic *pCharacteristic_READ_FREE_HEAP = nullptr;
+BLECharacteristic *pCharacteristic_READ_TOTAL_HEAP = nullptr;
 BLECharacteristic *pCharacteristic_READ_HWATER_MARK = nullptr;
 BLECharacteristic *pCharacteristic_NOT_TICK_RATE = nullptr;
 BLECharacteristic *pCharacteristic_READ_USED_BYTES = nullptr;
@@ -97,12 +98,17 @@ void init_ble_server_HAL()
   // Créer le service BLE
   // Each characteristic needs 2 handles and descriptor 1 handle
   // Defaut value for handles = 15
-  pService_SystemInfos = pMyServer->createService(BLEUUID(SERVICE_SYSTEM_INFOS_UUID), 25);
+  pService_SystemInfos = pMyServer->createService(BLEUUID(SERVICE_SYSTEM_INFOS_UUID), 27);
 
   pCharacteristic_READ_FREE_HEAP = pService_SystemInfos->createCharacteristic(
       CHARACTERISTIC_FREE_HEAP_UUID,
       BLECharacteristic::PROPERTY_READ);
   pCharacteristic_READ_FREE_HEAP->setCallbacks(new MyCallbacksSystemInfos());
+
+  pCharacteristic_READ_TOTAL_HEAP = pService_SystemInfos->createCharacteristic(
+      CHARACTERISTIC_TOTAL_HEAP_UUID,
+      BLECharacteristic::PROPERTY_READ);
+  pCharacteristic_READ_TOTAL_HEAP->setCallbacks(new MyCallbacksSystemInfos());
 
   pCharacteristic_READ_HWATER_MARK = pService_SystemInfos->createCharacteristic(
       CHARACTERISTIC_HWATER_MARK_UUID,
