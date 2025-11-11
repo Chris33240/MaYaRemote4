@@ -334,12 +334,30 @@ std::list<std::string> getPayloads(const decode_results *const results)
   output = ValueToStringIfNotHasState(results);
   payloads.push_back(output.c_str());
 
+  /*
   // Decoded ACState codes to hexa
   output = ACStateCodeToString(results); // Ex: {0x0C, 0x04, 0x0F, 0x80, 0x0C}
-  result = output.c_str();
+  result = std::string(output.c_str());
+  result = helpers::trimChar(result, '{');
+  result = helpers::trimChar(result, '}');
+  payloads.push_back(std::string(result.c_str()));
+  */
+
+  // Decoded ACState codes to hexa
+  bool hasState = hasACState(results->decode_type);
+  if (hasState)
+  {
+  output = ACStateCodeToString(results); // Appel identique à la lib
+  std::string result = output.c_str();
   result = helpers::trimChar(result, '{');
   result = helpers::trimChar(result, '}');
   payloads.push_back(result.c_str());
+  }
+   else
+  {
+  // La lib ne produit rien dans ce cas, donc on ajoute une chaîne vide
+  payloads.push_back("");
+  }
 
   // Decoded Adress part to hexa
   output = AddressToString(results->address); // Ex: 0xC800F04

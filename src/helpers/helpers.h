@@ -121,6 +121,43 @@ namespace helpers
         return *input; // Retourne la chaîne originale si elle est valide
     }
 
+    inline bool hexStringToBytes(const std::string &hex, std::vector<uint8_t> &out)
+    {
+        out.clear();
+        std::string cleanHex = hex;
+
+        // Si la string commence par "0x" ou "0X" → on l’enlève
+        if (cleanHex.rfind("0x", 0) == 0 || cleanHex.rfind("0X", 0) == 0)
+        cleanHex.erase(0, 2);
+
+        // Enlever le prefixe "0x" ou "0X" si présent
+        //if (cleanHex.startsWith("0x") || cleanHex.startsWith("0X"))
+        //{
+        // cleanHex = cleanHex.substring(2);
+        //}
+
+        // Retire "0x", espaces, retour à la ligne, etc.
+        //for (char c : hex)
+        //{
+        //    if (isxdigit(c))
+        //        cleanHex += c;
+        //}
+
+        // Si nombre impair de caractères -> erreur
+        if (cleanHex.size() % 2 != 0)
+            return false;
+
+        out.reserve(cleanHex.size() / 2);
+
+        for (size_t i = 0; i < cleanHex.size(); i += 2)
+        {
+            uint8_t byte = std::strtoul(cleanHex.substr(i, 2).c_str(), nullptr, 16);
+            out.push_back(byte);
+        }
+
+        return true;
+    }
+
     template <typename T>
     inline T convertToType(const std::string &str, int base = 10)
     {

@@ -210,23 +210,26 @@ String lengthToString(const decode_results *const results)
 /// @return Chaîne représentant les octets de l’état AC sous la forme {0x.., 0x..}.
 String ACStateCodeToString(const decode_results *const results)
 {
-  String output;
-#if DECODE_AC
-  uint16_t nbytes = ceil(static_cast<float>(results->bits) / 8.0);
-  // output += F("uint8_t state[");
-  // output += uint64ToString(nbytes);
-  output += F("{");
-  for (uint16_t i = 0; i < nbytes; i++)
+  String output = "";
+  if (results->decode_type != UNKNOWN)
   {
-    output += F("0x");
-    if (results->state[i] < 0x10)
-      output += '0';
-    output += uint64ToString(results->state[i], 16);
-    if (i < nbytes - 1)
-      output += kCommaSpaceStr;
-  }
-  output += F("}");
+    //if (hasState) {
+#if DECODE_AC
+      uint16_t nbytes = ceil(static_cast<float>(results->bits) / 8.0);
+      // output += F("uint8_t state[");
+      // output += uint64ToString(nbytes);
+      output += F("{");
+      for (uint16_t i = 0; i < nbytes; i++)
+      {
+        output += F("0x");
+        if (results->state[i] < 0x10) output += '0';
+        output += uint64ToString(results->state[i], 16);
+        if (i < nbytes - 1) output += kCommaSpaceStr;
+      }
+      output += F("}");
 #endif // DECODE_AC
+    //}
+  }
   return output;
 }
 
