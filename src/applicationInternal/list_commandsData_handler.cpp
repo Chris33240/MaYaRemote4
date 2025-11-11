@@ -32,7 +32,7 @@ std::string ListCommandsDataHandler::readCommandsDataKeys(const std::set<std::st
         packets.setOnTimeoutCallback([this]()
                                      {
         reset();
-        Serial.println("[Timeout] expired BLE Read Packet (ListCommands)");
+        Serial.println("[Timeout] expired BLE Read Packet (ListCommandsData)");
         sendBleNotifyCode("101"); });
     }
 
