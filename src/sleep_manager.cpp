@@ -32,7 +32,16 @@ SleepManager2::SleepManager2()
 /// Active les sources de réveil par GPIO et affiche les registres pour debug.
 void SleepManager2::init()
 {
-    pinMode(GPIO_WAKEUP_BUTTON, INPUT_PULLUP); // Initialisation de la pin GPIO pour réveil
+    // La pin GPIO_WAKEUP_BUTTON est configurée comme GPIO_RTC dans goToSleep() et n'est pas utilisé en dehors de cette fonction,
+    // il n'est donc pas obligatoire de configurer comme GPIO standard ici.
+    // A noter aussi que certaines cartes peuvent déjà avoir une resistance de tirage externe de 10kOhms (relièe en pull-up).
+    pinMode(GPIO_WAKEUP_BUTTON, INPUT_PULLUP); // Initialisation de la pin GPIO en entrée
+
+    //rtc_gpio_init((gpio_num_t)GPIO_WAKEUP_BUTTON);
+    //rtc_gpio_set_direction((gpio_num_t)GPIO_WAKEUP_BUTTON, RTC_GPIO_MODE_INPUT_ONLY);
+    //rtc_gpio_pullup_en((gpio_num_t)GPIO_WAKEUP_BUTTON);
+    //rtc_gpio_pulldown_dis((gpio_num_t)GPIO_WAKEUP_BUTTON);
+
     // resetTimers();
     //  Configurer et initialiser Bluetooth
     // esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
@@ -82,7 +91,8 @@ void SleepManager2::init()
     Serial.printf("Valeur initiale du registre 0x%08X: 0x%08X\r\n", RTC_CNTL_RTC_WAKEUP_STATE_REG, regValue);
 
     // Fonction du framework Arduino
-    esp_sleep_enable_ext0_wakeup((gpio_num_t)GPIO_WAKEUP_BUTTON, 0); // Réveil par GPIO
+    //esp_sleep_enable_ext0_wakeup((gpio_num_t)GPIO_WAKEUP_BUTTON, 0); // Réveil par GPIO
+
     // Fonction réecrite
     // esp_sleep_enable_ext0_wakeup1((gpio_num_t)GPIO_WAKEUP_PIN, 0); // Réveil par GPIO
     regValue = *((volatile uint32_t *)RTC_CNTL_RTC_WAKEUP_STATE_REG);
@@ -293,6 +303,60 @@ void SleepManager2::goToSleep()
     // esp_bluedroid_disable();
     // esp_bt_controller_disable();
     // delay(100);
+
+/*
+rtc_gpio_deinit((gpio_num_t)GPIO_WAKEUP_BUTTON);
+pinMode(GPIO_WAKEUP_BUTTON, INPUT_PULLUP);
+
+esp_sleep_enable_ext0_wakeup((gpio_num_t)GPIO_WAKEUP_BUTTON, 0); // Réveil par GPIO
+
+Serial.print("GPIO juste avant sommeil = ");
+Serial.println(digitalRead(GPIO_WAKEUP_BUTTON));
+delay(3000);
+
+    esp_deep_sleep_start(); // Démarrer la mise en veille profonde
+*/
+
+
+/*
+rtc_gpio_deinit((gpio_num_t)GPIO_WAKEUP_BUTTON);
+pinMode(GPIO_WAKEUP_BUTTON, INPUT_PULLUP);
+
+ESP_ERROR_CHECK(
+    esp_sleep_enable_ext0_wakeup((gpio_num_t)GPIO_WAKEUP_BUTTON, 0) // Réveil par GPIO
+);
+
+Serial.print("GPIO juste avant sommeil = ");
+Serial.println(digitalRead(GPIO_WAKEUP_BUTTON));
+delay(3000);
+
+    esp_deep_sleep_start(); // Démarrer la mise en veille profonde
+*/
+
+// --------------------------------------------------------------
+// Reconfiguration pin et wakup avant l'entrée en veille profonde
+// --------------------------------------------------------------
+//Pour une même Pin, il y a 2 etats de configurations spcéifiques aux GPIO standard et GPIO RTC (utilisé pour EXT0)
+//La configuration par pinMode() effectuées précédement (GPIO standard) peut aussi modifier l'etat de cette configuration pour GPIO RTC.
+//Si cela arrive, il faut réinitialiser cet etat avec rtc_gpio_deinit() avant de réutiliser le GPIO RTC comme source de réveil.
+rtc_gpio_deinit((gpio_num_t)GPIO_WAKEUP_BUTTON);
+rtc_gpio_init((gpio_num_t)GPIO_WAKEUP_BUTTON);
+rtc_gpio_set_direction((gpio_num_t)GPIO_WAKEUP_BUTTON, RTC_GPIO_MODE_INPUT_ONLY);
+rtc_gpio_pullup_en((gpio_num_t)GPIO_WAKEUP_BUTTON);
+rtc_gpio_pulldown_dis((gpio_num_t)GPIO_WAKEUP_BUTTON);
+
+//Code recommandé en RELEASE
+ESP_ERROR_CHECK(
+    esp_sleep_enable_ext0_wakeup((gpio_num_t)GPIO_WAKEUP_BUTTON, 0)
+);
+//Code recommandé en DEBUG
+//esp_err_t err = esp_sleep_enable_ext0_wakeup((gpio_num_t)GPIO_WAKEUP_BUTTON, 0); // Réveil par GPIO
+//Serial.printf("ext0 = %s\n", esp_err_to_name(err));
+
+Serial.print("GPIO juste avant sommeil = ");
+Serial.println(digitalRead(GPIO_WAKEUP_BUTTON));
+delay(3000);
+
     esp_deep_sleep_start(); // Démarrer la mise en veille profonde
 }
 

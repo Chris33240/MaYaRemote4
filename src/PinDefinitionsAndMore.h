@@ -205,12 +205,18 @@ void noTone(uint8_t aPinNumber){
 }
 #endif // ESP_ARDUINO_VERSION  <= ESP_ARDUINO_VERSION_VAL(2, 0, 2)
 
+/*
+Ces define sont remplacé par des build_flags dans platformio.ini
+! IMPORTANT: Ne pas oublier le 'D' dans le build_flag.
+Exemple: DMAYA_FREENOVE_ESP32_S3_WROOM_1 pour MAYA_FREENOVE_ESP32_S3_WROOM_1
+
 // Spécific settings for differents ESP32 custom Plateform
 //#define MAYA_FREENOVE_ESP32_S3_WROOM_1            // FREENOVE Starter kit FNK0082
 #define MAYA_DFROBOT_FIREBEETLE2_ESP32E_DFR0654   // DFROBOT DFR0654
 //#define MAYA_DFROBOT_FIREBEETLE2_ESP32E_DFR1139     // DFROBOT DFR1139
 //#define MAYA_DFROBOT_FIREBEETLE2_ESP32S3_DFR0975  // DFROBOT DFR0975
 //#define MAYA_DFROBOT_FIREBEETLE2_ESP32C6_DFR1075  // DFROBOT DFR1075 (espidf only, No support for arduino Framework !)
+*/
 
 #ifdef MAYA_FREENOVE_ESP32_S3_WROOM_1
 //#define GPIO_BUILT_IN_LED_IO2        2       // Built-in LED "ON"

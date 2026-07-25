@@ -11,6 +11,12 @@
 // ---- Capture des commandes ---------------
 bool isCaptureMode;
 
+/// @brief Initialise le bouton de capture IR.
+void initCaptureButton()
+{
+    pinMode(GPIO_CAPTURE_BUTTON, INPUT); // Nous avons déjà une résistance de tirage externe de 10kOhms relié en pull-Up.
+}
+
 /// @brief Démarre le mode de capture IR et initialise le clignotement LED.
 /// @note Un timeout est ajouté pour arrêter la capture automatiquement.
 void captureCommand()

@@ -67,7 +67,8 @@ int main(int argc, char *argv[])
   SleepManager2().init();
   printSystemInfo();
 
-  pinMode(GPIO_CAPTURE_BUTTON, INPUT);
+  //pinMode(GPIO_CAPTURE_BUTTON, INPUT);
+  initCaptureButton();
 
   pGlobalStatusLED = new LedBlinker(GPIO_STATUS_LED);
   pGlobalStatusLED->begin();
@@ -229,6 +230,7 @@ void loop(unsigned long *pIMUTaskTimer, unsigned long *pUpdateStatusTimer)
 
   if (digitalRead(GPIO_CAPTURE_BUTTON) == LOW)
   {
+    //Cette entrée est lu dans la boucle loop pour savoir si le bouton est appuyé. 
     Serial.printf("Execute command at GPIO %u is pressed\r\n", GPIO_CAPTURE_BUTTON);
     // command = "LIST_COMMANDS";
     // command = "SAVE_COMMANDS";
