@@ -1,11 +1,13 @@
-#define SPIFFS_SYSTEM 1
-#define LITTLEFS_SYSTEM 2
+//#define SPIFFS_SYSTEM 1
+//#define LITTLEFS_SYSTEM 2
 
 /*
 Les librairies SPIFFS et LitleFS partagent une API compatible mais ont des implémentations on-flash incompatibles,
 il est donc important de choisir l'un ou l'autre par projet car tenter de monter un volume SPIFFS sous LittleFS peut
 entraîner une opération de formatage et ne conservera certainement aucun fichier, et vice-versa. -versa.
 */
+
+/*
 #define FILE_SYSTEM LITTLEFS_SYSTEM
 
 #if FILE_SYSTEM == SPIFFS_SYSTEM
@@ -14,6 +16,21 @@ entraîner une opération de formatage et ne conservera certainement aucun fichi
   #include "hardware/esp32/filesystem_littlefs_hal_esp32.h"
 #else
   #error "FILE_SYSTEM not properly defined"
+#endif
+#include "interfaces/fileInfo.h"
+*/
+
+#define SPIFFS_SYSTEM 1
+#define LITTLEFS_SYSTEM 2
+
+#if defined(USE_SPIFFS)
+    #define FILE_SYSTEM SPIFFS_SYSTEM
+    #include "hardware/esp32/filesystem_spiffs_hal_esp32.h"
+#elif defined(USE_LITTLEFS)
+    #define FILE_SYSTEM LITTLEFS_SYSTEM
+    #include "hardware/esp32/filesystem_littlefs_hal_esp32.h"
+#else
+    #error "FILE_SYSTEM not properly defined"
 #endif
 #include "interfaces/fileInfo.h"
 

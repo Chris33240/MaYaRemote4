@@ -161,10 +161,19 @@ String readFile(fs::FS &fs, const String &path)
    checkIfMounted_HAL();
    Serial.printf("Reading file: %s\r\n", path.c_str());
 
+   /*
+   // Tentative échoué pour supprimer ou remplacer le message d'erreur de vfs_api.cpp
+   if (!fs.exists(path))
+   {
+      Serial.printf("Reading: file not found: %s\r\n", path.c_str());
+      return "";
+   }
+   */
+
    File file = fs.open(path);
    if (!file || file.isDirectory())
    {
-      throw std::runtime_error(("Reading: failed to open file for reading: " + path).c_str());
+      throw std::runtime_error(("Reading: failed to open existing file: " + path).c_str());
    }
 
    String text = file.readString();

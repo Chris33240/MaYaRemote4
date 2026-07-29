@@ -3,28 +3,34 @@
 // #include "freertos/task.h"
 
 /// @brief Affiche des informations système de base.
-///
-/// Cette fonction affiche :
-/// - La mémoire libre du tas (Heap)
-/// - Le "High Water Mark" de la pile (stack)
-///
 /// Utilise les fonctions ESP-IDF et FreeRTOS pour récupérer ces données.
-/// @note Cette fonction peut être appelée régulièrement pour surveiller la mémoire.
 void printSystemInfo()
 {
-    uint32_t freeHeap = ESP.getFreeHeap();
-    uint32_t totalHeap = ESP.getHeapSize();
-    UBaseType_t stackHighWaterMark = uxTaskGetStackHighWaterMark(NULL);
-    // Serial.printf("Heap libre : %u octets, Stack high water mark : %u mots\n", freeHeap, stackHighWaterMark);
-    Serial.print("Heap libre: ");
-    Serial.print(freeHeap);
-    Serial.print(", Heap total: ");
-    Serial.print(totalHeap);
-    Serial.print(", Stack high water mark: ");
-    Serial.println(stackHighWaterMark);
+        // ===== RAM =====
+    Serial.println(F("===== System Information ====="));
+    Serial.printf("Free Heap             : %u bytes\n", ESP.getFreeHeap());
+    Serial.printf("Total Heap            : %u bytes\n", ESP.getHeapSize());
+    Serial.printf("Stack High Water Mark : %u words\n", uxTaskGetStackHighWaterMark(nullptr));
+
+    // ===== Flash =====
+    Serial.printf("Flash Size            : %u MB\n", ESP.getFlashChipSize() / (1024 * 1024));
+    Serial.printf("Flash Speed           : %u MHz\n", ESP.getFlashChipSpeed() / 1000000);
+    Serial.printf("Flash Mode            : %d\n", ESP.getFlashChipMode());
+    Serial.printf("Flash Sector Size     : %u bytes\n", SPI_FLASH_SEC_SIZE);
+
+    // ===== CPU =====
+    Serial.printf("CPU Frequency         : %u MHz\n", ESP.getCpuFreqMHz());
+    Serial.printf("Chip Revision         : %u\n", ESP.getChipRevision());
+
+    // ===== Firmware =====
+    Serial.printf("Sketch Size           : %u bytes\n", ESP.getSketchSize());
+    Serial.printf("Free Sketch Space     : %u bytes\n", ESP.getFreeSketchSpace());
+
+    Serial.println();
+
+    // Débogage avancé (à activer si nécessaire)
     // heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
-    // Serial.print("configMINIMAL_STACK_SIZE: ");
-    // Serial.println(configMINIMAL_STACK_SIZE);
+    // Serial.printf("configMINIMAL_STACK_SIZE : %u\n", configMINIMAL_STACK_SIZE);
 }
 
 // #define MAX_TASKS 10

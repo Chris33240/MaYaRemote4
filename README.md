@@ -1,6 +1,6 @@
 # MaYaRemote
 
-MaYaRemote est un projet de télécommande universelle Infrarouge basé sur PlatformIO et la librairie IRremoteESP8266.
+MaYaRemote est un projet de télécommande universelle Infrarouge basé sur PlatformIO et la librairie IRremoteESP8266.  
 Le dispositif dispose d'une serveur bluetooth BLE pouvant se connecter à l'application MaYa (client Android) pour éxécuter des commandes.  
 
 ## ✨ Fonctionnalités
@@ -9,14 +9,14 @@ https://github.com/crankyoldgit/IRremoteESP8266
 - Compatible avec le microcontrôleur ESP32 et d'autres (supporté par IRremoteESP8266).
 
 ## 📂 Structure du projet
-Le code est organisé pour séparer la logique applicative et les drivers matériels.
-src/
-├── applicationInternal     # Couche application
-├── hardware                # Couche matériel
-├── interfaces              # Interfaces entres les couches
-├── helpers                 # Outils d'aide au codage
-├── utils                   # Code utilitaires
-platformio.ini              # Configuration du projet PlatformIO
+Le code est organisé pour séparer la logique applicative et les drivers matériels.  
+src/  
+  ├── applicationInternal     # Couche application  
+  ├── hardware                # Couche matériel  
+  ├── interfaces              # Interfaces entres les couches  
+  ├── helpers                 # Outils d'aide au codage  
+  ├── utils                   # Code utilitaires  
+  platformio.ini              # Configuration du projet PlatformIO  
 
 ## 📦 Modules et classes programme
 - Surcouche de communication Blutooth BLE avec gestion de la réponse et des timeouts.
@@ -35,23 +35,31 @@ platformio.ini              # Configuration du projet PlatformIO
 - [PlatformIO](https://platformio.org/) installé (dans VS Code ou en CLI).
 - L'application est dévelllopé en C++11 (version par défaut prise en charge par le framework Arduino)
 - Cartes supportées ESP32, ESP8266 (espressif32), Pico (raspberrypi)... :
-_________________________________________________________________________________________
-| Plateforme  | Carte (nom commercial)              | Carte (support logiciel)          |
-|-------------|-------------------------------------|-----------------------------------|
-| espressif32 | Carte générique ESP32               | esp32-s3-devkitc-1                |
-| espressif32 | freenove_esp32s3_wroom1             | esp32-s3-devkitc-1                |
-| espressif32 | dfrobot_firebeetle2_esp32e_dfr0654  | esp32dev                          |
-| espressif32 | dfrobot_firebeetle2_esp32e_dfr1139  | esp32dev                          |
-| espressif32 | dfrobot_firebeetle2_esp32s3_dfr0975 | dfrobot_firebeetle2_esp32s3       |
-| raspberrypi | pico                                | pico                              |
-_________________________________________________________________________________________
+________________________________________________________________________________________________________________________________
+| Plateforme  | Carte (nom commercial)              | RAM(*)| FLASH | Carte (support logiciel)          | Partitions            |
+|-------------|-------------------------------------|-------|-------|-----------------------------------|-----------------------|
+| espressif32 | Carte générique ESP32               |       |       | esp32-s3-devkitc-1                |                       |
+| espressif32 | freenove_esp32s3_wroom1             |       |       | esp32-s3-devkitc-1                |                       |
+| espressif32 | dfrobot_firebeetle2_esp32e_dfr0654  | 520KB | 4MB   | dfrobot_firebeetle2_esp32e        | huge_app.csv          |
+| espressif32 | dfrobot_firebeetle2_esp32e_dfr1139  | 520KB | 16MB  | firebeetle32                      | large_spiffs_16MB.csv |
+| espressif32 | dfrobot_firebeetle2_esp32s3_dfr0975 |       |       | dfrobot_firebeetle2_esp32s3       |                       |
+| raspberrypi | pico                                |       |       | pico                              |                       |
+________________________________________________________________________________________________________________________________
+(*) RAM: 200ko de IRAM sont réservé au fonctionnement interne de l'ESP32, soit sur 520ko, il ne reste que 320ko de DRAM utilisable.  
+    les constructeur préfére en général déclarer 320ko dans le fichier board.json pour la carte, exemple: "maximum_ram_size": 327680  
+    pour ne pas fausser les calculs d'usage mémoire en %.  
 
-- Capteur / émetteur IR compatible:
+- Capteur / émetteur IR compatible:  
 Emetteur infrarouge 5mm 940nm 100mA +/-30° OSRAM SFH4547 (ou équivalent)
 Recepteur infrarouge 38kHz VS1838 (ou équivalent)
 
 ## 🚀 Compilation & Flash
-1. Cloner le dépôt sur VS Code:
+1. On peux uploader directement les binaire si le programme est déja compilé pour la carte:
+    - bootloader;bin
+    - partitions.bin
+    - firmware.bin
+
+1. ou Cloner le dépôt sur VS Code:
     https://github.com/Chris33240/MaYaRemote3.git
 
 2. Connecter la carte au port USB du PC de develloppement.
@@ -67,9 +75,9 @@ Recepteur infrarouge 38kHz VS1838 (ou équivalent)
 |-- SPIFFS @ 2.0.0
 
 4. Ressources:
-Exemple de ressources utilisées pour la carte 'dfrobot_firebeetle2_esp32e_dfr0654'
-board_build.partitions = huge_app.csv
-HARDWARE: ESP32 240MHz, 320KB RAM, 4MB Flash
-RAM:   [=         ]  14.1% (used 46324 bytes from 327680 bytes)
-Flash: [=====     ]  54.1% (used 1701233 bytes from 3145728 bytes)
+Exemple de ressources utilisées pour la carte 'dfrobot_firebeetle2_esp32e_dfr0654'  
+board_build.partitions = huge_app.csv  
+HARDWARE: ESP32 240MHz, 320KB RAM, 4MB Flash  
+RAM:   [=         ]  14.2% (used 46460 bytes from 327680 bytes)  
+Flash: [=====     ]  54.2% (used 1703797 bytes from 3145728 bytes)  
 
