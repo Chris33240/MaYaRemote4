@@ -12,6 +12,7 @@ class ListCommandsDataHandler
 {
 public:
     ListCommandsDataHandler();
+    [[deprecated("Cette class etait prévu pour la synchronisation des datas et n'est pas utilisé par le client BLE")]]
     std::string readCommandsDataKeys();
     std::string readCommandsDataKeys(const std::set<std::string> &commandsKeys);
 

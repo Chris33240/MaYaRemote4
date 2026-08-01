@@ -8,7 +8,7 @@
 #include <mutex>
 #include "TasksManager.h"
 #include "commandHandler.h"
-#include "system_info.h"
+#include "system_infos.h"
 #include "commands_tasks_json.h"
 
 std::queue<std::string> tasks2;

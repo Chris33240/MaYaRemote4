@@ -1,4 +1,5 @@
 #include "filesystem_littlefs_hal_esp32.h"
+#include "helpers/omote_log.h"
 
 namespace nsLittleFS
 {
@@ -21,7 +22,11 @@ namespace nsLittleFS
     {
         bool isMounted;
 #ifdef FORMAT_FILE_SYSTEM_IF_FAILED
+    //omote_log_v("DEBUG: we are here 7\r\n");
+    //omote_log_v_mem();
         isMounted = LittleFS.begin(FORMAT_FILE_SYSTEM_IF_FAILED);
+    //omote_log_v("DEBUG: we are here 8\r\n");
+    //omote_log_v_mem();
 #endif
         if (!isMounted)
         {

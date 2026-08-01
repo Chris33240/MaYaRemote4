@@ -24,7 +24,7 @@
 #include "ble_callback_system_infos.h"
 #include "ble_callback_commands.h"
 #include "ble_callback_uart.h"
-#include "system_info.h"
+#include "system_infos.h"
 #include "tick_rate.h"
 
 /// @brief Pointeur vers le serveur BLE
@@ -82,165 +82,165 @@ const long *pIntervalNotify = &intervalNotify;
 /// @brief Initialise le serveur BLE, les services et les caractéristiques
 void init_ble_server_HAL()
 {
-  Serial.println(F("BLE is Starting !"));
+    Serial.println(F("BLE starting"));
 
-  // Initialiser le Device BLE
-  BLEDevice::init(BLE_DEVICE_NAME);
-  // BLEDevice::setMTU(512); // Need to be negociated with client ?!
-  Serial.print(F("BLE device name: "));
-  Serial.println(BLE_DEVICE_NAME);
+    // Initialiser le Device BLE
+    BLEDevice::init(BLE_DEVICE_NAME);
+    // BLEDevice::setMTU(512); // Need to be negociated with client ?!
+    Serial.print(F("BLE device name: "));
+    Serial.println(BLE_DEVICE_NAME);
 
-  // Créer le serveur BLE
-  pMyServer = BLEDevice::createServer();
-  pMyServer->setCallbacks(new MyServerCallbacks());
+    // Créer le serveur BLE
+    pMyServer = BLEDevice::createServer();
+    pMyServer->setCallbacks(new MyServerCallbacks());
 
-  // ------------- SERVICE SYSTEM INFOS --------------------------
-  // Créer le service BLE
-  // Each characteristic needs 2 handles and descriptor 1 handle
-  // Defaut value for handles = 15
-  pService_SystemInfos = pMyServer->createService(BLEUUID(SERVICE_SYSTEM_INFOS_UUID), 27);
+    // ------------- SERVICE SYSTEM INFOS --------------------------
+    // Créer le service BLE
+    // Each characteristic needs 2 handles and descriptor 1 handle
+    // Defaut value for handles = 15
+    pService_SystemInfos = pMyServer->createService(BLEUUID(SERVICE_SYSTEM_INFOS_UUID), 27);
 
-  pCharacteristic_READ_FREE_HEAP = pService_SystemInfos->createCharacteristic(
-      CHARACTERISTIC_FREE_HEAP_UUID,
-      BLECharacteristic::PROPERTY_READ);
-  pCharacteristic_READ_FREE_HEAP->setCallbacks(new MyCallbacksSystemInfos());
+    pCharacteristic_READ_FREE_HEAP = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_FREE_HEAP_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_FREE_HEAP->setCallbacks(new MyCallbacksSystemInfos());
 
-  pCharacteristic_READ_TOTAL_HEAP = pService_SystemInfos->createCharacteristic(
-      CHARACTERISTIC_TOTAL_HEAP_UUID,
-      BLECharacteristic::PROPERTY_READ);
-  pCharacteristic_READ_TOTAL_HEAP->setCallbacks(new MyCallbacksSystemInfos());
+    pCharacteristic_READ_TOTAL_HEAP = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_TOTAL_HEAP_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_TOTAL_HEAP->setCallbacks(new MyCallbacksSystemInfos());
 
-  pCharacteristic_READ_HWATER_MARK = pService_SystemInfos->createCharacteristic(
-      CHARACTERISTIC_HWATER_MARK_UUID,
-      BLECharacteristic::PROPERTY_READ);
-  pCharacteristic_READ_HWATER_MARK->setCallbacks(new MyCallbacksSystemInfos());
+    pCharacteristic_READ_HWATER_MARK = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_HWATER_MARK_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_HWATER_MARK->setCallbacks(new MyCallbacksSystemInfos());
 
-  pCharacteristic_NOT_TICK_RATE = pService_SystemInfos->createCharacteristic(
-      CHARACTERISTIC_TICK_RATE_UUID,
-      BLECharacteristic::PROPERTY_NOTIFY);
-  pCharacteristic_NOT_TICK_RATE->addDescriptor(new BLE2902()); // Ajouter un descripteur pour la notification
+    pCharacteristic_NOT_TICK_RATE = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_TICK_RATE_UUID,
+        BLECharacteristic::PROPERTY_NOTIFY);
+    pCharacteristic_NOT_TICK_RATE->addDescriptor(new BLE2902()); // Ajouter un descripteur pour la notification
 
-  pCharacteristic_READ_USED_BYTES = pService_SystemInfos->createCharacteristic(
-      CHARACTERISTIC_USED_BYTES_UUID,
-      BLECharacteristic::PROPERTY_READ);
-  pCharacteristic_READ_USED_BYTES->setCallbacks(new MyCallbacksSystemInfos());
+    pCharacteristic_READ_USED_BYTES = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_USED_BYTES_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_USED_BYTES->setCallbacks(new MyCallbacksSystemInfos());
 
-  pCharacteristic_READ_TOTAL_BYTES = pService_SystemInfos->createCharacteristic(
-      CHARACTERISTIC_TOTAL_BYTES_UUID,
-      BLECharacteristic::PROPERTY_READ);
-  pCharacteristic_READ_TOTAL_BYTES->setCallbacks(new MyCallbacksSystemInfos());
+    pCharacteristic_READ_TOTAL_BYTES = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_TOTAL_BYTES_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_TOTAL_BYTES->setCallbacks(new MyCallbacksSystemInfos());
 
-  // ------------- SERVICE COMMANDS --------------------------
-  pService_Commands = pMyServer->createService(BLEUUID(SERVICE_COMMANDS_UUID), 24);
+    // ------------- SERVICE COMMANDS --------------------------
+    pService_Commands = pMyServer->createService(BLEUUID(SERVICE_COMMANDS_UUID), 24);
 
-  pCharacteristic_READ_COMMANDS_COUNT = pService_Commands->createCharacteristic(
-      CHARACTERISTIC_COMMANDS_COUNT_UUID,
-      BLECharacteristic::PROPERTY_READ);
-  addDescriptor(pCharacteristic_READ_COMMANDS_COUNT, CHARACTERISTIC_COMMANDS_COUNT_DESCRIPTOR_UUID, "Nombres de commandes");
-  pCharacteristic_READ_COMMANDS_COUNT->setCallbacks(new MyCallbacks());
+    pCharacteristic_READ_COMMANDS_COUNT = pService_Commands->createCharacteristic(
+        CHARACTERISTIC_COMMANDS_COUNT_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    addDescriptor(pCharacteristic_READ_COMMANDS_COUNT, CHARACTERISTIC_COMMANDS_COUNT_DESCRIPTOR_UUID, "Nombres de commandes");
+    pCharacteristic_READ_COMMANDS_COUNT->setCallbacks(new MyCallbacks());
 
-  pCharacteristic_READ_COMMANDS_FILES_COUNT = pService_Commands->createCharacteristic(
-      CHARACTERISTIC_COMMANDS_FILES_COUNT_UUID,
-      BLECharacteristic::PROPERTY_READ);
-  pCharacteristic_READ_COMMANDS_FILES_COUNT->setCallbacks(new MyCallbacks());
+    pCharacteristic_READ_COMMANDS_FILES_COUNT = pService_Commands->createCharacteristic(
+        CHARACTERISTIC_COMMANDS_FILES_COUNT_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_COMMANDS_FILES_COUNT->setCallbacks(new MyCallbacks());
 
-  pCharacteristic_READ_LIST_COMMANDS = pService_Commands->createCharacteristic(
-      CHARACTERISTIC_LIST_COMMANDS_UUID,
-      BLECharacteristic::PROPERTY_READ);
-  pCharacteristic_READ_LIST_COMMANDS->setCallbacks(new MyCallbacks());
+    pCharacteristic_READ_LIST_COMMANDS = pService_Commands->createCharacteristic(
+        CHARACTERISTIC_LIST_COMMANDS_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_LIST_COMMANDS->setCallbacks(new MyCallbacks());
 
-  pCharacteristic_READ_LIST_COMMANDS_DATA = pService_Commands->createCharacteristic(
-      CHARACTERISTIC_LIST_COMMANDS_DATA_UUID,
-      BLECharacteristic::PROPERTY_READ);
-  pCharacteristic_READ_LIST_COMMANDS_DATA->setCallbacks(new MyCallbacks());
+    pCharacteristic_READ_LIST_COMMANDS_DATA = pService_Commands->createCharacteristic(
+        CHARACTERISTIC_LIST_COMMANDS_DATA_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_LIST_COMMANDS_DATA->setCallbacks(new MyCallbacks());
 
-  pCharacteristic_READ_LAST_CAPTURE = pService_Commands->createCharacteristic(
-      CHARACTERISTIC_LAST_CAPTURE_UUID,
-      BLECharacteristic::PROPERTY_READ);
-  pCharacteristic_READ_LAST_CAPTURE->setCallbacks(new MyCallbacks());
+    pCharacteristic_READ_LAST_CAPTURE = pService_Commands->createCharacteristic(
+        CHARACTERISTIC_LAST_CAPTURE_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_LAST_CAPTURE->setCallbacks(new MyCallbacks());
 
-  pCharacteristic_WRITE_COMMAND2 = pService_Commands->createCharacteristic(
-      CHARACTERISTIC_COMMAND2_UUID,
-      BLECharacteristic::PROPERTY_WRITE);
-  pCharacteristic_WRITE_COMMAND2->setCallbacks(new MyCallbacks());
+    pCharacteristic_WRITE_COMMAND2 = pService_Commands->createCharacteristic(
+        CHARACTERISTIC_COMMAND2_UUID,
+        BLECharacteristic::PROPERTY_WRITE);
+    pCharacteristic_WRITE_COMMAND2->setCallbacks(new MyCallbacks());
 
-  pCharacteristic_WRITE_EXECUTE_COMMAND = pService_Commands->createCharacteristic(
-      CHARACTERISTIC_EXECUTE_COMMAND_UUID,
-      BLECharacteristic::PROPERTY_WRITE);
-  pCharacteristic_WRITE_EXECUTE_COMMAND->setCallbacks(new MyCallbacks());
+    pCharacteristic_WRITE_EXECUTE_COMMAND = pService_Commands->createCharacteristic(
+        CHARACTERISTIC_EXECUTE_COMMAND_UUID,
+        BLECharacteristic::PROPERTY_WRITE);
+    pCharacteristic_WRITE_EXECUTE_COMMAND->setCallbacks(new MyCallbacks());
 
-  pCharacteristic_WRITE_DELETE_COMMAND = pService_Commands->createCharacteristic(
-      CHARACTERISTIC_DELETE_COMMAND_UUID,
-      BLECharacteristic::PROPERTY_WRITE);
-  pCharacteristic_WRITE_DELETE_COMMAND->setCallbacks(new MyCallbacks());
+    pCharacteristic_WRITE_DELETE_COMMAND = pService_Commands->createCharacteristic(
+        CHARACTERISTIC_DELETE_COMMAND_UUID,
+        BLECharacteristic::PROPERTY_WRITE);
+    pCharacteristic_WRITE_DELETE_COMMAND->setCallbacks(new MyCallbacks());
 
-  pCharacteristic_NOTIFY_COMMANDS = pService_Commands->createCharacteristic(
-      CHARACTERISTIC_NOTIFY_COMMANDS_UUID,
-      BLECharacteristic::PROPERTY_NOTIFY);
-  pCharacteristic_NOTIFY_COMMANDS->addDescriptor(new BLE2902()); // Ajouter un descripteur pour la notification
+    pCharacteristic_NOTIFY_COMMANDS = pService_Commands->createCharacteristic(
+        CHARACTERISTIC_NOTIFY_COMMANDS_UUID,
+        BLECharacteristic::PROPERTY_NOTIFY);
+    pCharacteristic_NOTIFY_COMMANDS->addDescriptor(new BLE2902()); // Ajouter un descripteur pour la notification
 
-  pCharacteristic_NOTIFY_NEW_COMMAND_CAPTURED = pService_Commands->createCharacteristic(
-      CHARACTERISTIC_NOTIFY_NEW_COMMAND_CAPTURED_UUID,
-      BLECharacteristic::PROPERTY_NOTIFY);
-  pCharacteristic_NOTIFY_NEW_COMMAND_CAPTURED->addDescriptor(new BLE2902()); // Ajouter un descripteur pour la notification
+    pCharacteristic_NOTIFY_NEW_COMMAND_CAPTURED = pService_Commands->createCharacteristic(
+        CHARACTERISTIC_NOTIFY_NEW_COMMAND_CAPTURED_UUID,
+        BLECharacteristic::PROPERTY_NOTIFY);
+    pCharacteristic_NOTIFY_NEW_COMMAND_CAPTURED->addDescriptor(new BLE2902()); // Ajouter un descripteur pour la notification
 
-  pCharacteristic_NOT_Test = pService_Commands->createCharacteristic(
-      CHARACTERISTIC_TEST_UUID_NOT,
-      BLECharacteristic::PROPERTY_NOTIFY);
-  pCharacteristic_NOT_Test->addDescriptor(new BLE2902()); // Ajouter un descripteur pour la notification
+    pCharacteristic_NOT_Test = pService_Commands->createCharacteristic(
+        CHARACTERISTIC_TEST_UUID_NOT,
+        BLECharacteristic::PROPERTY_NOTIFY);
+    pCharacteristic_NOT_Test->addDescriptor(new BLE2902()); // Ajouter un descripteur pour la notification
 
-  // ------------- SERVICE Notify --------------------------
-  // Créer le service BLE
-  pService_Notify = pMyServer->createService(SERVICE_NOTIFY_UUID);
+    // ------------- SERVICE Notify --------------------------
+    // Créer le service BLE
+    pService_Notify = pMyServer->createService(SERVICE_NOTIFY_UUID);
 
-  pCharacteristic_Notify = pService_Notify->createCharacteristic(
-      CHARACTERISTIC_NOTIFY_UUID,
-      BLECharacteristic::PROPERTY_NOTIFY);
-  pCharacteristic_Notify->addDescriptor(new BLE2902()); // Ajouter un descripteur pour la notification
+    pCharacteristic_Notify = pService_Notify->createCharacteristic(
+        CHARACTERISTIC_NOTIFY_UUID,
+        BLECharacteristic::PROPERTY_NOTIFY);
+    pCharacteristic_Notify->addDescriptor(new BLE2902()); // Ajouter un descripteur pour la notification
 
-  // ------------- SERVICE UART --------------------------
-  pService_UART = pMyServer->createService(SERVICE_UART_UUID);
+    // ------------- SERVICE UART --------------------------
+    pService_UART = pMyServer->createService(SERVICE_UART_UUID);
 
-  pRxCharacteristic_UART = pService_UART->createCharacteristic(
-      CHARACTERISTIC_UART_UUID_RX,
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE |
-          BLECharacteristic::PROPERTY_NOTIFY);
-  pRxCharacteristic_UART->addDescriptor(new BLE2902());
-  pRxCharacteristic_UART->setCallbacks(new MyCallbacks_UART());
-  // ----------------------------------------------------------
+    pRxCharacteristic_UART = pService_UART->createCharacteristic(
+        CHARACTERISTIC_UART_UUID_RX,
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE |
+            BLECharacteristic::PROPERTY_NOTIFY);
+    pRxCharacteristic_UART->addDescriptor(new BLE2902());
+    pRxCharacteristic_UART->setCallbacks(new MyCallbacks_UART());
+    // ----------------------------------------------------------
 
-  // Démarrer le service
-  pService_SystemInfos->start();
-  pService_Commands->start();
-  pService_Notify->start();
-  pService_UART->start();
+    // Démarrer le service
+    pService_SystemInfos->start();
+    pService_Commands->start();
+    pService_Notify->start();
+    pService_UART->start();
 
-  // Préparer et demarrer la publicité
-  pAdvertising = pMyServer->getAdvertising();
-  pAdvertising->start();
+    // Préparer et demarrer la publicité
+    pAdvertising = pMyServer->getAdvertising();
+    pAdvertising->start();
 
-  Serial.println(F("BLE démarré !"));
-  Serial.println(F("En attente de connexion d'un client..."));
-  // printSystemInfo();
+    Serial.println(F("BLE started"));
+    Serial.println(F("En attente de connexion d'un client..."));
+    // printSystemInfos();
 
-  //------------Service : Battery Level-------------------
-  /*
-      // Create characteristic and descriptor
-      BLECharacteristic BatterieLevelCharacteristic(BATTERIE_LEVEL_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
-      BLEDescriptor BatterieLevelDescriptor(BATTERIE_LEVEL_DESCRIPTOR_UUID);
-      BLEService *MyBatterieService = MyServer->createService(BATTERIE_SERVICE_UUID);
+    //------------Service : Battery Level-------------------
+    /*
+        // Create characteristic and descriptor
+        BLECharacteristic BatterieLevelCharacteristic(BATTERIE_LEVEL_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
+        BLEDescriptor BatterieLevelDescriptor(BATTERIE_LEVEL_DESCRIPTOR_UUID);
+        BLEService *MyBatterieService = MyServer->createService(BATTERIE_SERVICE_UUID);
 
-      MyBatterieService->addCharacteristic(&BatterieLevelCharacteristic);
-      BatterieLevelCharacteristic.addDescriptor(&BatterieLevelDescriptor);
+        MyBatterieService->addCharacteristic(&BatterieLevelCharacteristic);
+        BatterieLevelCharacteristic.addDescriptor(&BatterieLevelDescriptor);
 
-      uint8_t level = 17;
-      BatterieLevelCharacteristic.setValue(&level, 1);
-      BatterieLevelDescriptor.setValue("Niveau de charge en %");
+        uint8_t level = 17;
+        BatterieLevelCharacteristic.setValue(&level, 1);
+        BatterieLevelDescriptor.setValue("Niveau de charge en %");
 
-      Serial.println("Lancement du service MyBatterieService");
-      MyBatterieService->start();
-  */
+        Serial.println("Lancement du service MyBatterieService");
+        MyBatterieService->start();
+    */
 }
 
 /// @brief Ajoute un descriptor à une caractéristique BLE
@@ -249,23 +249,23 @@ void init_ble_server_HAL()
 /// @param valeur Valeur à assigner au descriptor
 void addDescriptor(BLECharacteristic *pCharacteristic, const char *uuid, const char *valeur)
 {
-  BLEDescriptor *pDescriptor = new BLEDescriptor(uuid);
-  pDescriptor->setValue(valeur);
-  pCharacteristic->addDescriptor(pDescriptor);
+    BLEDescriptor *pDescriptor = new BLEDescriptor(uuid);
+    pDescriptor->setValue(valeur);
+    pCharacteristic->addDescriptor(pDescriptor);
 }
 
 void start_ble_server_HAL()
 {
-  // start_ble_service_HAL(pMyService);
-  // start_ble_service_HAL(pServiceMessage);
-  // start_ble_advertising_HAL(pAdvertising);
+    // start_ble_service_HAL(pMyService);
+    // start_ble_service_HAL(pServiceMessage);
+    // start_ble_advertising_HAL(pAdvertising);
 }
 
 void stop_ble_server_HAL()
 {
-  // stop_ble_service_HAL(pMyService);
-  // stop_ble_service_HAL(pService_UART);
-  // stop_ble_advertising_HAL(pAdvertising);
+    // stop_ble_service_HAL(pMyService);
+    // stop_ble_service_HAL(pService_UART);
+    // stop_ble_advertising_HAL(pAdvertising);
 }
 
 // void start_ble_advertising_HAL(BLEAdvertising *advertising) {
@@ -323,66 +323,66 @@ void stop_ble_server_HAL()
 /// @brief Boucle principale du serveur BLE à appeler dans loop()
 void ble_server_loop_HAL()
 {
-  if (deviceConnected)
-  {
-    // --- every 1000 ms --------------------------------
-    if (millis() - *pStartTimeNotify >= *pIntervalNotify)
+    if (deviceConnected)
     {
-      *pStartTimeNotify = millis();
+        // --- every 1000 ms --------------------------------
+        if (millis() - *pStartTimeNotify >= *pIntervalNotify)
+        {
+            *pStartTimeNotify = millis();
 
-      // Exécuter les actions périodiques ici
-      float tickRate = getTickRate();
-      pCharacteristic_NOT_TICK_RATE->setValue(tickRate);
-      pCharacteristic_NOT_TICK_RATE->notify();
+            // Exécuter les actions périodiques ici
+            float tickRate = getTickRate();
+            pCharacteristic_NOT_TICK_RATE->setValue(tickRate);
+            pCharacteristic_NOT_TICK_RATE->notify();
 
-      pCharacteristic_NOT_Test->setValue(&txValue, 1);
-      pCharacteristic_NOT_Test->notify();
-      txValue++;
+            pCharacteristic_NOT_Test->setValue(&txValue, 1);
+            pCharacteristic_NOT_Test->notify();
+            txValue++;
 
-      unsigned long time = millis();
-      pRxCharacteristic_UART->setValue((uint8_t *)&time, sizeof(time));
-      pRxCharacteristic_UART->notify();
+            unsigned long time = millis();
+            pRxCharacteristic_UART->setValue((uint8_t *)&time, sizeof(time));
+            pRxCharacteristic_UART->notify();
+        }
     }
-  }
 
-  // On disconnecting
-  if (!deviceConnected && oldDeviceConnected)
-  {
-    delay(500); // Attendre avant de redémarrer la publicité
-    pMyServer->startAdvertising();
-    Serial.println(F("En attente de connexion d'un client..."));
-    oldDeviceConnected = deviceConnected;
-  }
+    // On disconnecting
+    if (!deviceConnected && oldDeviceConnected)
+    {
+        delay(500); // Attendre avant de redémarrer la publicité
+        pMyServer->startAdvertising();
+        Serial.println(F("En attente de connexion d'un client..."));
+        oldDeviceConnected = deviceConnected;
+    }
 
-  // On connecting
-  if (deviceConnected && !oldDeviceConnected)
-  {
-    oldDeviceConnected = deviceConnected;
-  }
+    // On connecting
+    if (deviceConnected && !oldDeviceConnected)
+    {
+        oldDeviceConnected = deviceConnected;
+    }
 }
 
 /// @brief Vérifie si un client BLE est connecté
 /// @return true si un client est connecté
 bool isDeviceConnected_HAL()
 {
-  return deviceConnected;
+    return deviceConnected;
 }
 
 // ------------------- Callbacks Serveur BLE ---------------------------
 /// @brief Callback lors de la connexion d'un client BLE
 void MyServerCallbacks::onConnect(BLEServer *pMyServer)
 {
-  deviceConnected = true;
-  // pMyServer->updatePeerMTU(pMyServer->getConnId(), 512); // Need to be negociated with client ?!
-  Serial.println(F("BLE client Connecté !"));
-  printSystemInfo();
+    deviceConnected = true;
+    // pMyServer->updatePeerMTU(pMyServer->getConnId(), 512); // Need to be negociated with client ?!
+    Serial.println(F("BLE client Connecté !"));
+    // printSystemInfos();
 }
 /// @brief Callback lors de la déconnexion d'un client BLE
 void MyServerCallbacks::onDisconnect(BLEServer *pMyServer)
 {
-  deviceConnected = false;
-  Serial.println(F("BLE client Déconnecté !"));
-  printSystemInfo();
+    deviceConnected = false;
+    Serial.println(F("BLE client Déconnecté !"));
+    // printSystemInfos();
 }
 
 /*
@@ -410,21 +410,21 @@ Canal de Notification :
 /// @param code Code à envoyer
 void sendBleNotifyCode_HAL(const std::string &code)
 {
-  sendBleNotify_HAL(pCharacteristic_NOTIFY_COMMANDS, code);
+    sendBleNotify_HAL(pCharacteristic_NOTIFY_COMMANDS, code);
 }
 
 /// @brief Envoie une notification BLE pour une nouvelle commande capturée
 /// @param command Commande capturée
 void sendBleNotifyNewCommandCaptured_HAL(std::string command)
 {
-  sendBleNotify_HAL(pCharacteristic_NOTIFY_NEW_COMMAND_CAPTURED, command);
+    sendBleNotify_HAL(pCharacteristic_NOTIFY_NEW_COMMAND_CAPTURED, command);
 }
 
 /// @brief Envoie une notification BLE générique
 /// @param message Message à envoyer
 void sendBleNotify_HAL(std::string message)
 {
-  sendBleNotify_HAL(pCharacteristic_Notify, message);
+    sendBleNotify_HAL(pCharacteristic_Notify, message);
 }
 
 /// @brief Envoie une notification BLE sur une caractéristique spécifique
@@ -432,16 +432,16 @@ void sendBleNotify_HAL(std::string message)
 /// @param message Message à envoyer
 void sendBleNotify_HAL(BLECharacteristic *pCharacteristic, const std::string &message)
 {
-  if (deviceConnected)
-  {
-    // pCharacteristic->setValue((uint8_t*)&message, sizeof(message));
-    // Serial.println("DEBUG2");
-    pCharacteristic->setValue(message);
-    pCharacteristic->notify();
-    // Serial.println("DEBUG3");
-    Serial.print(F("[NOTIFY] "));
-    Serial.println(message.c_str());
-  }
+    if (deviceConnected)
+    {
+        // pCharacteristic->setValue((uint8_t*)&message, sizeof(message));
+        // Serial.println("DEBUG2");
+        pCharacteristic->setValue(message);
+        pCharacteristic->notify();
+        // Serial.println("DEBUG3");
+        Serial.print(F("[NOTIFY] "));
+        Serial.println(message.c_str());
+    }
 }
 
 /********* EXEMPLE *********

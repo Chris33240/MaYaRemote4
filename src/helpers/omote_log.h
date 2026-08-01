@@ -25,8 +25,14 @@ extern "C"
 
 #if OMOTE_LOG_LEVEL >= OMOTE_LOG_LEVEL_VERBOSE
 #define omote_log_v(format, ...) Serial.printf(OMOTE_LOG_FORMAT(V, format), ##__VA_ARGS__)
+#define omote_log_v_mem() \
+    omote_log_v("[%s] Stack=%u words, Free Heap=%u bytes\r\n", \
+                __FUNCTION__, \
+                uxTaskGetStackHighWaterMark(nullptr), \
+                ESP.getFreeHeap())
 #else
 #define omote_log_v(format, ...)  do {} while(0)
+#define omote_log_v_mem()         do {} while(0)
 #endif
 
 #if OMOTE_LOG_LEVEL >= OMOTE_LOG_LEVEL_DEBUG

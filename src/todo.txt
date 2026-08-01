@@ -64,3 +64,7 @@ X Activer tous les protocoles
 
 - Migrer les fonctions C++17 vers C++11. par exemple: std::vector<uint8_t> buffer (avec buffrer.data.data(), buffer.size()).
     et forcer la compilation avec build_flags = -std=gnu++11
+
+- Prévoir nettoyage des traces
+- Ajout nouvelle caractéristiques info CPU + Chip revision
+- sortir / de COMMANDS_JSON_FILENAME

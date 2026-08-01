@@ -15,7 +15,7 @@
 #include <thread>
 #include "globals.h"
 #include "setup.h"
-#include "system_info.h"
+#include "system_infos.h"
 #include "commands_json_bootloader.h"
 #include "commands_json.h"
 #include "command_ir_capture.h"
@@ -285,9 +285,9 @@ void executeCommand(uint16_t command, std::string additionalPayload) {
 
 void receiveNewIRmessage_cb(std::string message)
 {
-  // showNewIRmessage(message);
-  Serial.println("TODO : Implement showNewIRmessage");
-  Serial.println((">> GUI received Message : " + message).c_str());
+    // showNewIRmessage(message);
+    Serial.println("TODO : Implement showNewIRmessage");
+    Serial.println((">> GUI received Message : " + message).c_str());
 }
 
 /*
@@ -328,63 +328,65 @@ int commandFilesCount;                         // Contient le nombre de fichiers
 /// @return Référence constante vers la map <nom de commande, données>.
 const std::map<std::string, commandData2> &getCommands2()
 {
-  return commands2;
+    return commands2;
 }
 
 /// @brief Récupère le nombre total de commandes BootLoader.
 /// @return Nombre de commandes.
 const std::size_t getCommandsCount()
 {
-  return commands2.size();
+    return commands2.size();
 }
 
 /// @brief Récupère le nombre total de fichiers de commandes.
 /// @return Nombre de fichiers de commandes.
 const uint16_t getCommandsFilesCount()
 {
-  return commandFilesCount;
+    return commandFilesCount;
 }
 
 /// @brief Récupère le set des clés des fichiers de commandes.
 /// @return Référence constante vers le set de noms de commandes.
 const std::set<std::string> &getCommands2Keys()
 {
-  return commands2Keys;
+    return commands2Keys;
 }
 
 /// @brief Récupère le nombre total de clés de commandes.
 /// @return Nombre de clés.
 const std::size_t getCommandsCountKeys()
 {
-  return commands2Keys.size();
+    return commands2Keys.size();
 }
 
 // --- Initialisation des commandes ---------
 /// @brief Initialise les commandes du système et du BootLoader.
 void init_commands()
 {
-  int errorCount = 0;
-  // updateCommandFiles(errorCount, "/", 0);
-  commands2 = deserializeCommands(commands_json_bootloader);
-  commands2Keys = deserializeKeys(commands_json_bootloader);
-  register_device_test();
+    int errorCount = 0;
+    // updateCommandFiles(errorCount, "/", 0);
+    commands2 = deserializeCommands(commands_json_bootloader);
+    commands2Keys = deserializeKeys(commands_json_bootloader);
+    register_device_test();
 
 #if (ENABLED_IO_FILESYSTEM)
-  updateCommandsFromFiles(commands2, errorCount);                                  // Update les données du bootloader
-  loadCommandsKeysFromFiles(commands2Keys, errorCount, commandFilesCount, "/", 0); // enregistre les clés contenues dans les fichiers de commande.
-  if (!enableMemoryReduction)
-    loadCommandFiles(commands2, errorCount, "/", 0); // Charge les fichiers de commandes en mémoire.
+    updateCommandsFromFiles(commands2, errorCount);                                  // Update les données du bootloader
+    loadCommandsKeysFromFiles(commands2Keys, errorCount, commandFilesCount, "/", 0); // enregistre les clés contenues dans les fichiers de commande.
+    if (!enableMemoryReduction)
+        loadCommandFiles(commands2, errorCount, "/", 0); // Charge les fichiers de commandes en mémoire.
 #endif
 
-  Serial.print(F(">> Commmands initialized with "));
-  Serial.print(errorCount);
-  Serial.println(F(" error(s)"));
+    Serial.print(F(">> Commmands initialized with "));
+    Serial.print(errorCount);
+    Serial.println(F(" error(s)"));
 
-  printSerializedCommandsKeys(commands2Keys);
-  printCommandsCountKeys(commands2Keys);
-  printCommandsFilesCount();
+    printMetaDatasCommandsKeys(commands2Keys);
+    printCommandsCount();
+    // printCommandsCountKeys(commands2Keys);
+    // printCommandsFilesCount();
 }
 
+/*
 /// @brief Affiche toutes les commandes avec leurs données sur le Serial.
 void printSerializedCommands(const std::map<std::string, commandData2> &commands)
 {
@@ -401,7 +403,9 @@ void printSerializedCommands(const std::map<std::string, commandData2> &commands
     Serial.println(data.commandHandler);
   }
 }
+*/
 
+/*
 /// @brief Affiche le nombre de commandes.
 void printCommandsCount(const std::map<std::string, commandData2> &commands)
 {
@@ -410,34 +414,42 @@ void printCommandsCount(const std::map<std::string, commandData2> &commands)
   Serial.println(commands.size());
   Serial.println(F("---------------------------------"));
 }
+*/
 
 /// @brief Affiche toutes les clés de commandes avec leurs données.
-void printSerializedCommandsKeys(const std::set<std::string> &commandskeys)
+void printMetaDatasCommandsKeys(const std::set<std::string> &commandskeys)
 {
-  Serial.println(F(""));
-  Serial.println(F("all commands Keys is listed below :"));
-  for (const auto &key : commandskeys)
-  {
-    std::string commandName = key;
-    try
+    Serial.println(F(""));
+    Serial.println(F("all meta-datas commands is listed below by key :"));
+    for (const auto &key : commandskeys)
     {
-      std::pair<std::string, commandData2> pair = loadCommand(commandName);
-      Serial.print(F("    -"));
-      Serial.print(pair.first.c_str());
-      commandData2 data = pair.second;
-      Serial.print(F(" | "));
-      Serial.print(data.requestType.c_str());
-      Serial.print(F(" | "));
-      Serial.println(data.commandHandler);
+        std::string commandName = key;
+        try
+        {
+            std::pair<std::string, commandData2> pair = loadCommand(commandName);
+            Serial.print(F("    -"));
+            Serial.print(pair.first.c_str());
+            commandData2 data = pair.second;
+            Serial.print(F(" | "));
+            Serial.print(data.requestType.c_str());
+            Serial.print(F(" | "));
+            Serial.println(data.commandHandler);
+        }
+        catch (const std::exception &e)
+        {
+            Serial.print(F("File not found or corrupted: "));
+            Serial.println(commandName.c_str());
+        }
     }
-    catch (const std::exception &e)
-    {
-      Serial.print(F("File not found or corrupted: "));
-      Serial.println(commandName.c_str());
-    }
-  }
 }
 
+/// @brief Affiche le nombre de commandes.
+void printCommandsCount()
+{
+    Serial.printf("TOTAL commandes: %d | dont %d fichiers de commande\n", commands2Keys.size(), commandFilesCount);
+}
+
+/*
 /// @brief Affiche le nombre de clés de commandes.
 void printCommandsCountKeys(const std::set<std::string> &commandsKeys)
 {
@@ -455,8 +467,10 @@ void printCommandsFilesCount()
   Serial.println(commandFilesCount);
   Serial.println(F("---------------------------------"));
 }
+*/
 
 // Fonction inutilisé.
+/*
 void printCommands(std::map<std::string, commandData2> commands)
 {
   Serial.println(F("all commands is listed below :"));
@@ -477,6 +491,7 @@ void printCommands(std::map<std::string, commandData2> commands)
     }
   }
 };
+*/
 
 /// @brief Crée un objet commandData2.
 /// @param a CommandHandler.
@@ -486,18 +501,18 @@ void printCommands(std::map<std::string, commandData2> commands)
 /// @return Objet commandData2 initialisé.
 commandData2 makeCommandData2(commandHandlers a, std::string d, std::string e, std::list<std::string> b)
 {
-  commandData2 c = {true, a, d, e, "", b};
-  return c;
+    commandData2 c = {true, a, d, e, "", b};
+    return c;
 }
 
 // --- Enregistrement des commandes -------
 /// @brief Enregistre des commandes de test directement depuis le code.
 void register_device_test()
 {
-  // registerCommand("IR_SONY_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::SONY), "0xA90", "12", "2"}), false, true);
-  // registerCommand("IR_MCE_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::RC6), "0xC800F040CLL", "36", "0x8000", "True"}), false, true);
-  registerCommand2("IR_SONY_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::SONY), "0xA90", "12", "2"}), false, false, true);
-  registerCommand2("IR_MCE_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::RC6), "0xC800F040CLL", "36", "0x8000", "True"}), false, false, true);
+    // registerCommand("IR_SONY_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::SONY), "0xA90", "12", "2"}), false, true);
+    // registerCommand("IR_MCE_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::RC6), "0xC800F040CLL", "36", "0x8000", "True"}), false, true);
+    registerCommand2("IR_SONY_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::SONY), "0xA90", "12", "2"}), false, false, true);
+    registerCommand2("IR_MCE_POWER", makeCommandData2(IR, "WRITE", "w", {std::to_string(nsIR::RC6), "0xC800F040CLL", "36", "0x8000", "True"}), false, false, true);
 }
 
 /// @brief Enregistre une commande dans le système et retourne une clé unique.
@@ -506,30 +521,30 @@ void register_device_test()
 /// @return retourne la clé unique
 std::string registerCommand(std::string key, commandData2 aCommandData, bool saveToFS, bool forceMemory)
 {
-  // Get new key if key already exist
-  key = getFreeKey(key);
-  commands2Keys.insert(key);
+    // Get new key if key already exist
+    key = getFreeKey(key);
+    commands2Keys.insert(key);
 
-  bool availableFS = false;
+    bool availableFS = false;
 #if (ENABLED_IO_FILESYSTEM && ENABLED_IO_FILESYSTEM_SAVING)
-  availableFS = true;
-  if (saveToFS)
-    saveCommand(key, aCommandData);
+    availableFS = true;
+    if (saveToFS)
+        saveCommand(key, aCommandData);
 #else
-  omote_log_w("Filesystem saving disabled");
+    omote_log_w("Filesystem saving disabled");
 #endif
-  bool isSaveToFS = availableFS && saveToFS;
-  bool isForceMemory = forceMemory || !isSaveToFS || (isSaveToFS && !enableMemoryReduction);
-  if (isForceMemory)
-  {
-    commands2[key] = aCommandData;
-  }
+    bool isSaveToFS = availableFS && saveToFS;
+    bool isForceMemory = forceMemory || !isSaveToFS || (isSaveToFS && !enableMemoryReduction);
+    if (isForceMemory)
+    {
+        commands2[key] = aCommandData;
+    }
 
-  Serial.print(F(">> Command registered with key: "));
-  Serial.println(key.c_str());
-  printCommandsCountKeys(commands2Keys);
+    Serial.print(F(">> Command registered with key: "));
+    Serial.println(key.c_str());
+    // printCommandsCountKeys(commands2Keys);
 
-  return key;
+    return key;
 }
 
 /// @brief Enregistre une commande dans le système et retourne une clé unique.
@@ -541,64 +556,64 @@ std::string registerCommand(std::string key, commandData2 aCommandData, bool sav
 /// @return Retourne la clé finale utilisée.
 std::string registerCommand2(std::string key, commandData2 aCommandData, bool overwriteIfExists, bool saveToFS, bool forceMemory)
 {
-  // 1️⃣ Vérifie si la clé existe déjà
-  bool keyAlreadyExists = commands2Keys.find(key) != commands2Keys.end();
+    // 1️⃣ Vérifie si la clé existe déjà
+    bool keyAlreadyExists = commands2Keys.find(key) != commands2Keys.end();
 
-  // 2️⃣ Gérer le conflit selon overwriteIfExists
-  if (keyAlreadyExists && !overwriteIfExists)
-  {
-    // 🔹 Générer une nouvelle clé si on ne veut pas écraser
-    key = getFreeKey(key);
-  }
-  else if (keyAlreadyExists && overwriteIfExists)
-  {
-    // 🔹 On veut écraser la commande existante
-    //   -> supprimer d'abord l'ancienne entrée en mémoire
-    commands2.erase(key);
+    // 2️⃣ Gérer le conflit selon overwriteIfExists
+    if (keyAlreadyExists && !overwriteIfExists)
+    {
+        // 🔹 Générer une nouvelle clé si on ne veut pas écraser
+        key = getFreeKey(key);
+    }
+    else if (keyAlreadyExists && overwriteIfExists)
+    {
+        // 🔹 On veut écraser la commande existante
+        //   -> supprimer d'abord l'ancienne entrée en mémoire
+        commands2.erase(key);
 
-    //   -> supprimer le fichier existant seulement si nécessaire
+        //   -> supprimer le fichier existant seulement si nécessaire
 #if (ENABLED_IO_FILESYSTEM && ENABLED_IO_FILESYSTEM_SAVING)
+        if (saveToFS)
+        {
+            deleteCommandFile(key); // Suppression propre du fichier
+            commandFilesCount -= 1;
+        }
+#endif
+    }
+
+    // 3️⃣ Ajouter la clé au set des clés connues
+    commands2Keys.insert(key);
+
+    // 4️⃣ Sauvegarde dans le filesystem si activé et demandé
+    bool availableFS = false;
+#if (ENABLED_IO_FILESYSTEM && ENABLED_IO_FILESYSTEM_SAVING)
+    availableFS = true;
     if (saveToFS)
     {
-      deleteCommandFile(key); // Suppression propre du fichier
-      commandFilesCount -= 1;
+        saveCommand(key, aCommandData);
+        commandFilesCount += 1;
     }
-#endif
-  }
-
-  // 3️⃣ Ajouter la clé au set des clés connues
-  commands2Keys.insert(key);
-
-  // 4️⃣ Sauvegarde dans le filesystem si activé et demandé
-  bool availableFS = false;
-#if (ENABLED_IO_FILESYSTEM && ENABLED_IO_FILESYSTEM_SAVING)
-  availableFS = true;
-  if (saveToFS)
-  {
-    saveCommand(key, aCommandData);
-    commandFilesCount += 1;
-  }
 #else
-  omote_log_w("Filesystem saving disabled");
+    omote_log_w("Filesystem saving disabled");
 #endif
 
-  // 5️⃣ Déterminer si on force le stockage en mémoire
-  bool isSaveToFS = availableFS && saveToFS;
-  bool isForceMemory = forceMemory || !isSaveToFS || (isSaveToFS && !enableMemoryReduction);
+    // 5️⃣ Déterminer si on force le stockage en mémoire
+    bool isSaveToFS = availableFS && saveToFS;
+    bool isForceMemory = forceMemory || !isSaveToFS || (isSaveToFS && !enableMemoryReduction);
 
-  // 🔹 Stockage en mémoire uniquement si nécessaire
-  if (isForceMemory)
-  {
-    // ⚡ L'opérateur [] écrase automatiquement la valeur précédente
-    commands2[key] = aCommandData;
-  }
+    // 🔹 Stockage en mémoire uniquement si nécessaire
+    if (isForceMemory)
+    {
+        // ⚡ L'opérateur [] écrase automatiquement la valeur précédente
+        commands2[key] = aCommandData;
+    }
 
-  // 6️⃣ Debug / suivi
-  Serial.print(F(">> Command registered with key: "));
-  Serial.println(key.c_str());
-  printCommandsCountKeys(commands2Keys);
+    // 6️⃣ Debug / suivi
+    Serial.print(F(">> Command registered with key: "));
+    Serial.println(key.c_str());
+    // printCommandsCountKeys(commands2Keys);
 
-  return key;
+    return key;
 }
 
 /// @brief Désenregistre et supprime une commande existante.
@@ -606,10 +621,10 @@ std::string registerCommand2(std::string key, commandData2 aCommandData, bool ov
 /// @param commandName Nom de la commande à supprimer.
 void unregisterCommand(std::string commandName)
 {
-  commands2.erase(commandName);
-  commands2Keys.erase(commandName);
-  deleteCommandFile(commandName);
-  commandFilesCount -= 1;
+    commands2.erase(commandName);
+    commands2Keys.erase(commandName);
+    deleteCommandFile(commandName);
+    commandFilesCount -= 1;
 }
 
 /// @brief Génère une clé unique pour une commande.
@@ -617,9 +632,9 @@ void unregisterCommand(std::string commandName)
 /// @return Nom de commande unique.
 std::string getFreeKey(std::string command)
 {
-  int x = 0;
-  int &ref = x;
-  return getFreeKey(command, commands2Keys, x);
+    int x = 0;
+    int &ref = x;
+    return getFreeKey(command, commands2Keys, x);
 }
 
 /// @brief Génère une clé unique pour une commande en fonction du set de clés.
@@ -629,18 +644,18 @@ std::string getFreeKey(std::string command)
 /// @return Nom de commande unique.
 std::string getFreeKey(std::string command, std::set<std::string> &commandsKeys, int &id)
 {
-  std::string newCommand = command;
-  if (id > 0)
-  {
-    newCommand += "_" + std::to_string(id);
-  }
+    std::string newCommand = command;
+    if (id > 0)
+    {
+        newCommand += "_" + std::to_string(id);
+    }
 
-  if (commandsKeys.find(newCommand) != commandsKeys.end())
-  {
-    id++;
-    return getFreeKey(command, commandsKeys, id);
-  }
-  return newCommand;
+    if (commandsKeys.find(newCommand) != commandsKeys.end())
+    {
+        id++;
+        return getFreeKey(command, commandsKeys, id);
+    }
+    return newCommand;
 }
 
 // --------- Execution des commandes ------------
@@ -649,59 +664,63 @@ std::string getFreeKey(std::string command, std::set<std::string> &commandsKeys,
 /// @param additionalPayload Payload supplémentaire optionnel.
 void executeUnregisteredCommand(commandData2 commandData, std::string additionalPayload = "")
 {
-  try
-  {
-    omote_log_d("command: will execute unregistered command with additionalPayload '%s'\r\n", additionalPayload.c_str());
-    executeCommandWithData2("", commandData, additionalPayload);
-    sendBleNotifyCode("108");
-  }
-  catch (...)
-  {
-    omote_log_e("executeUnregisteredCommand: unknow internal error during execution\r\n");
-    sendBleNotifyCode("109");
-  }
+    try
+    {
+        omote_log_d("command: will execute unregistered command with additionalPayload '%s'\r\n", additionalPayload.c_str());
+        executeCommandWithData2("", commandData, additionalPayload);
+        sendBleNotifyCode("108");
+    }
+    catch (...)
+    {
+        omote_log_e("executeUnregisteredCommand: unknow internal error during execution\r\n");
+        sendBleNotifyCode("109");
+    }
 }
 
 /// @brief Recherche une commande en mémoire ou dans les fichiers.
 /// @return true si trouvée, false sinon. Remplit commandDataOut si succès.
 bool findCommandData(const std::string &commandName, commandData2 &commandDataOut)
 {
-  // 1️⃣ Recherche en mémoire
-  auto it = commands2.find(commandName);
-  if (it != commands2.end())
-  {
-    commandDataOut = it->second;
-    commandDataOut.status1 = "OK";
-    return true;
-  }
+    // 1️⃣ Recherche en mémoire
+    auto it = commands2.find(commandName);
+    if (it != commands2.end())
+    {
+        commandDataOut = it->second;
+        commandDataOut.status1 = "OK";
+        return true;
+    }
 
-  // 2️⃣ Si activé, recherche sur disque
-  if (enableMemoryReduction)
-  {
-    return findCommandDataFiles(commandName, commandDataOut);
-  }
+    // 2️⃣ Si activé, recherche sur disque
+    if (enableMemoryReduction)
+    {
+        // omote_log_v("DEBUG: we are here 3\r\n");
+        // omote_log_v_mem();
+        return findCommandDataFiles(commandName, commandDataOut);
+    }
 
-  return false;
+    return false;
 }
 
 /// @brief Recherche une commande dans les fichiers.
 /// @return true si trouvée, false sinon. Remplit commandDataOut si succès.
 bool findCommandDataFiles(const std::string &commandName, commandData2 &commandDataOut)
 {
-  try
-  {
-    auto pair = loadCommand(commandName);
-    commandDataOut = pair.second;
-    commandDataOut.status1 = "OK";
-    return true;
-  }
-  catch (...)
-  {
-    commandDataOut.status1 = "ERROR_READING_FILE";
-    omote_log_e("command: failed to load command '%s' from storage\r\n", commandName.c_str());
-  }
+    try
+    {
+        // omote_log_v("DEBUG: we are here 4\r\n");
+        // omote_log_v_mem();
+        auto pair = loadCommand(commandName);
+        commandDataOut = pair.second;
+        commandDataOut.status1 = "OK";
+        return true;
+    }
+    catch (...)
+    {
+        commandDataOut.status1 = "ERROR_READING_FILE";
+        omote_log_e("command: failed to load command '%s' from storage\r\n", commandName.c_str());
+    }
 
-  return false;
+    return false;
 }
 
 /// @brief Exécute une commande pré-enrgistrées par son nom.
@@ -709,25 +728,25 @@ bool findCommandDataFiles(const std::string &commandName, commandData2 &commandD
 /// @param additionalPayload Payload supplémentaire optionnel.
 void executeRegisteredCommand(std::string commandName, std::string additionalPayload)
 {
-  commandData2 commandData;
+    commandData2 commandData;
 
-  if (!findCommandData(commandName, commandData))
-  {
-    omote_log_w("command: command '%s' not found\r\n", commandName.c_str());
-    return;
-  }
+    if (!findCommandData(commandName, commandData))
+    {
+        omote_log_w("command: command '%s' not found\r\n", commandName.c_str());
+        return;
+    }
 
-  try
-  {
-    omote_log_d("command: will execute registered command '%s' with additionalPayload '%s'\r\n", commandName.c_str(), additionalPayload.c_str());
-    executeCommandWithData2(commandName, commandData, additionalPayload);
-    sendBleNotifyCode("108");
-  }
-  catch (...)
-  {
-    omote_log_e("executeRegisteredCommand: unknown internal error during execution\r\n");
-    sendBleNotifyCode("109");
-  }
+    try
+    {
+        omote_log_d("command: will execute registered command '%s' with additionalPayload '%s'\r\n", commandName.c_str(), additionalPayload.c_str());
+        executeCommandWithData2(commandName, commandData, additionalPayload);
+        sendBleNotifyCode("108");
+    }
+    catch (...)
+    {
+        omote_log_e("executeRegisteredCommand: unknown internal error during execution\r\n");
+        sendBleNotifyCode("109");
+    }
 }
 
 /// @brief Exécute une commande par son nom, avec ses données et un payload supplémentaire.
@@ -736,185 +755,186 @@ void executeRegisteredCommand(std::string commandName, std::string additionalPay
 /// @param additionalPayload Payload supplémentaire optionnel.
 void executeCommandWithData2(std::string commandName, commandData2 commandData, std::string additionalPayload = "")
 {
-  pGlobalStatusLED->startBlinkingForDuration(BLINK_LED_EXECUTE_INTERVAL, BLINK_LED_EXECUTE_DURATION);
-  switch (commandData.commandHandler)
-  {
-  case IR:
-  {
-    if (commandName == "IR_SONY_POWER")
+    pGlobalStatusLED->startBlinkingForDuration(BLINK_LED_EXECUTE_INTERVAL, BLINK_LED_EXECUTE_DURATION);
+    switch (commandData.commandHandler)
     {
-      sendSonyR2(commandData.commandPayloads);
-      break;
-    }
-    if (commandName == "IR_MCE_POWER")
+    case IR:
     {
-      sendMceT(commandData.commandPayloads);
-      break;
-    }
+        if (commandName == "IR_SONY_POWER")
+        {
+            sendSonyR2(commandData.commandPayloads);
+            break;
+        }
+        if (commandName == "IR_MCE_POWER")
+        {
+            sendMceT(commandData.commandPayloads);
+            break;
+        }
 
-    sendIRcode2(commandData.commandPayloads, additionalPayload);
-    break;
-  }
+        sendIRcode2(commandData.commandPayloads, additionalPayload);
+        break;
+    }
 
 #if (ENABLE_WIFI_AND_MQTT == 1)
-  case MQTT:
-  {
-    auto current = commandData.commandPayloads.begin();
-    std::string topic = *current;
-    std::string payload;
-    if (additionalPayload == "")
+    case MQTT:
     {
-      current = std::next(current, 1);
-      payload = *current;
+        auto current = commandData.commandPayloads.begin();
+        std::string topic = *current;
+        std::string payload;
+        if (additionalPayload == "")
+        {
+            current = std::next(current, 1);
+            payload = *current;
+        }
+        else
+        {
+            payload = additionalPayload;
+        }
+        omote_log_d("execute: will send MQTT, topic '%s', payload '%s'\r\n", topic.c_str(), payload.c_str());
+        publishMQTTMessage(topic.c_str(), payload.c_str());
+        break;
     }
-    else
-    {
-      payload = additionalPayload;
-    }
-    omote_log_d("execute: will send MQTT, topic '%s', payload '%s'\r\n", topic.c_str(), payload.c_str());
-    publishMQTTMessage(topic.c_str(), payload.c_str());
-    break;
-  }
 #endif
 
 #if (ENABLE_KEYBOARD_BLE == 1)
-  case BLE_KEYBOARD:
-  {
-    // the real command for the BLE keyboard is the first element in payload
-    auto current = commandData.commandPayloads.begin();
-    uint16_t command = std::stoi(*current);
-    std::string payload = "";
-    if (additionalPayload != "")
+    case BLE_KEYBOARD:
     {
-      payload = additionalPayload;
-    }
-    omote_log_d("execute: will send BLE keyboard command, command '%u', payload '%s'\r\n", command, payload.c_str());
-    keyboard_ble_executeCommand(command, payload);
-    break;
-  }
-#endif
-
-    // case SCENE: {
-    //   // let the sceneHandler do the scene stuff
-    //   omote_log_d("execute: will send scene command to the sceneHandler\r\n");
-    //   handleScene(command, commandData, additionalPayload);
-    //   break;
-    // }
-
-    // case GUI: {
-    //   // let the sceneHandler find and show the gui
-    //   omote_log_d("execute: will send gui command to the sceneHandler\r\n");
-    //   handleGUI(command, commandData, additionalPayload);
-    //   break;
-    // }
-
-  case SPECIAL:
-  {
-    // if (command == MY_SPECIAL_COMMAND) {
-    //   // do your special command here
-    //   omote_log_d("execute: could execute a special command here, if you define one\r\n");
-
-    // }
-    if (commandName == "LIST_COMMANDS")
-    {
-
-      /*
-      // Simuler un traiment long et vérifier si l'update de LedBlinker s'effectue.
-      unsigned long lastTime = millis();
-      for (int i=0; i<500; i++) {
-        Serial.println(i);
-        delay(10);
-        vTaskDelay(10 / portTICK_PERIOD_MS); // Délai de 10 ms en mode multitâche
-        yield();
-        while (millis() - lastTime < 10) {
-            yield(); // Continuer à permettre au système de fonctionner
+        // the real command for the BLE keyboard is the first element in payload
+        auto current = commandData.commandPayloads.begin();
+        uint16_t command = std::stoi(*current);
+        std::string payload = "";
+        if (additionalPayload != "")
+        {
+            payload = additionalPayload;
         }
-        lastTime = millis();
-      }*/
-
-      printSerializedCommandsKeys(commands2Keys);
-      printCommandsCountKeys(commands2Keys);
+        omote_log_d("execute: will send BLE keyboard command, command '%u', payload '%s'\r\n", command, payload.c_str());
+        keyboard_ble_executeCommand(command, payload);
+        break;
     }
-    else if (commandName == "TEST_NOTIFY")
-    {
-      sendBleNotify("0123456789ABCDEFGHIJ"); // Ok limited to 20 charactères.
-    }
-    else if (commandName == "LISTDIR_COMMANDS")
-    {
-#if (ENABLED_IO_FILESYSTEM)
-      // commandData2 command = commands2["IR_MCE_POWER"];
-      // String path = combinePath("","test1.txt");
-      // saveCommand("test", command, path, SAVE_COMMAND_JSONPRETTY);
-
-      try
-      {
-        // saveCommand2("BLEKB_5", commands2["IR_MCE_POWER"], combinePath("","BLEKB_5.cde"));
-        // String jsonString = serialize("BLEKB_5",  commands2["BLEKB_5"], SAVE_COMMAND_JSONPRETTY);
-        // saveCommand(jsonString, combinePath("","BLEKB_5.cde"));
-
-        // deleteCommandFile2("BLEKB_5");
-        // deleteCommandFile2(combinePath("","test1.cde"));
-        // deleteCommand3(commands2, "BLEKB_5");
-        fsMount2();
-        // deleteFile2(combinePath("","BLEKB_5.cde"));
-        // deleteFile2(combinePath("","DELETE_COMMANDS.cde"));
-        // deleteFile2(combinePath("","FREE_HEAP.cde"));
-        // deleteFile2(combinePath("","FS_TOTAL_BYTES.cde"));
-        // deleteFile2(combinePath("","FS_USED_BYTES.cde"));
-        // deleteFile2(combinePath("","GUI_3.cde"));
-        // deleteFile2(combinePath("","HIGH_WATER_MARK.cde"));
-        // deleteFile2(combinePath("","IR_2_0xC800F040C.cde"));
-        // deleteFile2(combinePath("","IR_3_0xFFA25D.cde"));
-        // deleteFile2(combinePath("","IR_3_0xFFA25D_1.cde"));
-        // deleteFile2(combinePath("","IR_3_0xFFA25D_2.cde"));
-        // deleteFile2(combinePath("","IR_CAPTURE.cde"));
-        // deleteFile2(combinePath("","IR_MCE_POWER.cde"));
-        // deleteFile2(combinePath("","IR_SONY_POWER.cde"));
-        // deleteFile2(combinePath("","LISTDIR_COMMANDS.cde"));
-        // deleteFile2(combinePath("","LIST_COMMANDS.cde"));
-        // deleteFile2(combinePath("","LIST_COMMANDS_R.cde"));
-        // deleteFile2(combinePath("","MQTT_4.cde"));
-        // deleteFile2(combinePath("","SAVE_COMMANDS.cde"));
-        // deleteFile2(combinePath("","SCENE_2.cde"));
-        // deleteFile2(combinePath("","SPECIALE_1.cde"));
-        // deleteFile2(combinePath("","TEST_NOTIFY.cde"));
-        // deleteFile2(combinePath("","TICK_RATE.cde"));
-        fsUnMount2();
-      }
-      catch (const std::exception &e)
-      {
-        // Nothing to do ???
-      }
-
-      // TODO: Exécuter les traiments longs dans un thread secondaire pour eviter le blocage de l'update de LedBlinker.
-      // listDir2("/", 0);
-      printFilesInfo("/", 0);
-      fsMount2();
-      unsigned int usedBytes = getFsUsedBytes();
-      unsigned int totalBytes = getFsTotalBytes();
-      fsUnMount2();
-
-      Serial.printf("FileSystem : '%u' used Bytes / '%u' total Bytes\r\n", usedBytes, totalBytes);
 #endif
-    }
-    else if (commandName == "DELETE_ALL_FILES_CMD")
-    {
-      int errorCount = 0;
-#if (ENABLED_IO_FILESYSTEM)
-      deleteAllFiles(errorCount, "/", 0);
-      commandFilesCount = 0;
-      Serial.print(F(">> All files deleted with "));
-      Serial.print(errorCount);
-      Serial.println(F(" error(s)"));
-      init_commands();
-#endif
-    }
-    else if (commandName == "IR_CAPTURE")
-    {
-      captureCommand();
-    }
 
-    break;
-  }
-  }
+        // case SCENE: {
+        //   // let the sceneHandler do the scene stuff
+        //   omote_log_d("execute: will send scene command to the sceneHandler\r\n");
+        //   handleScene(command, commandData, additionalPayload);
+        //   break;
+        // }
+
+        // case GUI: {
+        //   // let the sceneHandler find and show the gui
+        //   omote_log_d("execute: will send gui command to the sceneHandler\r\n");
+        //   handleGUI(command, commandData, additionalPayload);
+        //   break;
+        // }
+
+    case SPECIAL:
+    {
+        // if (command == MY_SPECIAL_COMMAND) {
+        //   // do your special command here
+        //   omote_log_d("execute: could execute a special command here, if you define one\r\n");
+
+        // }
+        if (commandName == "LIST_COMMANDS")
+        {
+
+            /*
+            // Simuler un traiment long et vérifier si l'update de LedBlinker s'effectue.
+            unsigned long lastTime = millis();
+            for (int i=0; i<500; i++) {
+              Serial.println(i);
+              delay(10);
+              vTaskDelay(10 / portTICK_PERIOD_MS); // Délai de 10 ms en mode multitâche
+              yield();
+              while (millis() - lastTime < 10) {
+                  yield(); // Continuer à permettre au système de fonctionner
+              }
+              lastTime = millis();
+            }*/
+
+            printMetaDatasCommandsKeys(commands2Keys);
+            // printCommandsCountKeys(commands2Keys);
+            printCommandsCount();
+        }
+        else if (commandName == "TEST_NOTIFY")
+        {
+            sendBleNotify("0123456789ABCDEFGHIJ"); // Ok limited to 20 charactères.
+        }
+        else if (commandName == "LISTDIR_COMMANDS")
+        {
+#if (ENABLED_IO_FILESYSTEM)
+            // commandData2 command = commands2["IR_MCE_POWER"];
+            // String path = combinePath("","test1.txt");
+            // saveCommand("test", command, path, SAVE_COMMAND_JSONPRETTY);
+
+            try
+            {
+                // saveCommand2("BLEKB_5", commands2["IR_MCE_POWER"], combinePath("","BLEKB_5.cde"));
+                // String jsonString = serialize("BLEKB_5",  commands2["BLEKB_5"], SAVE_COMMAND_JSONPRETTY);
+                // saveCommand(jsonString, combinePath("","BLEKB_5.cde"));
+
+                // deleteCommandFile2("BLEKB_5");
+                // deleteCommandFile2(combinePath("","test1.cde"));
+                // deleteCommand3(commands2, "BLEKB_5");
+                fsMount2();
+                // deleteFile2(combinePath("","BLEKB_5.cde"));
+                // deleteFile2(combinePath("","DELETE_COMMANDS.cde"));
+                // deleteFile2(combinePath("","FREE_HEAP.cde"));
+                // deleteFile2(combinePath("","FS_TOTAL_BYTES.cde"));
+                // deleteFile2(combinePath("","FS_USED_BYTES.cde"));
+                // deleteFile2(combinePath("","GUI_3.cde"));
+                // deleteFile2(combinePath("","HIGH_WATER_MARK.cde"));
+                // deleteFile2(combinePath("","IR_2_0xC800F040C.cde"));
+                // deleteFile2(combinePath("","IR_3_0xFFA25D.cde"));
+                // deleteFile2(combinePath("","IR_3_0xFFA25D_1.cde"));
+                // deleteFile2(combinePath("","IR_3_0xFFA25D_2.cde"));
+                // deleteFile2(combinePath("","IR_CAPTURE.cde"));
+                // deleteFile2(combinePath("","IR_MCE_POWER.cde"));
+                // deleteFile2(combinePath("","IR_SONY_POWER.cde"));
+                // deleteFile2(combinePath("","LISTDIR_COMMANDS.cde"));
+                // deleteFile2(combinePath("","LIST_COMMANDS.cde"));
+                // deleteFile2(combinePath("","LIST_COMMANDS_R.cde"));
+                // deleteFile2(combinePath("","MQTT_4.cde"));
+                // deleteFile2(combinePath("","SAVE_COMMANDS.cde"));
+                // deleteFile2(combinePath("","SCENE_2.cde"));
+                // deleteFile2(combinePath("","SPECIALE_1.cde"));
+                // deleteFile2(combinePath("","TEST_NOTIFY.cde"));
+                // deleteFile2(combinePath("","TICK_RATE.cde"));
+                fsUnMount2();
+            }
+            catch (const std::exception &e)
+            {
+                // Nothing to do ???
+            }
+
+            // TODO: Exécuter les traiments longs dans un thread secondaire pour eviter le blocage de l'update de LedBlinker.
+            // listDir2("/", 0);
+            printFilesInfo("/", 0);
+            fsMount2();
+            unsigned int usedBytes = getFsUsedBytes();
+            unsigned int totalBytes = getFsTotalBytes();
+            fsUnMount2();
+
+            Serial.printf("FileSystem : '%u' used Bytes / '%u' total Bytes\r\n", usedBytes, totalBytes);
+#endif
+        }
+        else if (commandName == "DELETE_ALL_FILES_CMD")
+        {
+            int errorCount = 0;
+#if (ENABLED_IO_FILESYSTEM)
+            deleteAllFiles(errorCount, "/", 0);
+            commandFilesCount = 0;
+            Serial.print(F(">> All files deleted with "));
+            Serial.print(errorCount);
+            Serial.println(F(" error(s)"));
+            init_commands();
+#endif
+        }
+        else if (commandName == "IR_CAPTURE")
+        {
+            captureCommand();
+        }
+
+        break;
+    }
+    }
 }

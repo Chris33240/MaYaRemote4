@@ -11,16 +11,16 @@
 /// @param toggle_bit_mask Masque indiquant la position du bit de bascule.
 void sendRC6Toggle(IRsend IrSender, uint64_t command, short nbits, uint32_t toggle_bit_mask)
 {
-  static int toggle = 0;
-  if (toggle == 0)
-  {
-    IrSender.sendRC6(command, nbits);
-  }
-  else
-  {
-    IrSender.sendRC6(command ^ toggle_bit_mask, nbits);
-  }
-  toggle = 1 - toggle;
+    static int toggle = 0;
+    if (toggle == 0)
+    {
+        IrSender.sendRC6(command, nbits);
+    }
+    else
+    {
+        IrSender.sendRC6(command ^ toggle_bit_mask, nbits);
+    }
+    toggle = 1 - toggle;
 }
 
 /// Envoie une trame RC6 avec gestion externe du bit de bascule (toggle).
@@ -35,12 +35,12 @@ void sendRC6Toggle(IRsend IrSender, uint64_t command, short nbits, uint32_t togg
 /// @param toggle Valeur du bit de bascule (0 = non activé, 1 = activé).
 void sendRC6Toggle(IRsend IrSender, uint64_t command, short nbits, int toggle_bit_mask, uint32_t toggle)
 {
-  if (toggle == 0)
-  {
-    IrSender.sendRC6(command, nbits);
-  }
-  else
-  {
-    IrSender.sendRC6(command ^ toggle_bit_mask, nbits);
-  }
+    if (toggle == 0)
+    {
+        IrSender.sendRC6(command, nbits);
+    }
+    else
+    {
+        IrSender.sendRC6(command ^ toggle_bit_mask, nbits);
+    }
 }

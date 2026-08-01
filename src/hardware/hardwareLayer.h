@@ -1,7 +1,7 @@
 #pragma once
 
 #if defined(WIN32) || defined(__linux__)
-  #include "windows_linux/include_hal_windows_linux.h"
+    #include "windows_linux/include_hal_windows_linux.h"
 #elif defined(ARDUINO)
-  #include "esp32/include_hal_esp32.h"
+    #include "esp32/include_hal_esp32.h"
 #endif

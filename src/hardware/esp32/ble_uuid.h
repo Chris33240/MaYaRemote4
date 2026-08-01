@@ -13,6 +13,7 @@
 #define CHARACTERISTIC_COMMANDS_COUNT_DESCRIPTOR_UUID "dfe7c9fc-deaf-4e66-afa3-6e5264395b04"
 #define CHARACTERISTIC_COMMANDS_FILES_COUNT_UUID "544e38f4-8783-4eb5-b5d5-a378819c309d"
 #define CHARACTERISTIC_LIST_COMMANDS_UUID "a9dc70a5-3749-49d5-873a-fcd1b2ccddf2"
+// Deprecated - ce canal BLE etait prévu pour la synchronisation des datas mais n'est pas utilisé par le client:
 #define CHARACTERISTIC_LIST_COMMANDS_DATA_UUID "35e8ffc5-2c6d-4b57-ad9c-07ba4fa586b6"
 #define CHARACTERISTIC_LAST_CAPTURE_UUID "ee78c2fb-0513-4dc7-a349-7412562c06a9"
 // #define CHARACTERISTIC_COMMAND_UUID "7c0c98b0-f8f7-408b-99fa-6250d24facc4"

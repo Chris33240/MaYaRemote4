@@ -57,7 +57,7 @@ bool isCodeReceived = false;
 tAnnounceNewIRmessage_cb thisAnnounceNewIRmessage_cb = NULL;
 void set_announceNewIRmessage_cb_HAL(tAnnounceNewIRmessage_cb pAnnounceNewIRmessage_cb)
 {
-  thisAnnounceNewIRmessage_cb = pAnnounceNewIRmessage_cb;
+    thisAnnounceNewIRmessage_cb = pAnnounceNewIRmessage_cb;
 }
 
 // decode_results getResults() {
@@ -151,99 +151,102 @@ PacketsHandler bleLastCapturePacketsHandler;
 // This section of code runs only once at start-up.
 void start_infraredReceiver_HAL()
 {
-  pinMode(GPIO_IR_RECEIVER, INPUT);
-  pinMode(GPIO_POWER, OUTPUT);
-  digitalWrite(GPIO_POWER, HIGH); // Turn on IR receiver
+    pinMode(GPIO_IR_RECEIVER, INPUT);
+    pinMode(GPIO_POWER, OUTPUT);
+    digitalWrite(GPIO_POWER, HIGH); // Turn on IR receiver
+    Serial.print(F("IR Receiver Power Turn ON on pin : "));
+    Serial.println(GPIO_POWER);
+    Serial.print(F("Ready to receive IR signals on pin : "));
+    Serial.println(GPIO_IR_RECEIVER);
+    // Perform a low level sanity checks that the compiler performs bit field
+    // packing as we expect and Endianness is as we expect.
+    assert(irutils::lowLevelSanityCheck() == 0);
 
-  // Perform a low level sanity checks that the compiler performs bit field
-  // packing as we expect and Endianness is as we expect.
-  assert(irutils::lowLevelSanityCheck() == 0);
-
-  Serial.printf("\n" D_STR_IRRECVDUMP_STARTUP "\n", GPIO_IR_RECEIVER);
+    Serial.printf("\n" D_STR_IRRECVDUMP_STARTUP "\n", GPIO_IR_RECEIVER);
 #if DECODE_HASH
-  // Ignore messages with less than minimum on or off pulses.
-  irrecv.setUnknownThreshold(kMinUnknownSize);
-#endif                                       // DECODE_HASH
-  irrecv.setTolerance(kTolerancePercentage); // Override the default tolerance.
-  irrecv.enableIRIn();                       // Start the receiver
+    // Ignore messages with less than minimum on or off pulses.
+    irrecv.setUnknownThreshold(kMinUnknownSize);
+#endif                                         // DECODE_HASH
+    irrecv.setTolerance(kTolerancePercentage); // Override the default tolerance.
+    irrecv.enableIRIn();                       // Start the receiver
 
-  bleLastCapturePacketsHandler.setOnTimeoutCallback([]()
-                                                    {
-                                                      callbackReadPacketsTimeout();
-                                                      // Serial.println("[Timeout] expired BLE Read Packet (LastCapture)");
-                                                      // sendBleNotifyCode_HAL("104");
-                                                    });
+    bleLastCapturePacketsHandler.setOnTimeoutCallback([]()
+                                                      {
+                                                          callbackReadPacketsTimeout();
+                                                          // Serial.println("[Timeout] expired BLE Read Packet (LastCapture)");
+                                                          // sendBleNotifyCode_HAL("104");
+                                                      });
 }
 
 void shutdown_infraredReceiver_HAL()
 {
-  irrecv.disableIRIn();
-  digitalWrite(GPIO_POWER, LOW); // IR Receiver off
+    irrecv.disableIRIn();
+    digitalWrite(GPIO_POWER, LOW); // IR Receiver off
 }
 
 // The repeating section of the code
 void infraredReceiver_loop_HAL()
 {
-  // Check if the IR code has been received.
-  if (irrecv.decode(&results))
-  {
-    isCodeReceived = true;
-    // Display a crude timestamp.
-    uint32_t now = millis();
-    Serial.printf(D_STR_TIMESTAMP " : %06u.%03u\n", now / 1000, now % 1000);
-    // Check if we got an IR message that was to big for our capture buffer.
-    if (results.overflow)
-      Serial.printf(D_WARN_BUFFERFULL "\n", kCaptureBufferSize);
-    // Display the library version the message was captured with.
-    Serial.println(D_STR_LIBRARY "   : v" _IRREMOTEESP8266_VERSION_STR "\n");
-    // Display the tolerance percentage if it has been change from the default.
-    if (kTolerancePercentage != kTolerance)
-      Serial.printf(D_STR_TOLERANCE " : %d%%\n", kTolerancePercentage);
-    // Display the basic output of what we found.
-    Serial.print(resultToHumanReadableBasic(&results));
-    // Display any extra A/C info if we have it.
-    String description = IRAcUtils::resultAcToString(&results);
-    if (description.length())
-      Serial.println(D_STR_MESGDESC ": " + description);
-    yield(); // Feed the WDT as the text output can take a while to print.
-#if LEGACY_TIMING_INFO
-    // Output legacy RAW timing info of the result.
-    Serial.println(resultToTimingInfo(&results));
-    yield(); // Feed the WDT (again)
-#endif       // LEGACY_TIMING_INFO
-    // Output the results as source code
-    Serial.println(resultToSourceCode(&results));
-    Serial.println(); // Blank line between entries
-
-    String message = "";
-    message += typeToString((&results)->decode_type, (&results)->repeat);
-    message += " ";
-    message += resultToHexidecimal(&results);
-    if (thisAnnounceNewIRmessage_cb != NULL)
+    // Check if the IR code has been received.
+    if (irrecv.decode(&results))
     {
-      thisAnnounceNewIRmessage_cb(std::string(message.c_str()));
+        isCodeReceived = true;
+        // Display a crude timestamp.
+        uint32_t now = millis();
+        Serial.printf(D_STR_TIMESTAMP " : %06u.%03u\n", now / 1000, now % 1000);
+        // Check if we got an IR message that was to big for our capture buffer.
+        if (results.overflow)
+            Serial.printf(D_WARN_BUFFERFULL "\n", kCaptureBufferSize);
+        // Display the library version the message was captured with.
+        Serial.println(D_STR_LIBRARY "   : v" _IRREMOTEESP8266_VERSION_STR "\n");
+        // Display the tolerance percentage if it has been change from the default.
+        if (kTolerancePercentage != kTolerance)
+            Serial.printf(D_STR_TOLERANCE " : %d%%\n", kTolerancePercentage);
+        // Display the basic output of what we found.
+        Serial.print(resultToHumanReadableBasic(&results));
+        // Display any extra A/C info if we have it.
+        String description = IRAcUtils::resultAcToString(&results);
+        if (description.length())
+            Serial.println(D_STR_MESGDESC ": " + description);
+        yield(); // Feed the WDT as the text output can take a while to print.
+#if LEGACY_TIMING_INFO
+        // Output legacy RAW timing info of the result.
+        Serial.println(resultToTimingInfo(&results));
+        yield(); // Feed the WDT (again)
+#endif           // LEGACY_TIMING_INFO
+        // Output the results as source code
+        Serial.println(resultToSourceCode(&results));
+        Serial.println(); // Blank line between entries
+
+        String message = "";
+        message += typeToString((&results)->decode_type, (&results)->repeat);
+        message += " ";
+        message += resultToHexidecimal(&results);
+        if (thisAnnounceNewIRmessage_cb != NULL)
+        {
+            thisAnnounceNewIRmessage_cb(std::string(message.c_str()));
+        }
+
+        // makeLastCapturePackets();
+        makeLastCapturePacketsHandler();
+
+        yield(); // Feed the WDT (again)
+
+        // if message repeats infinitely, you can try one of these two workarounds. Don't know why this is needed.
+        // irrecv.resume();
+        // another workaround could be:
+        // irrecv.disableIRIn();
+        // irrecv.enableIRIn();
     }
-
-    // makeLastCapturePackets();
-    makeLastCapturePacketsHandler();
-
-    yield(); // Feed the WDT (again)
-
-    // if message repeats infinitely, you can try one of these two workarounds. Don't know why this is needed.
-    // irrecv.resume();
-    // another workaround could be:
-    // irrecv.disableIRIn();
-    // irrecv.enableIRIn();
-  }
 }
 
 bool get_irReceiverEnabled_HAL()
 {
-  return irReceiverEnabled;
+    return irReceiverEnabled;
 }
 void set_irReceiverEnabled_HAL(bool aIrReceiverEnabled)
 {
-  irReceiverEnabled = aIrReceiverEnabled;
+    irReceiverEnabled = aIrReceiverEnabled;
 }
 
 // ------------- Fonctions en tests ---------------------------------
@@ -251,21 +254,21 @@ void set_irReceiverEnabled_HAL(bool aIrReceiverEnabled)
 /// Met le flag global `isCodeReceived` à false.
 void startCapture_HAL()
 {
-  isCodeReceived = false;
+    isCodeReceived = false;
 }
 
 /// @brief Vérifie si un code IR a été reçu.
 /// @return true si un code a été capturé, false sinon.
 bool getReceiveCaptureState_HAL()
 {
-  return isCodeReceived;
+    return isCodeReceived;
 }
 
 /// @brief Récupère les données de la dernière capture IR au format payloads.
 /// @return Liste de chaînes contenant les données capturées.
 std::list<std::string> getPayloads_HAL()
 {
-  return getPayloads(&results);
+    return getPayloads(&results);
 }
 
 /// @brief Extrait et formate les informations d’un objet `decode_results`.
@@ -285,112 +288,112 @@ std::list<std::string> getPayloads_HAL()
 ///   - valeur hexadécimale.
 std::list<std::string> getPayloads(const decode_results *const results)
 {
-  // Parcourir les données de results et les ajouter à commandPayloads
-  std::list<std::string> payloads;
-  String output = "";
-  // Reserve some space for the string to reduce heap fragmentation.
-  // "Protocol  : LONGEST_PROTOCOL_NAME (Repeat)\n"
-  // "Code      : 0x (NNNN Bits)\n" = 70 chars
-  output.reserve(2 * kStateSizeMax + 70); // Should cover most cases.
+    // Parcourir les données de results et les ajouter à commandPayloads
+    std::list<std::string> payloads;
+    String output = "";
+    // Reserve some space for the string to reduce heap fragmentation.
+    // "Protocol  : LONGEST_PROTOCOL_NAME (Repeat)\n"
+    // "Code      : 0x (NNNN Bits)\n" = 70 chars
+    output.reserve(2 * kStateSizeMax + 70); // Should cover most cases.
 
-  // PART1 : ------- resultToHumanReadableBasic --------
-  // Protocol (Return the Enum value)
-  // output = protocolToString(results->decode_type); // Ex: RC6
-  output = results->decode_type; // Ex: 2
-  payloads.push_back(output.c_str());
-  // Serial.print("DEBUG: valeur du protocol (decode_type): ");
-  // Serial.println(output);
+    // PART1 : ------- resultToHumanReadableBasic --------
+    // Protocol (Return the Enum value)
+    // output = protocolToString(results->decode_type); // Ex: RC6
+    output = results->decode_type; // Ex: 2
+    payloads.push_back(output.c_str());
+    // Serial.print("DEBUG: valeur du protocol (decode_type): ");
+    // Serial.println(output);
 
-  // isRepeat
-  output = boolToString(results->repeat); // Ex: false
-  payloads.push_back(output.c_str());
+    // isRepeat
+    output = boolToString(results->repeat); // Ex: false
+    payloads.push_back(output.c_str());
 
-  // value or state[] to simple hexadecimal
-  output = resultToHexidecimal(results); // Ex: 0xC800F040C
-  payloads.push_back(output.c_str());
+    // value or state[] to simple hexadecimal
+    output = resultToHexidecimal(results); // Ex: 0xC800F040C
+    payloads.push_back(output.c_str());
 
-  // Bits
-  output = uint64ToString(results->bits); // Ex: 36
-  payloads.push_back(output.c_str());
+    // Bits
+    output = uint64ToString(results->bits); // Ex: 36
+    payloads.push_back(output.c_str());
 
-  // PART2 : ------- resultToSourceCode ---------------
-  // Lenght
-  output = lengthToString(results); // Ex: 67
-  payloads.push_back(output.c_str());
+    // PART2 : ------- resultToSourceCode ---------------
+    // Lenght
+    output = lengthToString(results); // Ex: 67
+    payloads.push_back(output.c_str());
 
-  // HasACState
-  output = hasACStateToString(results->decode_type); // Ex: false
-  payloads.push_back(output.c_str());
+    // HasACState
+    output = hasACStateToString(results->decode_type); // Ex: false
+    payloads.push_back(output.c_str());
 
-  // Raw bugffer
-  output = rawBufToString(results); // Ex: {2658, 884,  454, 438,  440, 450,  404, 936,  456, 878,  1368, 862,  478, 414,  458, 432,  470, 422,  444, 446,  456, 434,  460, 432,  454, 434,  468, 426,  422, 468,  452, 442,  900, 434,  456, 432,  462, 428,  420, 916,  458, 432,  482, 408,  442, 448,  454, 448,  866, 918,  444, 448,  464, 426,  442, 450,  462, 428,  454, 436,  910, 428,  472, 864,  480, 412,  418}
-  // Serial.printf("[DEBUG] [getPayloads] rawBuffer: %s\r\n", output.c_str());
-  std::string result = output.c_str();
-  result = helpers::trimChar(result, '{');
-  result = helpers::trimChar(result, '}');
-  payloads.push_back(result.c_str());
+    // Raw bugffer
+    output = rawBufToString(results); // Ex: {2658, 884,  454, 438,  440, 450,  404, 936,  456, 878,  1368, 862,  478, 414,  458, 432,  470, 422,  444, 446,  456, 434,  460, 432,  454, 434,  468, 426,  422, 468,  452, 442,  900, 434,  456, 432,  462, 428,  420, 916,  458, 432,  482, 408,  442, 448,  454, 448,  866, 918,  444, 448,  464, 426,  442, 450,  462, 428,  454, 436,  910, 428,  472, 864,  480, 412,  418}
+    // Serial.printf("[DEBUG] [getPayloads] rawBuffer: %s\r\n", output.c_str());
+    std::string result = output.c_str();
+    result = helpers::trimChar(result, '{');
+    result = helpers::trimChar(result, '}');
+    payloads.push_back(result.c_str());
 
-  // Only return the value if the decode_type doesn't have an A/C state.
-  output = ValueToStringIfNotHasState(results);
-  payloads.push_back(output.c_str());
+    // Only return the value if the decode_type doesn't have an A/C state.
+    output = ValueToStringIfNotHasState(results);
+    payloads.push_back(output.c_str());
 
-  /*
-  // Decoded ACState codes to hexa
-  output = ACStateCodeToString(results); // Ex: {0x0C, 0x04, 0x0F, 0x80, 0x0C}
-  result = std::string(output.c_str());
-  result = helpers::trimChar(result, '{');
-  result = helpers::trimChar(result, '}');
-  payloads.push_back(std::string(result.c_str()));
-  */
+    /*
+    // Decoded ACState codes to hexa
+    output = ACStateCodeToString(results); // Ex: {0x0C, 0x04, 0x0F, 0x80, 0x0C}
+    result = std::string(output.c_str());
+    result = helpers::trimChar(result, '{');
+    result = helpers::trimChar(result, '}');
+    payloads.push_back(std::string(result.c_str()));
+    */
 
-  // Decoded ACState codes to hexa
-  bool hasState = hasACState(results->decode_type);
-  if (hasState)
-  {
-  output = ACStateCodeToString(results); // Appel identique à la lib
-  std::string result = output.c_str();
-  result = helpers::trimChar(result, '{');
-  result = helpers::trimChar(result, '}');
-  payloads.push_back(result.c_str());
-  }
-   else
-  {
-  // La lib ne produit rien dans ce cas, donc on ajoute une chaîne vide
-  payloads.push_back("");
-  }
+    // Decoded ACState codes to hexa
+    bool hasState = hasACState(results->decode_type);
+    if (hasState)
+    {
+        output = ACStateCodeToString(results); // Appel identique à la lib
+        std::string result = output.c_str();
+        result = helpers::trimChar(result, '{');
+        result = helpers::trimChar(result, '}');
+        payloads.push_back(result.c_str());
+    }
+    else
+    {
+        // La lib ne produit rien dans ce cas, donc on ajoute une chaîne vide
+        payloads.push_back("");
+    }
 
-  // Decoded Adress part to hexa
-  output = AddressToString(results->address); // Ex: 0xC800F04
-  payloads.push_back(output.c_str());
+    // Decoded Adress part to hexa
+    output = AddressToString(results->address); // Ex: 0xC800F04
+    payloads.push_back(output.c_str());
 
-  // Decoded Command part to hexa
-  output = CommandToString(results->command); // Ex: 0xC
-  payloads.push_back(output.c_str());
+    // Decoded Command part to hexa
+    output = CommandToString(results->command); // Ex: 0xC
+    payloads.push_back(output.c_str());
 
-  // Decoded Value to hexa
-  output = DataCodeToString(results->value); // Ex: 0xC800F040C
-  payloads.push_back(output.c_str());
+    // Decoded Value to hexa
+    output = DataCodeToString(results->value); // Ex: 0xC800F040C
+    payloads.push_back(output.c_str());
 
-  return payloads;
+    return payloads;
 }
 
 /// @brief Sérialise et prépare les paquets BLE de la dernière capture IR.
 void makeLastCapturePacketsHandler()
 {
-  std::string str = serialize("Données de la derniere capture", getPayloads_HAL(), "");
-  bleLastCapturePacketsHandler.makePackets(str.c_str());
+    std::string str = serialize("Données de la derniere capture", getPayloads_HAL(), "");
+    bleLastCapturePacketsHandler.makePackets(str.c_str());
 }
 
 /// @brief Callback utilisé pour envoyer une notification au client lorsque la lecture des paquets BLE expire (timeout).
 void callbackReadPacketsTimeout()
 {
-  Serial.println("[Timeout] Read packets expired (LastCapture)");
-  sendBleNotifyCode("104");
+    Serial.println("[Timeout] Read packets expired (LastCapture)");
+    sendBleNotifyCode("104");
 }
 
 /// @brief Récupère l’instance du gestionnaire de paquets BLE pour la dernière capture.
 /// @return Rétourne l’instance `bleLastCapturePacketsHandler`.
 PacketsHandler &getBLELastCapturePacketsHandler_HAL()
 {
-  return bleLastCapturePacketsHandler;
+    return bleLastCapturePacketsHandler;
 }

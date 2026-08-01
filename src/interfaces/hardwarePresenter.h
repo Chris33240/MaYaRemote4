@@ -64,16 +64,16 @@ void init_infraredSender(void);
 // IR protocols
 enum IRprotocols
 {
-  IR_PROTOCOL_GC = 0,
-  IR_PROTOCOL_NEC = 1,
-  IR_PROTOCOL_SAMSUNG = 2,
-  IR_PROTOCOL_SONY = 3,
-  IR_PROTOCOL_RC5 = 4,
-  IR_PROTOCOL_DENON = 5,
-  IR_PROTOCOL_SAMSUNG36 = 6
+    IR_PROTOCOL_GC = 0,
+    IR_PROTOCOL_NEC = 1,
+    IR_PROTOCOL_SAMSUNG = 2,
+    IR_PROTOCOL_SONY = 3,
+    IR_PROTOCOL_RC5 = 4,
+    IR_PROTOCOL_DENON = 5,
+    IR_PROTOCOL_SAMSUNG36 = 6
 };
 
-//void sendIRcode(IRprotocols protocol, std::list<std::string> commandPayloads, std::string additionalPayload);
+// void sendIRcode(IRprotocols protocol, std::list<std::string> commandPayloads, std::string additionalPayload);
 void sendIRcode2(std::list<std::string> commandPayloads, std::string additionalPayload);
 void sendSonyR2(std::list<std::string> commandPayloads);
 void sendMceT(std::list<std::string> commandPayloads);

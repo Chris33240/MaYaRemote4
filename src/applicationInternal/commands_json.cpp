@@ -26,18 +26,18 @@
 /// @return Map associant le nom de la commande à ses données.
 std::map<std::string, commandData2> deserializeCommands(String input)
 {
-  JsonDocument doc;
+    JsonDocument doc;
 
-  DeserializationError error = deserializeJson(doc, input);
+    DeserializationError error = deserializeJson(doc, input);
 
-  if (error)
-  {
-    Serial.print(F("ERREUR : Fail to deserialize: "));
-    Serial.println(error.c_str());
-    throw std::runtime_error(("ERREUR : Fail to deserialize: " + input).c_str());
-  }
-  std::map<std::string, commandData2> map = from_json_BootLoader(doc);
-  return map;
+    if (error)
+    {
+        Serial.print(F("ERREUR : Fail to deserialize: "));
+        Serial.println(error.c_str());
+        throw std::runtime_error(("ERREUR : Fail to deserialize: " + input).c_str());
+    }
+    std::map<std::string, commandData2> map = from_json_BootLoader(doc);
+    return map;
 }
 
 /// @brief Transforme un JsonDocument au format du bootloader en map de commandes.
@@ -46,23 +46,23 @@ std::map<std::string, commandData2> deserializeCommands(String input)
 /// @return Map de commandes.
 std::map<std::string, commandData2> from_json_BootLoader(const JsonDocument &doc)
 {
-  std::map<std::string, commandData2> commandMap;
+    std::map<std::string, commandData2> commandMap;
 
-  for (JsonPairConst pair : doc.as<JsonObjectConst>())
-  {
-    // Construire un sous-document contenant uniquement la paire actuelle
-    // StaticJsonDocument<512> subDoc; // Taille ajustée pour une paire clé-valeur
-    JsonDocument subDoc;
-    subDoc[pair.key()] = pair.value();
+    for (JsonPairConst pair : doc.as<JsonObjectConst>())
+    {
+        // Construire un sous-document contenant uniquement la paire actuelle
+        // StaticJsonDocument<512> subDoc; // Taille ajustée pour une paire clé-valeur
+        JsonDocument subDoc;
+        subDoc[pair.key()] = pair.value();
 
-    // Utiliser from_json1 pour traiter cette paire
-    auto command = from_json_Command(subDoc);
+        // Utiliser from_json1 pour traiter cette paire
+        auto command = from_json_Command(subDoc);
 
-    // Ajouter le résultat à la map
-    commandMap[command.first] = command.second;
-  }
+        // Ajouter le résultat à la map
+        commandMap[command.first] = command.second;
+    }
 
-  return commandMap;
+    return commandMap;
 }
 /*
 
@@ -120,23 +120,23 @@ Nom du fichier : “IR_MCE_POWER.cde”
 /// @return Chaîne JSON représentant la commande.
 String serializeCommandWithStatus(const std::string &commandName, const commandData2 &commandData, bool JsonPretty)
 {
-  String output;
-  JsonDocument doc;
-  auto root = doc.to<JsonObject>();
-  auto commandObj = root[commandName].to<JsonObject>();
+    String output;
+    JsonDocument doc;
+    auto root = doc.to<JsonObject>();
+    auto commandObj = root[commandName].to<JsonObject>();
 
-  to_json_CommandBase(commandObj, commandData);
-  to_json_CommandWithStatus(commandObj, commandData);
+    to_json_CommandBase(commandObj, commandData);
+    to_json_CommandWithStatus(commandObj, commandData);
 
-  if (JsonPretty)
-  {
-    serializeJsonPretty(doc, output);
-  }
-  else
-  {
-    serializeJson(doc, output);
-  }
-  return output;
+    if (JsonPretty)
+    {
+        serializeJsonPretty(doc, output);
+    }
+    else
+    {
+        serializeJson(doc, output);
+    }
+    return output;
 }
 
 // ------------------ Serialiser Commands pour sauvegarde fichier de commande -----------------------
@@ -148,23 +148,23 @@ String serializeCommandWithStatus(const std::string &commandName, const commandD
 /// @return Chaîne JSON représentant la commande.
 String serializeCommandWithPayloads(const std::string &commandName, const commandData2 &commandData, bool JsonPretty)
 {
-  String output;
-  JsonDocument doc;
-  auto root = doc.to<JsonObject>();
-  auto commandObj = root[commandName].to<JsonObject>();
+    String output;
+    JsonDocument doc;
+    auto root = doc.to<JsonObject>();
+    auto commandObj = root[commandName].to<JsonObject>();
 
-  to_json_CommandBase(commandObj, commandData);
-  to_json_CommandWithPayloads(commandObj, commandData);
+    to_json_CommandBase(commandObj, commandData);
+    to_json_CommandWithPayloads(commandObj, commandData);
 
-  if (JsonPretty)
-  {
-    serializeJsonPretty(doc, output);
-  }
-  else
-  {
-    serializeJson(doc, output);
-  }
-  return output;
+    if (JsonPretty)
+    {
+        serializeJsonPretty(doc, output);
+    }
+    else
+    {
+        serializeJson(doc, output);
+    }
+    return output;
 }
 
 // ------------------ Serialiser Commands pour listCommandsData -----------------------
@@ -176,24 +176,24 @@ String serializeCommandWithPayloads(const std::string &commandName, const comman
 /// @return Chaîne JSON représentant la commande.
 String serializeCommandWithStatusAndPayloads(const std::string &commandName, const commandData2 &commandData, bool JsonPretty)
 {
-  String output;
-  JsonDocument doc;
-  auto root = doc.to<JsonObject>();
-  auto commandObj = root[commandName].to<JsonObject>();
+    String output;
+    JsonDocument doc;
+    auto root = doc.to<JsonObject>();
+    auto commandObj = root[commandName].to<JsonObject>();
 
-  to_json_CommandBase(commandObj, commandData);
-  to_json_CommandWithStatus(commandObj, commandData);
-  to_json_CommandWithPayloads(commandObj, commandData);
+    to_json_CommandBase(commandObj, commandData);
+    to_json_CommandWithStatus(commandObj, commandData);
+    to_json_CommandWithPayloads(commandObj, commandData);
 
-  if (JsonPretty)
-  {
-    serializeJsonPretty(doc, output);
-  }
-  else
-  {
-    serializeJson(doc, output);
-  }
-  return output;
+    if (JsonPretty)
+    {
+        serializeJsonPretty(doc, output);
+    }
+    else
+    {
+        serializeJson(doc, output);
+    }
+    return output;
 }
 
 // Fonction de base : sérialisation sans status
@@ -215,7 +215,7 @@ void to_json_CommandWithStatus(JsonObject &commandObj, const commandData2 &comma
 void to_json_CommandWithPayloads(JsonObject &commandObj, const commandData2 &commandData)
 {
     // Ajout du Payloads
-       auto payloads = commandObj["commandPayloads"].to<JsonArray>();
+    auto payloads = commandObj["commandPayloads"].to<JsonArray>();
     for (const auto &payload : commandData.commandPayloads)
     {
         payloads.add(payload);
@@ -228,18 +228,18 @@ void to_json_CommandWithPayloads(JsonObject &commandObj, const commandData2 &com
 /// @return Paire contenant le nom de la commande et ses données.
 std::pair<std::string, commandData2> deserializeCommand(String input)
 {
-  JsonDocument doc;
+    JsonDocument doc;
 
-  DeserializationError error = deserializeJson(doc, input);
+    DeserializationError error = deserializeJson(doc, input);
 
-  if (error)
-  {
-    Serial.print(F("ERREUR : Fail to deserialize: "));
-    Serial.println(error.c_str());
-    throw std::runtime_error(("ERREUR : Fail to deserialize: " + input).c_str());
-  }
-  std::pair<std::string, commandData2> pair = from_json_Command(doc);
-  return pair;
+    if (error)
+    {
+        Serial.print(F("ERREUR : Fail to deserialize: "));
+        Serial.println(error.c_str());
+        throw std::runtime_error(("ERREUR : Fail to deserialize: " + input).c_str());
+    }
+    std::pair<std::string, commandData2> pair = from_json_Command(doc);
+    return pair;
 }
 
 /// @brief Transforme un JsonDocument en paire nom-commande.
@@ -248,31 +248,31 @@ std::pair<std::string, commandData2> deserializeCommand(String input)
 /// @return Paire contenant le nom de la commande et ses données.
 std::pair<std::string, commandData2> from_json_Command(const JsonDocument &doc)
 {
-  auto root = doc.as<JsonObjectConst>();
-  std::string commandName;
-  commandData2 data;
+    auto root = doc.as<JsonObjectConst>();
+    std::string commandName;
+    commandData2 data;
 
-  // Trouver le nom de la commande (la clé du premier objet)
-  for (JsonPairConst kv : root)
-  {
-    commandName = kv.key().c_str();
-    break; // On ne prend que la première clé
-  }
+    // Trouver le nom de la commande (la clé du premier objet)
+    for (JsonPairConst kv : root)
+    {
+        commandName = kv.key().c_str();
+        break; // On ne prend que la première clé
+    }
 
-  auto commandObj = root[commandName].as<JsonObjectConst>();
+    auto commandObj = root[commandName].as<JsonObjectConst>();
 
-  data.requestType = commandObj["requestType"].as<std::string>();
-  data.attributs = commandObj["attributs"].as<std::string>();
-  data.commandHandler = static_cast<commandHandlers>(commandObj["commandHandler"].as<int>());
-  auto payloads = commandObj["commandPayloads"].as<JsonArrayConst>();
+    data.requestType = commandObj["requestType"].as<std::string>();
+    data.attributs = commandObj["attributs"].as<std::string>();
+    data.commandHandler = static_cast<commandHandlers>(commandObj["commandHandler"].as<int>());
+    auto payloads = commandObj["commandPayloads"].as<JsonArrayConst>();
 
-  for (size_t i = 0; i < payloads.size(); ++i)
-  {
-    std::string payload = payloads[i].as<std::string>();
-    data.commandPayloads.push_back(payload);
-  }
+    for (size_t i = 0; i < payloads.size(); ++i)
+    {
+        std::string payload = payloads[i].as<std::string>();
+        data.commandPayloads.push_back(payload);
+    }
 
-  return std::make_pair(commandName, data);
+    return std::make_pair(commandName, data);
 }
 
 // --------------------------------------------------------------------------------------
@@ -281,18 +281,18 @@ std::pair<std::string, commandData2> from_json_Command(const JsonDocument &doc)
 /// @return Ensemble contenant uniquement les noms des commandes.
 std::set<std::string> deserializeKeys(String input)
 {
-  JsonDocument doc;
+    JsonDocument doc;
 
-  DeserializationError error = deserializeJson(doc, input);
+    DeserializationError error = deserializeJson(doc, input);
 
-  if (error)
-  {
-    Serial.print(F("ERREUR : Fail to deserialize: "));
-    Serial.println(error.c_str());
-    throw std::runtime_error(("ERREUR : Fail to deserialize: " + String(error.c_str())).c_str());
-  }
-  std::set<std::string> set = from_json_Keys(doc);
-  return set;
+    if (error)
+    {
+        Serial.print(F("ERREUR : Fail to deserialize: "));
+        Serial.println(error.c_str());
+        throw std::runtime_error(("ERREUR : Fail to deserialize: " + String(error.c_str())).c_str());
+    }
+    std::set<std::string> set = from_json_Keys(doc);
+    return set;
 }
 
 /// @brief Transforme un JsonDocument en liste de clés de commandes.
@@ -300,12 +300,12 @@ std::set<std::string> deserializeKeys(String input)
 /// @return Liste des clés de commandes.
 std::set<std::string> from_json_Keys(const JsonDocument &doc)
 {
-  std::set<std::string> commandSet;
+    std::set<std::string> commandSet;
 
-  for (JsonPairConst pair : doc.as<JsonObjectConst>())
-  {
-    commandSet.insert(pair.key().c_str());
-  }
+    for (JsonPairConst pair : doc.as<JsonObjectConst>())
+    {
+        commandSet.insert(pair.key().c_str());
+    }
 
-  return commandSet;
+    return commandSet;
 }

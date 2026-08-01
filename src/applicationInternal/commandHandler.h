@@ -44,14 +44,14 @@ extern uint16_t KEYBOARD_DUMMY_VOLUME_INCREMENT;
 extern uint16_t KEYBOARD_DUMMY_VOLUME_DECREMENT;
 
 #if (ENABLE_KEYBOARD_BLE == 1)
-  #define KEYBOARD_PREFIX KEYBOARD_BLE_
+#define KEYBOARD_PREFIX KEYBOARD_BLE_
 #elif (ENABLE_KEYBOARD_MQTT == 1)
-  #define KEYBOARD_PREFIX KEYBOARD_MQTT_
+#define KEYBOARD_PREFIX KEYBOARD_MQTT_
 #else
 // Of course keyboard commands will not work if neither BLE nor MQTT keyboard is enabled, but at least code will compile.
 // But you have to change keys.cpp, gui_numpad.cpp and commandHandler.cpp where keyboard commands are used so that a command can be executed successfully.
 // Search for "executeCommand(Key" to find them.
-  #define KEYBOARD_PREFIX KEYBOARD_DUMMY_
+#define KEYBOARD_PREFIX KEYBOARD_DUMMY_
 #endif
 
 extern uint16_t KEYBOARD_UP;
@@ -95,22 +95,22 @@ extern uint16_t KEYBOARD_VOLUME_DECREMENT;
 
 enum commandHandlers
 {
-  SPECIAL = 0,
-  SCENE = 1,
-  GUI = 2,
-  IR = 3,
+    SPECIAL = 0,
+    SCENE = 1,
+    GUI = 2,
+    IR = 3,
 #if (ENABLE_WIFI_AND_MQTT == 1)
-  MQTT = 4,
+    MQTT = 4,
 #endif
 #if (ENABLE_KEYBOARD_BLE == 1)
-  BLE_KEYBOARD = 5,
+    BLE_KEYBOARD = 5,
 #endif
 };
 
 struct commandData
 {
-  commandHandlers commandHandler;
-  std::list<std::string> commandPayloads;
+    commandHandlers commandHandler;
+    std::list<std::string> commandPayloads;
 };
 
 // we don't yet have a command id
@@ -152,12 +152,12 @@ enum payloadTypes
 
 struct commandData2
 {
-  bool hasData;
-  commandHandlers commandHandler;
-  std::string requestType;
-  std::string attributs;
-  std::string status1;
-  std::list<std::string> commandPayloads;
+    bool hasData;
+    commandHandlers commandHandler;
+    std::string requestType;
+    std::string attributs;
+    std::string status1;
+    std::list<std::string> commandPayloads;
 };
 
 // Getters
@@ -172,16 +172,17 @@ const std::size_t getCommandsCountKeys();
 // Init commands
 void init_commands();
 
-[[deprecated("Don't use this routine any more. Use the new one instead. 'printSerializedCommandsKeys()'")]]
-void printSerializedCommands(const std::map<std::string, commandData2> &commands);
-[[deprecated("Don't use this routine any more. Use the new one instead. 'printSerializedCommandsCountKeys()'")]]
-void printCommandsCount(const std::map<std::string, commandData2> &commands);
-void printSerializedCommandsKeys(const std::set<std::string> &commandskeys);
-void printCommandsFilesCount();
-void printCommandsCountKeys(const std::set<std::string> &commandsKeys);
+//[[deprecated("Don't use this routine any more. Use the new one instead. 'printMetaDatasCommandsKeys()'")]]
+// void printSerializedCommands(const std::map<std::string, commandData2> &commands);
+//[[deprecated("Don't use this routine any more. Use the new one instead. 'printSerializedCommandsCountKeys()'")]]
+// void printCommandsCount(const std::map<std::string, commandData2> &commands);
+void printMetaDatasCommandsKeys(const std::set<std::string> &commandskeys);
+void printCommandsCount();
+// void printCommandsFilesCount();
+// void printCommandsCountKeys(const std::set<std::string> &commandsKeys);
 
-[[deprecated("Don't use this routine any more. Use the new one instead. 'printSerializedCommands()'")]]
-void printCommands(std::map<std::string, commandData2> commands);
+//[[deprecated("Don't use this routine any more. Use the new one instead. 'printSerializedCommands()'")]]
+// void printCommands(std::map<std::string, commandData2> commands);
 
 // Register commands
 commandData2 makeCommandData2(commandHandlers a, std::string d, std::string e, std::list<std::string> b);
@@ -195,7 +196,7 @@ std::string getFreeKey(std::string command, std::set<std::string> &commandsKeys,
 
 // Execute commands
 void executeUnregisteredCommand(commandData2 commandData, std::string additionalPayload);
-bool findCommandData(const std::string& commandName, commandData2& commandDataOut);
+bool findCommandData(const std::string &commandName, commandData2 &commandDataOut);
 bool findCommandDataFiles(const std::string &commandName, commandData2 &commandDataOut);
 void executeRegisteredCommand(std::string commandName, std::string additionalPayload = "");
 void executeCommandWithData2(std::string commandName, commandData2 commandData, std::string additionalPayload);

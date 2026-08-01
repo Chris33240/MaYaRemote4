@@ -218,7 +218,7 @@ Exemple: DMAYA_FREENOVE_ESP32_S3_WROOM_1 pour MAYA_FREENOVE_ESP32_S3_WROOM_1
 //#define MAYA_DFROBOT_FIREBEETLE2_ESP32C6_DFR1075  // DFROBOT DFR1075 (espidf only, No support for arduino Framework !)
 */
 
-#ifdef MAYA_FREENOVE_ESP32_S3_WROOM_1
+#ifdef MAYA_FREENOVE_ESP32_S3_WROOM_FNK0082
 //#define GPIO_BUILT_IN_LED_IO2        2       // Built-in LED "ON"
 #define GPIO_IR_RECEIVER            15      // D15 IR Receive Pin
 #define GPIO_POWER                  13      // Power

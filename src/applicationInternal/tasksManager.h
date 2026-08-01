@@ -7,40 +7,39 @@
 
 struct DirectData
 {
-  bool hasData;
-  std::string protocolID;
-  std::string dataCode;
-  std::string bits;
+    bool hasData;
+    std::string protocolID;
+    std::string dataCode;
+    std::string bits;
 };
 
 struct Payload
 {
-  bool hasData;
-  std::string frequency;
-  std::string toggleMask;
-  std::string repeat;
-  std::string raw;
+    bool hasData;
+    std::string frequency;
+    std::string toggleMask;
+    std::string repeat;
+    std::string raw;
 };
 
 struct Task2
 {
-  std::string taskType;
-  std::string commandName;
-  DirectData directData;
-  Payload additionalPayload;
-  commandData2 commandData;
+    std::string taskType;
+    std::string commandName;
+    DirectData directData;
+    Payload additionalPayload;
+    commandData2 commandData;
 };
 
 class TasksManager2
 {
 public:
-  TasksManager2();
-  static void addTask(const std::string &jsonTask);
-  static void update();
-  static void executeTask(const std::string &jsonTask);
+    TasksManager2();
+    static void addTask(const std::string &jsonTask);
+    static void update();
+    static void executeTask(const std::string &jsonTask);
 
 private:
-
 };
 
 #endif // TASKSMANAGER_H

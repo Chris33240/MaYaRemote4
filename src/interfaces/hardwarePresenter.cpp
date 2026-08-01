@@ -106,165 +106,165 @@ void getKeys(keypad_key *keys) {
 // --- IR sender --------------------------------------------------------------
 void init_infraredSender(void)
 {
-  init_infraredSender_HAL();
+    init_infraredSender_HAL();
 }
 
-//void sendIRcode(IRprotocols protocol, std::list<std::string> commandPayloads, std::string additionalPayload)
+// void sendIRcode(IRprotocols protocol, std::list<std::string> commandPayloads, std::string additionalPayload)
 //{
-//  sendIRcode_HAL(protocol, commandPayloads, additionalPayload);
-//}
+//   sendIRcode_HAL(protocol, commandPayloads, additionalPayload);
+// }
 
 void sendIRcode2(std::list<std::string> commandPayloads, std::string additionalPayload)
 {
-  nsIR::sendIRcode_HAL2(commandPayloads, additionalPayload);
+    nsIR::sendIRcode_HAL2(commandPayloads, additionalPayload);
 }
 
 void sendSonyR2(std::list<std::string> commandPayloads)
 {
-  nsIR::sendSonyR2_HAL(commandPayloads);
+    nsIR::sendSonyR2_HAL(commandPayloads);
 }
 
 void sendMceT(std::list<std::string> commandPayloads)
 {
-  nsIR::sendMceT_HAL(commandPayloads);
+    nsIR::sendMceT_HAL(commandPayloads);
 }
 
 // --- IR receiver ------------------------------------------------------------
 void start_infraredReceiver(void)
 {
-  start_infraredReceiver_HAL();
+    start_infraredReceiver_HAL();
 }
 
 void shutdown_infraredReceiver(void)
 {
-  shutdown_infraredReceiver_HAL();
+    shutdown_infraredReceiver_HAL();
 }
 
 void infraredReceiver_loop(void)
 {
-  infraredReceiver_loop_HAL();
+    infraredReceiver_loop_HAL();
 }
 
 bool get_irReceiverEnabled()
 {
-  return get_irReceiverEnabled_HAL();
+    return get_irReceiverEnabled_HAL();
 }
 
 void set_irReceiverEnabled(bool aIrReceiverEnabled)
 {
-  if (aIrReceiverEnabled)
-  {
-    set_announceNewIRmessage_cb_HAL(&receiveNewIRmessage_cb);
-  }
-  else
-  {
-    set_announceNewIRmessage_cb_HAL(NULL);
-  }
-  set_irReceiverEnabled_HAL(aIrReceiverEnabled);
+    if (aIrReceiverEnabled)
+    {
+        set_announceNewIRmessage_cb_HAL(&receiveNewIRmessage_cb);
+    }
+    else
+    {
+        set_announceNewIRmessage_cb_HAL(NULL);
+    }
+    set_irReceiverEnabled_HAL(aIrReceiverEnabled);
 }
 
 void startCapture()
 {
-  startCapture_HAL();
+    startCapture_HAL();
 }
 
 bool getReceivedCaptureState()
 {
-  return getReceiveCaptureState_HAL();
+    return getReceiveCaptureState_HAL();
 }
 
 std::list<std::string> getPayloads()
 {
-  return getPayloads_HAL();
+    return getPayloads_HAL();
 }
 
 // --- Io ---------------------------------------------------------------------
 
 void checkIfMounted2()
 {
-  checkIfMounted_HAL();
+    checkIfMounted_HAL();
 }
 
 bool fsMount2()
 {
-  return fsMount_HAL();
+    return fsMount_HAL();
 }
 
 void fsUnMount2()
 {
-  fsUnMount_HAL();
+    fsUnMount_HAL();
 }
 
 String readFile2(const String &path)
 {
-  return readFile_HAL(path);
+    return readFile_HAL(path);
 }
 
 void writeFile2(const String &text, const String &path)
 {
-  writeFile_HAL(path, text);
+    writeFile_HAL(path, text);
 }
 
 void deleteFile2(const String &path)
 {
-  deleteFile_HAL(path);
+    deleteFile_HAL(path);
 }
 
 unsigned int getFsUsedBytes()
 {
-  return getUsedBytes_HAL();
+    return getUsedBytes_HAL();
 }
 
 unsigned int getFsTotalBytes()
 {
-  return getTotalBytes_HAL();
+    return getTotalBytes_HAL();
 }
 
 void list_Dir2(const String &dirname, uint8_t levels)
 {
-  listDir_HAL(dirname, levels);
+    listDir_HAL(dirname, levels);
 }
 
 void listFilesInDirectory(const String &dirname, uint8_t levels, FileCallback onFile)
 {
-  listFilesInDirectory_HAL(dirname, levels, onFile);
+    listFilesInDirectory_HAL(dirname, levels, onFile);
 }
 
 // --- BLE Server ------------------------------------------------------------
 void init_ble_server()
 {
-  init_ble_server_HAL();
+    init_ble_server_HAL();
 }
 void start_ble_server()
 {
-  start_ble_server_HAL();
+    start_ble_server_HAL();
 }
 void stop_ble_server()
 {
-  stop_ble_server_HAL();
+    stop_ble_server_HAL();
 }
 void ble_server_loop()
 {
-  ble_server_loop_HAL();
+    ble_server_loop_HAL();
 }
 bool isDeviceConnected()
 {
-  return isDeviceConnected_HAL();
+    return isDeviceConnected_HAL();
 }
 
 void sendBleNotifyCode(std::string code)
 {
-  sendBleNotifyCode_HAL(code);
+    sendBleNotifyCode_HAL(code);
 }
 
 void sendBleNotifyNewCommandCaptured(std::string command)
 {
-  sendBleNotifyNewCommandCaptured_HAL(command);
+    sendBleNotifyNewCommandCaptured_HAL(command);
 }
 
 void sendBleNotify(std::string message)
 {
-  sendBleNotify_HAL(message);
+    sendBleNotify_HAL(message);
 }
 
 /*// --- BLE keyboard -----------------------------------------------------------

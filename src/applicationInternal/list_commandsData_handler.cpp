@@ -5,6 +5,11 @@
 #include "commands_io.h"
 #include "commands_json.h"
 
+/*
+NOTE: Cette class etait prévu pour la synchronisation des datas et n'est pas utilisé par le client BLE
+TODO: créer un nouveau canal BLE et une nouvelle fonction pour lire les datas par command individuelle.
+*/
+
 /// @brief Constructeur de ListCommandsHandler.
 ListCommandsDataHandler::ListCommandsDataHandler() : currentCommandIndex(0), isInitCommand(false)
 {

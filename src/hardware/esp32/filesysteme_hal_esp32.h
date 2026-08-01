@@ -1,5 +1,5 @@
-//#define SPIFFS_SYSTEM 1
-//#define LITTLEFS_SYSTEM 2
+// #define SPIFFS_SYSTEM 1
+// #define LITTLEFS_SYSTEM 2
 
 /*
 Les librairies SPIFFS et LitleFS partagent une API compatible mais ont des implémentations on-flash incompatibles,

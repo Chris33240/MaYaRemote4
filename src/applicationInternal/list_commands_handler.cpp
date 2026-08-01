@@ -4,6 +4,7 @@
 #include "interfaces/hardwarePresenter.h"
 #include "commands_io.h"
 #include "commands_json.h"
+#include "helpers/omote_log.h"
 
 /// @brief Constructeur de ListCommandsHandler.
 ListCommandsHandler::ListCommandsHandler() : currentCommandIndex(0), isInitCommand(false)
@@ -43,7 +44,8 @@ std::string ListCommandsHandler::readCommandKeys(const std::set<std::string> &co
         const std::string &commandName = *command;
         commandData2 data;
         //std::string status;
-
+        //omote_log_v("DEBUG: we are here 2\r\n");
+        //omote_log_v_mem();
         if (findCommandData(commandName, data))
         {
             //status = "OK";

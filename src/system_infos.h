@@ -3,6 +3,6 @@
 
 #include <Arduino.h>
 
-void printSystemInfo();
+void printSystemInfos();
 
 #endif

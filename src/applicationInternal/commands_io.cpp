@@ -3,6 +3,7 @@
 #include "setup.h"
 #include "commands_json.h"
 #include "io.h"
+#include "helpers/omote_log.h"
 
 /// @brief Met à jour les données de commandes à partir des fchiers.
 /// @param commands Map des commandes existantes.
@@ -50,6 +51,8 @@ std::pair<std::string, commandData2> loadCommand(const std::string &commandName)
 {
     String fileName = makeFileCommandName(commandName);
     String path = Io::combinePath("", fileName);
+    //omote_log_v("DEBUG: we are here 5\r\n");
+    //omote_log_v_mem();
     fsMount2();
     const std::pair<std::string, commandData2> &pair = loadCommand3(path);
     fsUnMount2();

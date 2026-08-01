@@ -20,23 +20,23 @@ const unsigned long UPDATE_INTERVAL = 1000; // Intervalle de mise à jour en mil
 /// @note Doit être appelée régulièrement (par exemple dans `loop()`).
 void updateTickRate()
 {
-  tickCount++;
+    tickCount++;
 
-  // Vérifie si l'intervalle de mise à jour est écoulé
-  unsigned long currentTime = millis();
-  if (currentTime - lastTickTime >= UPDATE_INTERVAL)
-  {
-    // Calcule le taux de ticks par seconde
-    tickRate = (float)tickCount * 1000.0 / (float)(currentTime - lastTickTime);
-    // Serial.println(tickCount);
-    tickCount = 0;
-    lastTickTime = currentTime;
-  }
+    // Vérifie si l'intervalle de mise à jour est écoulé
+    unsigned long currentTime = millis();
+    if (currentTime - lastTickTime >= UPDATE_INTERVAL)
+    {
+        // Calcule le taux de ticks par seconde
+        tickRate = (float)tickCount * 1000.0 / (float)(currentTime - lastTickTime);
+        // Serial.println(tickCount);
+        tickCount = 0;
+        lastTickTime = currentTime;
+    }
 }
 
 /// @brief Retourne le taux de ticks calculé.
 /// @return Taux de ticks par seconde (Hz).
 float getTickRate()
 {
-  return tickRate;
+    return tickRate;
 }

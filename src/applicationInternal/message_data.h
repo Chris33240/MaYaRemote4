@@ -4,9 +4,9 @@
 
 struct messageData
 {
-  std::string message;
-  std::string code;
-  std::list<std::string> payloads;
+    std::string message;
+    std::string code;
+    std::list<std::string> payloads;
 };
 
 messageData makeMessageData(const std::string &message, const std::list<std::string> &payloads, const std::string &code);
