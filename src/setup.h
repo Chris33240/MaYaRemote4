@@ -14,7 +14,7 @@
 // --- File System ---
 #define FORMAT_FILE_SYSTEM_IF_FAILED false      // Format file system partition if failed.
 #define ENABLED_IO_FILESYSTEM_SAVING true       // Allow writing file (if File system is enabled for this hardware)
-#define COMMANDS_JSON_FILENAME "/commands.json" // File name must begin with "/" and not exced 31 charactères.
+//#define COMMANDS_JSON_FILENAME "/commands.json" // File name must begin with "/" and not exced 31 charactères.
 #define COMMAND_EXTENSION_FILENAME "cde"
 #define SAVE_COMMAND_JSONPRETTY false
 // #define LOADING_RAW_DATA true

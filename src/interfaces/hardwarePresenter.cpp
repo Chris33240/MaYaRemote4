@@ -13,6 +13,8 @@
 // #include "hardwareLayer.h"
 #include "hardware/hardwareLayer.h"
 #include "applicationInternal/io.h"
+//#include "hardware/system_infos_hal.h"
+#include "hardware/filesystem_hal.h"
 
 /*// --- hardware general -------------------------------------------------------
 void init_hardware_general(void) {

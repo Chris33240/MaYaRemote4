@@ -8,7 +8,11 @@ void printSystemInfos()
 
     // ===== CPU =====
     Serial.printf("CPU Frequency (current)  : %u MHz\n", HAL::getCurrentCpuFrequencyMHz());
-    Serial.printf("Chip Revision            : %u\n", HAL::getChipRevision());
+    //Serial.printf("Chip Revision            : %u\n", HAL::getChipRevision());
+    if (HAL::hasChipRevision())
+    {
+        Serial.printf("Chip Revision         : %u\n", HAL::getChipRevision());
+    }
 
     // ===== RAM =====
     Serial.printf("Free Heap                : %u bytes\n", HAL::getFreeHeap());

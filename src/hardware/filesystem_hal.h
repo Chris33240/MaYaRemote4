@@ -11,24 +11,35 @@ entraîner une opération de formatage et ne conservera certainement aucun fichi
 #define FILE_SYSTEM LITTLEFS_SYSTEM
 
 #if FILE_SYSTEM == SPIFFS_SYSTEM
-  #include "hardware/esp32/filesystem_spiffs_hal_esp32.h"
+  #include "hardware/filesystem_spiffs_hal.h"
 #elif FILE_SYSTEM == LITTLEFS_SYSTEM
-  #include "hardware/esp32/filesystem_littlefs_hal_esp32.h"
+  #include "hardware/filesystem_littlefs_hal.h"
 #else
   #error "FILE_SYSTEM not properly defined"
 #endif
 #include "interfaces/fileInfo.h"
 */
+// Controle de coherence
+#include "PinDefinitionsAndMore.h"
+#if ENABLED_IO_FILESYSTEM
+    #if !defined(USE_SPIFFS) && !defined(USE_LITTLEFS)
+        #error "Filesystem enabled but no filesystem selected."
+    #endif
+#else
+    #if defined(USE_SPIFFS) || defined(USE_LITTLEFS)
+        #error "Filesystem selected but hardware has no filesystem."
+    #endif
+#endif
 
-#define SPIFFS_SYSTEM 1
-#define LITTLEFS_SYSTEM 2
+//#define SPIFFS_SYSTEM 1
+//#define LITTLEFS_SYSTEM 2
 
 #if defined(USE_SPIFFS)
-    #define FILE_SYSTEM SPIFFS_SYSTEM
-    #include "hardware/esp32/filesystem_spiffs_hal_esp32.h"
+    //#define FILE_SYSTEM SPIFFS_SYSTEM
+    #include "hardware/filesystem_spiffs_hal.h"
 #elif defined(USE_LITTLEFS)
-    #define FILE_SYSTEM LITTLEFS_SYSTEM
-    #include "hardware/esp32/filesystem_littlefs_hal_esp32.h"
+    //#define FILE_SYSTEM LITTLEFS_SYSTEM
+    #include "hardware/filesystem_littlefs_hal.h"
 #else
     #error "FILE_SYSTEM not properly defined"
 #endif

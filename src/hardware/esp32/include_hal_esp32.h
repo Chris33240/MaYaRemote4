@@ -7,7 +7,6 @@
 #include "infrared_receiver_hal_esp32.h"
 #include "infrared_sender_hal_esp32.h"
 #include "ble_server_hal_esp32.h"
-#include "filesysteme_hal_esp32.h"
 // #include "ESP32/keyboard_ble_hal_esp32.h"
 // #include "ESP32/keypad_keys_hal_esp32.h"
 // #include "ESP32/lvgl_hal_esp32.h"

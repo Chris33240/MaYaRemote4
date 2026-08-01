@@ -1,4 +1,4 @@
-#include "filesysteme_hal_esp32.h"
+#include "filesystem_hal.h"
 #include "helpers/omote_log.h"
 
 // https://www.tutorialspoint.com/esp32_for_iot/esp32_for_iot_spiffs_storage.htm
@@ -13,9 +13,11 @@ bool isMounted;
 // fs::FS fs1 = SPIFFS;
 // fs::FS& fs1;
 
-#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+//#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+#ifdef USE_SPIFFS
 fs::FS fs1 = SPIFFS;
-#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+//#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+#elif defined(USE_LITTLEFS)
 fs::FS fs1 = LittleFS;
 #endif
 
@@ -58,9 +60,11 @@ void test()
 /// @note Efface toutes les données.
 void fsFormat()
 {
-#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+//#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+#ifdef USE_SPIFFS
     nsSPIFFS::Format();
-#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+//#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+#elif defined(USE_LITTLEFS)
     nsLittleFS::format();
 #else
 #error "No filesystem selected"
@@ -71,9 +75,11 @@ void fsFormat()
 /// @return true si le montage réussit, false sinon.
 bool fsMount_HAL()
 {
-#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+//#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+#ifdef USE_SPIFFS
     isMounted = nsSPIFFS::Mount();
-#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+//#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+#elif defined(USE_LITTLEFS)
     // omote_log_v("DEBUG: we are here 6\r\n");
     // omote_log_v_mem();
     isMounted = nsLittleFS::mount();
@@ -86,9 +92,11 @@ bool fsMount_HAL()
 /// @brief Démonte le système de fichiers et libère les ressources.
 void fsUnMount_HAL()
 {
-#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+//#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+#ifdef USE_SPIFFS
     nsSPIFFS::UnMount();
-#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+//#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+#elif defined(USE_LITTLEFS)
     nsLittleFS::unMount();
 #else
 #error "No filesystem selected"
@@ -110,9 +118,11 @@ void checkIfMounted_HAL()
 void printFreeSpace()
 {
     checkIfMounted_HAL();
-#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+//#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+#ifdef USE_SPIFFS
     nsSPIFFS::PrintFreeSpace();
-#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+//#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+#elif defined(USE_LITTLEFS)
     nsLittleFS::printFreeSpace();
 #else
 #error "No filesystem selected"
@@ -124,9 +134,11 @@ void printFreeSpace()
 unsigned int getUsedBytes_HAL()
 {
     checkIfMounted_HAL();
-#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+//#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+#ifdef USE_SPIFFS
     return nsSPIFFS::getUsedBytes();
-#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+//#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+#elif defined(USE_LITTLEFS)
     return nsLittleFS::getUsedBytes();
 #else
 #error "No filesystem selected"
@@ -138,9 +150,11 @@ unsigned int getUsedBytes_HAL()
 unsigned int getTotalBytes_HAL()
 {
     checkIfMounted_HAL();
-#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+//#if defined(FILE_SYSTEM) && FILE_SYSTEM == SPIFFS_SYSTEM
+#ifdef USE_SPIFFS
     return nsSPIFFS::getTotalBytes();
-#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+//#elif defined(FILE_SYSTEM) && FILE_SYSTEM == LITTLEFS_SYSTEM
+#elif defined(USE_LITTLEFS)
     return nsLittleFS::getTotalBytes();
 #else
 #error "No filesystem selected"

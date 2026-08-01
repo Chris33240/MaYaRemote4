@@ -1,4 +1,4 @@
-#include "filesystem_littlefs_hal_esp32.h"
+#include "filesystem_littlefs_hal.h"
 #include "helpers/omote_log.h"
 
 namespace nsLittleFS

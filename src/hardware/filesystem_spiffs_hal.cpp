@@ -1,4 +1,4 @@
-#include "filesystem_spiffs_hal_esp32.h"
+#include "filesystem_spiffs_hal.h"
 
 namespace nsSPIFFS
 {
