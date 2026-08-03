@@ -68,4 +68,5 @@ X Activer tous les protocoles
 X Prévoir nettoyage des traces
 X Ajout de : getUsedBytes et getTotalBytes
 X Ajout nouvelle caractéristiques info CPU + Chip model + Chip revision
-- sortir / de COMMANDS_JSON_FILENAME
+X sortir / de COMMANDS_JSON_FILENAME
+X Ajout nouvelle caractéristiques Mémoire min et Largest Free Block

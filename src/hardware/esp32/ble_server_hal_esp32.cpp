@@ -38,6 +38,8 @@ BLECharacteristic *pCharacteristic_READ_CPU_FREQUENCY = nullptr;
 BLECharacteristic *pCharacteristic_READ_FREE_HEAP = nullptr;
 BLECharacteristic *pCharacteristic_READ_TOTAL_HEAP = nullptr;
 BLECharacteristic *pCharacteristic_READ_HWATER_MARK = nullptr;
+BLECharacteristic *pCharacteristic_READ_MIN_FREE_HEAP = nullptr;
+BLECharacteristic *pCharacteristic_READ_MAX_ALLOC_HEAP = nullptr;
 BLECharacteristic *pCharacteristic_NOT_TICK_RATE = nullptr;
 BLECharacteristic *pCharacteristic_READ_USED_BYTES = nullptr;
 BLECharacteristic *pCharacteristic_READ_TOTAL_BYTES = nullptr;
@@ -100,7 +102,7 @@ void init_ble_server_HAL()
     // ------------- SERVICE SYSTEM INFOS --------------------------
     // Créer le service BLE
     // Each characteristic needs 2 handles and descriptor 1 handle
-    pService_SystemInfos = pMyServer->createService(BLEUUID(SERVICE_SYSTEM_INFOS_UUID), 33); // Don't forget to change handles count (default = 15)
+    pService_SystemInfos = pMyServer->createService(BLEUUID(SERVICE_SYSTEM_INFOS_UUID), 37); // Don't forget to change handles count (default = 15)
 
     pCharacteristic_READ_CPU_CHIP_MODEL = pService_SystemInfos->createCharacteristic(
         CHARACTERISTIC_CPU_CHIP_MODEL_UUID,
@@ -131,6 +133,16 @@ void init_ble_server_HAL()
         CHARACTERISTIC_HWATER_MARK_UUID,
         BLECharacteristic::PROPERTY_READ);
     pCharacteristic_READ_HWATER_MARK->setCallbacks(new MyCallbacksSystemInfos());
+
+    pCharacteristic_READ_MIN_FREE_HEAP = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_MIN_FREE_HEAP_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_MIN_FREE_HEAP->setCallbacks(new MyCallbacksSystemInfos());
+
+    pCharacteristic_READ_MAX_ALLOC_HEAP = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_MAX_ALLOC_HEAP_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_MAX_ALLOC_HEAP->setCallbacks(new MyCallbacksSystemInfos());
 
     pCharacteristic_NOT_TICK_RATE = pService_SystemInfos->createCharacteristic(
         CHARACTERISTIC_TICK_RATE_UUID,

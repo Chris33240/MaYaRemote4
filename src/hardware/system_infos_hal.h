@@ -45,19 +45,12 @@ namespace HAL
 
     static uint32_t getChipRevision()
     {
-        return ESP.getChipRevision();
-    }
-
-    /*
-    static uint32_t getChipRevision()
-    {
     #if defined(ARDUINO_ARCH_ESP32)
         return ESP.getChipRevision();
     #else
         return 0;
     #endif
     }
-    */
 
     static uint32_t getDefaultCpuFrequencyMHz()
     {
@@ -115,10 +108,11 @@ namespace HAL
     #endif
     }
 
-    static uint32_t getLargestFreeBlock()
+    static uint32_t getMaxAllocHeap()
     {
     #if defined(ARDUINO_ARCH_ESP32)
-        return heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT);
+        //return heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT);
+        return ESP.getMaxAllocHeap();
     #else
         return 0;
     #endif
@@ -159,6 +153,26 @@ namespace HAL
     {
     #if defined(ARDUINO_ARCH_ESP32)
         return psramFound() ? ESP.getFreePsram() : 0;
+    #else
+        return 0;
+    #endif
+    }
+
+    static uint32_t getMinFreePsram()
+    {
+    #if defined(ARDUINO_ARCH_ESP32)
+        return psramFound() ? ESP.getMinFreePsram() : 0;
+    #else
+        return 0;
+    #endif
+    }
+
+    static uint32_t getLargestFreePsramBlock()
+    {
+    #if defined(ARDUINO_ARCH_ESP32)
+        return psramFound()
+            ? heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM)
+            : 0;
     #else
         return 0;
     #endif
@@ -254,17 +268,29 @@ namespace HAL
 
     static uint32_t getFilesystemUsedBytes()
     {
+    #if ENABLED_IO_FILESYSTEM
         return getUsedBytes_HAL();
+    #else
+        return 0;
+    #endif
     }
 
     static uint32_t getFilesystemTotalBytes()
     {
+    #if ENABLED_IO_FILESYSTEM
         return getTotalBytes_HAL();
+    #else
+        return 0;
+    #endif
     }
 
     static uint32_t getFilesystemFreeBytes()
     {
+    #if ENABLED_IO_FILESYSTEM
         return getTotalBytes_HAL() - getUsedBytes_HAL();
+    #else
+        return 0;
+    #endif
     }
 
 /*

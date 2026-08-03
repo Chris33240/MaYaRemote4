@@ -63,6 +63,20 @@ void MyCallbacksSystemInfos::onRead(BLECharacteristic *pCharacteristic)
         Serial.println(stackHighWaterMark);
         pCharacteristic->setValue(stackHighWaterMark);
     }
+    else if (uuid == CHARACTERISTIC_MIN_FREE_HEAP_UUID)
+    {
+        uint32_t minFreeHeap = HAL::getMinFreeHeap();
+        Serial.print(F("[BLE-OnRead] Min free heap: "));
+        Serial.println(minFreeHeap);
+        pCharacteristic->setValue(minFreeHeap);
+    }
+    else if (uuid == CHARACTERISTIC_MAX_ALLOC_HEAP_UUID)
+    {
+        uint32_t maxAllocHeap = HAL::getMaxAllocHeap();
+        Serial.print(F("[BLE-OnRead] Max Alloc Heap: "));
+        Serial.println(maxAllocHeap);
+        pCharacteristic->setValue(maxAllocHeap);
+    }
     else if (uuid == CHARACTERISTIC_USED_BYTES_UUID)
     {
         fsMount2();
