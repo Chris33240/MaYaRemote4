@@ -37,8 +37,8 @@ void init_infraredSender_HAL(void)
 }
 
 // IR protocols
-[[deprecated("Original code from Omote. Use the new one instead. 'IRprotocols2'")]]
-enum IRprotocols {
+enum [[deprecated("Original code from Omote. Use the new one instead. 'IRprotocols2'")]]
+IRprotocols {
     IR_PROTOCOL_GC = 0,
     IR_PROTOCOL_NEC = 1,
     IR_PROTOCOL_SAMSUNG = 2,

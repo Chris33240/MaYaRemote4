@@ -169,6 +169,7 @@ String serializeCommandWithPayloads(const std::string &commandName, const comman
 
 // ------------------ Serialiser Commands pour listCommandsData -----------------------
 
+//TODO: créer un nouveau canal BLE et une nouvelle fonction pour lire les datas par command individuelle.
 /// @brief Sérialise une commande en chaîne JSON.
 /// @param commandName Nom de la commande.
 /// @param commandData Données de la commande.

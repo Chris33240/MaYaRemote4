@@ -20,7 +20,8 @@
 #include "applicationInternal/timeout.h"
 #include "applicationInternal/command_ir_capture.h"
 #include "applicationInternal/tasksManager.h"
-#include "hardware/esp32/ble_process_list_commands_manager.h"
+#include "hardware/esp32/ble_loop_list_commands.h"
+#include "hardware/esp32/ble_loop_system_infos.h"
 
 // SET_LOOP_TASK_STACK_SIZE( 16*1024 ); // 16KB
 
@@ -256,6 +257,7 @@ void loop(unsigned long *pIMUTaskTimer, unsigned long *pUpdateStatusTimer)
     // TasksManager::update();
     TasksManager2::update();
     processListCommandsLoop();
+    processSystemInfosLoop();
     // --- do as often as possible ----------------------------------------------
     // update backlight brightness. Fade in on startup, dim before going to sleep
     // update_backligthBrighness();

@@ -8,7 +8,8 @@
 #include "packets_handler.h"
 #include "commandHandler.h"
 
-class ListCommandsDataHandler
+class [[deprecated("TODO: Cette class sera remplacé par une nouvelle méthode de lecture des datas pour une commande.")]]
+ListCommandsDataHandler
 {
 public:
     ListCommandsDataHandler();

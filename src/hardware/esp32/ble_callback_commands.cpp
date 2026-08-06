@@ -9,8 +9,8 @@
 #include "infrared_receiver_hal_esp32.h"
 #include "applicationInternal/tasksManager.h"
 #include "applicationInternal/list_commands_handler.h"
-#include <applicationInternal/list_commandsData_handler.h>
-#include "ble_process_list_commands_manager.h"
+#include "applicationInternal/list_commandsData_handler.h"
+#include "ble_loop_list_commands.h"
 #include "helpers/omote_log.h"
 // #include <applicationInternal/micro_miniz.h>
 // #include <applicationInternal/gZip.h>
@@ -86,29 +86,31 @@ void MyCallbacks::onRead(BLECharacteristic *pCharacteristic)
         Serial.println(str.c_str());
         pCharacteristic->setValue(str);
         */
-        // callback allégé, ne fait que signaler et lire le currentPacket.
-        // le processus lourd est exécuté dans la boucle du thread principal.
-        if (!packetReady)
+
+        if (!listCommandsRequest.isReady())
         {
-            uint32_t start = millis(); // Simple Timeout
-            requestNewPacket = true;   //  Signal à processListCommandsManager de générer le paquet
-            while (!packetReady)
+            uint32_t start = millis();
+
+            listCommandsRequest.request();
+
+            while (!listCommandsRequest.isReady())
             {
-                if (millis() - start > 2000) // 2s timeout
+                if (millis() - start > 2000)
                 {
-                    Serial.println("Timeout BLE_ListCommands waiting for packet generation");
+                    Serial.println("Timeout BLE_ListCommands");
                     break;
                 }
-                delay(1); //  Optionnel: attendre en boucle court que packetReady=True
+
+                delay(1);
             }
         }
-        std::string str = currentPacket.c_str(); // listCommandsHandler.readCommandKeys();
-
+        std::string str = listCommandsRequest.getPacket();
         Serial.print(F("[BLE-onRead] listCommands packet: "));
         Serial.println(str.c_str());
         pCharacteristic->setValue(str);
-        packetReady = false; // Consommé, prêt pour le suivant
+        listCommandsRequest.consume();
     }
+    //TODO: créer un nouveau canal BLE et une nouvelle fonction pour lire les datas par command individuelle.
     else if (uuid == CHARACTERISTIC_LIST_COMMANDS_DATA_UUID)
     {
         std::string str = listCommandsDataHandler.readCommandsDataKeys();

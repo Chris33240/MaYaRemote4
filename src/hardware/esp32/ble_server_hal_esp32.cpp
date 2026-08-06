@@ -43,6 +43,7 @@ BLECharacteristic *pCharacteristic_READ_MAX_ALLOC_HEAP = nullptr;
 BLECharacteristic *pCharacteristic_NOT_TICK_RATE = nullptr;
 BLECharacteristic *pCharacteristic_READ_USED_BYTES = nullptr;
 BLECharacteristic *pCharacteristic_READ_TOTAL_BYTES = nullptr;
+BLECharacteristic *pCharacteristic_READ_SYSTEM_INFOS = nullptr;
 
 /// @brief Service Commands
 BLEService *pService_Commands = nullptr; // commands + notify code
@@ -101,8 +102,10 @@ void init_ble_server_HAL()
 
     // ------------- SERVICE SYSTEM INFOS --------------------------
     // Créer le service BLE
+    // Comptage des Handles : service: 1 handle, characteristic: 2 handles, descriptor: 1 handle
+    // ex pour 10 characteistics : 1 + 20 + 3  
     // Each characteristic needs 2 handles and descriptor 1 handle
-    pService_SystemInfos = pMyServer->createService(BLEUUID(SERVICE_SYSTEM_INFOS_UUID), 37); // Don't forget to change handles count (default = 15)
+    pService_SystemInfos = pMyServer->createService(BLEUUID(SERVICE_SYSTEM_INFOS_UUID), 26); //39 // Don't forget to change handles count (default = 15)
 
     pCharacteristic_READ_CPU_CHIP_MODEL = pService_SystemInfos->createCharacteristic(
         CHARACTERISTIC_CPU_CHIP_MODEL_UUID,
@@ -159,8 +162,13 @@ void init_ble_server_HAL()
         BLECharacteristic::PROPERTY_READ);
     pCharacteristic_READ_TOTAL_BYTES->setCallbacks(new MyCallbacksSystemInfos());
 
+    pCharacteristic_READ_SYSTEM_INFOS = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_SYSTEM_INFOS_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_SYSTEM_INFOS->setCallbacks(new MyCallbacksSystemInfos());
+
     // ------------- SERVICE COMMANDS --------------------------
-    pService_Commands = pMyServer->createService(BLEUUID(SERVICE_COMMANDS_UUID), 24);
+    pService_Commands = pMyServer->createService(BLEUUID(SERVICE_COMMANDS_UUID), 27); //24
 
     pCharacteristic_READ_COMMANDS_COUNT = pService_Commands->createCharacteristic(
         CHARACTERISTIC_COMMANDS_COUNT_UUID,

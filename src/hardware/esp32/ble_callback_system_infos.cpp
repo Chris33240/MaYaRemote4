@@ -6,6 +6,11 @@
 #include "ble_callback_system_infos.h"
 #include "interfaces/hardwarePresenter.h"
 #include "hardware/system_infos_hal.h"
+//#include "applicationInternal/system_infos_handler.h"
+#include "ble_loop_system_infos.h"
+
+/// Gestionnaire de listes de commandes pour le serveur BLE
+//SystemInfosHandler systemInfosHandler;
 
 // ------------------- Callbacks System Infos ---------------------------
 /// @brief Callback appelé lorsqu'un client effectue une lecture sur une caractéristique System Infos
@@ -96,5 +101,38 @@ void MyCallbacksSystemInfos::onRead(BLECharacteristic *pCharacteristic)
         Serial.print(F("[BLE-OnRead] Total bytes: "));
         Serial.println(totalBytes);
         pCharacteristic->setValue(totalBytes);
+    }
+        else if (uuid == CHARACTERISTIC_SYSTEM_INFOS_UUID)
+    {
+        /*
+        std::string str = systemInfosHandler.readSystemInfos();
+
+        Serial.print(F("[BLE-onRead] systemInfos packet: "));
+        Serial.println(str.c_str());
+        pCharacteristic->setValue(str);
+        */
+
+        if (!systemInfosRequest.isReady())
+        {
+            uint32_t start = millis();
+
+            systemInfosRequest.request();
+
+            while (!systemInfosRequest.isReady())
+            {
+                if (millis() - start > 2000)
+                {
+                    Serial.println("Timeout BLE_SystemInfos");
+                    break;
+                }
+
+                delay(1);
+            }
+        }
+        std::string str = systemInfosRequest.getPacket();
+        Serial.print(F("[BLE-onRead] systemInfos packet: "));
+        Serial.println(str.c_str());
+        pCharacteristic->setValue(str);
+        systemInfosRequest.consume();
     }
 }

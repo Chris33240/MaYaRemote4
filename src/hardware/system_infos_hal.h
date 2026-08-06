@@ -1,4 +1,3 @@
-
 #include <Arduino.h>
 
 #if defined(ARDUINO_ARCH_ESP32)
@@ -66,7 +65,7 @@ namespace HAL
     #endif
     }
 
-    static uint32_t getCpuCoreCount()
+    static uint32_t getChipCoresCount()
     {
     #if defined(ARDUINO_ARCH_ESP32)
         return ESP.getChipCores();
@@ -292,34 +291,5 @@ namespace HAL
         return 0;
     #endif
     }
-
-/*
-    static uint32_t getFilesystemUsedBytes() A_CORRIGER
-    {
-    #if defined(ENABLED_IO_FILESYSTEM)
-        return getUsedBytes_HAL();
-    #else
-        return 0;
-    #endif
-    }
-
-
-    static uint32_t getFilesystemUsedBytes()
-    {
-    #if defined(ARDUINO_ARCH_ESP32)
-
-        return getUsedBytes_HAL();
-
-    #elif defined(ARDUINO_ARCH_RP2040)
-
-        return getUsedBytes_HAL();
-
-    #else
-
-        return 0;
-
-    #endif
-    }
-*/
 
 }
