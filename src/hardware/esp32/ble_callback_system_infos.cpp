@@ -44,14 +44,6 @@ void MyCallbacksSystemInfos::onRead(BLECharacteristic *pCharacteristic)
         Serial.println(cpuFrequency);
         pCharacteristic->setValue(cpuFrequency);
     }
-    if (uuid == CHARACTERISTIC_FREE_HEAP_UUID)
-    {
-        //uint32_t freeHeap = ESP.getFreeHeap();
-        uint32_t freeHeap = HAL::getFreeHeap();
-        Serial.print(F("[BLE-OnRead] Free heap: "));
-        Serial.println(freeHeap);
-        pCharacteristic->setValue(freeHeap);
-    }
     else if (uuid == CHARACTERISTIC_TOTAL_HEAP_UUID)
     {
         //uint32_t totalHeap = ESP.getHeapSize();
@@ -60,13 +52,13 @@ void MyCallbacksSystemInfos::onRead(BLECharacteristic *pCharacteristic)
         Serial.println(totalHeap);
         pCharacteristic->setValue(totalHeap);
     }
-    else if (uuid == CHARACTERISTIC_HWATER_MARK_UUID)
+    if (uuid == CHARACTERISTIC_FREE_HEAP_UUID)
     {
-        //UBaseType_t stackHighWaterMark = uxTaskGetStackHighWaterMark(NULL);
-        uint32_t stackHighWaterMark = HAL::getStackHighWaterMark();
-        Serial.print(F("[BLE-OnRead] High water mark: "));
-        Serial.println(stackHighWaterMark);
-        pCharacteristic->setValue(stackHighWaterMark);
+        //uint32_t freeHeap = ESP.getFreeHeap();
+        uint32_t freeHeap = HAL::getFreeHeap();
+        Serial.print(F("[BLE-OnRead] Free heap: "));
+        Serial.println(freeHeap);
+        pCharacteristic->setValue(freeHeap);
     }
     else if (uuid == CHARACTERISTIC_MIN_FREE_HEAP_UUID)
     {
@@ -82,15 +74,13 @@ void MyCallbacksSystemInfos::onRead(BLECharacteristic *pCharacteristic)
         Serial.println(maxAllocHeap);
         pCharacteristic->setValue(maxAllocHeap);
     }
-    else if (uuid == CHARACTERISTIC_USED_BYTES_UUID)
+    else if (uuid == CHARACTERISTIC_HWATER_MARK_UUID)
     {
-        fsMount2();
-        //unsigned int usedBytes = getFsUsedBytes();
-        uint32_t usedBytes = HAL::getFilesystemUsedBytes();
-        fsUnMount2();
-        Serial.print(F("[BLE-OnRead] Used bytes: "));
-        Serial.println(usedBytes);
-        pCharacteristic->setValue(usedBytes);
+        //UBaseType_t stackHighWaterMark = uxTaskGetStackHighWaterMark(NULL);
+        uint32_t stackHighWaterMark = HAL::getStackHighWaterMark();
+        Serial.print(F("[BLE-OnRead] High water mark: "));
+        Serial.println(stackHighWaterMark);
+        pCharacteristic->setValue(stackHighWaterMark);
     }
     else if (uuid == CHARACTERISTIC_TOTAL_BYTES_UUID)
     {
@@ -102,7 +92,17 @@ void MyCallbacksSystemInfos::onRead(BLECharacteristic *pCharacteristic)
         Serial.println(totalBytes);
         pCharacteristic->setValue(totalBytes);
     }
-        else if (uuid == CHARACTERISTIC_SYSTEM_INFOS_UUID)
+    else if (uuid == CHARACTERISTIC_USED_BYTES_UUID)
+    {
+        fsMount2();
+        //unsigned int usedBytes = getFsUsedBytes();
+        uint32_t usedBytes = HAL::getFilesystemUsedBytes();
+        fsUnMount2();
+        Serial.print(F("[BLE-OnRead] Used bytes: "));
+        Serial.println(usedBytes);
+        pCharacteristic->setValue(usedBytes);
+    }
+    else if (uuid == CHARACTERISTIC_SYSTEM_INFOS_UUID)
     {
         /*
         std::string str = systemInfosHandler.readSystemInfos();

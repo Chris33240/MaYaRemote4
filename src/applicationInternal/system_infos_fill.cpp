@@ -23,8 +23,8 @@ void fillSystemInfos(systemInfos &sysInfos)
     // RAM
     //==========================================================
 
-    sysInfos.freeHeap    = HAL::getFreeHeap();
     sysInfos.totalHeap   = HAL::getTotalHeap();
+    sysInfos.freeHeap    = HAL::getFreeHeap();
     sysInfos.minFreeHeap = HAL::getMinFreeHeap();
     sysInfos.maxAllocHeap = HAL::getMaxAllocHeap();
     sysInfos.stack       = HAL::getStackHighWaterMark();
@@ -65,8 +65,8 @@ void fillSystemInfos(systemInfos &sysInfos)
     // Firmware
     //==========================================================
 
-    sysInfos.sketchSize      = HAL::getSketchSize();
-    sysInfos.freeSketchSpace = HAL::getFreeSketchSpace();
+    //sysInfos.sketchSize      = HAL::getSketchSize();
+    //sysInfos.freeSketchSpace = HAL::getFreeSketchSpace();
 
     //==========================================================
     // Filesystem
@@ -75,13 +75,14 @@ void fillSystemInfos(systemInfos &sysInfos)
     if (HAL::hasFilesystem())
     {
         fsMount_HAL();
-        sysInfos.fsUsed  = HAL::getFilesystemUsedBytes();
         sysInfos.fsTotal = HAL::getFilesystemTotalBytes();
+        sysInfos.fsUsed  = HAL::getFilesystemUsedBytes();
         fsUnMount_HAL();
     }
     else
     {
-        sysInfos.fsUsed  = 0;
         sysInfos.fsTotal = 0;
+        sysInfos.fsUsed  = 0;
     }
+
 }

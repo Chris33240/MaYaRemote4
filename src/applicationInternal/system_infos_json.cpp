@@ -49,8 +49,8 @@ void to_json(JsonObject &root, const systemInfos &systemInfos)
     root["flashSectorSize"]  = systemInfos.flashSectorSize;
     root["flashMode"]        = systemInfos.flashMode;
 
-    root["sketchSize"]       = systemInfos.sketchSize;
-    root["freeSketchSpace"]  = systemInfos.freeSketchSpace;
+    //root["sketchSize"]       = systemInfos.sketchSize;
+    //root["freeSketchSpace"]  = systemInfos.freeSketchSpace;
 
     root["fsUsed"]           = systemInfos.fsUsed;
     root["fsTotal"]          = systemInfos.fsTotal;

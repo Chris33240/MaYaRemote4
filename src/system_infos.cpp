@@ -34,5 +34,19 @@ void printSystemInfos()
     Serial.printf("Sketch Size              : %u bytes\n", HAL::getSketchSize());
     Serial.printf("Free Sketch Space        : %u bytes\n", HAL::getFreeSketchSpace());
 
+    // ===== Temp et Battery voltage =====
+
+    if (HAL::hasChipTemperature())
+    {
+        Serial.printf("Chip Temperature         : %.2f °C\n", HAL::getChipTemperature());
+    }
+    
+    if (HAL::hasBatteryMeasurement())
+    {
+        Serial.printf("Battery ADC              : %u\n", HAL::getBatteryAnalogValue());
+
+        Serial.printf("Battery voltage          : %.3f V\n", HAL::getBatteryVoltage());
+    }
+
     Serial.println();
 }

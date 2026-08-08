@@ -80,19 +80,19 @@ namespace HAL
     // RAM
     //==========================================================
 
-    static uint32_t getFreeHeap()
+    static uint32_t getTotalHeap()
     {
     #if defined(ARDUINO_ARCH_ESP32)
-        return ESP.getFreeHeap();
+        return ESP.getHeapSize();
     #else
         return 0;
     #endif
     }
 
-    static uint32_t getTotalHeap()
+    static uint32_t getFreeHeap()
     {
     #if defined(ARDUINO_ARCH_ESP32)
-        return ESP.getHeapSize();
+        return ESP.getFreeHeap();
     #else
         return 0;
     #endif
@@ -265,19 +265,19 @@ namespace HAL
     #endif
     }
 
-    static uint32_t getFilesystemUsedBytes()
+    static uint32_t getFilesystemTotalBytes()
     {
     #if ENABLED_IO_FILESYSTEM
-        return getUsedBytes_HAL();
+        return getTotalBytes_HAL();
     #else
         return 0;
     #endif
     }
 
-    static uint32_t getFilesystemTotalBytes()
+    static uint32_t getFilesystemUsedBytes()
     {
     #if ENABLED_IO_FILESYSTEM
-        return getTotalBytes_HAL();
+        return getUsedBytes_HAL();
     #else
         return 0;
     #endif
@@ -289,6 +289,60 @@ namespace HAL
         return getTotalBytes_HAL() - getUsedBytes_HAL();
     #else
         return 0;
+    #endif
+    }
+
+    //==========================================================
+    // Temp et Battery voltage
+    //==========================================================
+
+    static bool hasChipTemperature()
+    {
+    #if defined(ARDUINO_ARCH_ESP32)
+        return true;
+    #elif defined(ARDUINO_ARCH_RP2040)
+        return true;
+    #else
+        return false;
+    #endif
+    }
+
+    static float getChipTemperature()
+    {
+    #if defined(ARDUINO_ARCH_ESP32)
+        return temperatureRead();
+    #elif defined(ARDUINO_ARCH_RP2040)
+        // À implémenter avec l'ADC interne du RP2040
+        return 0.0f;
+    #else
+        return 0.0f;
+    #endif
+    }
+
+    static bool hasBatteryMeasurement()
+    {
+    #if ENABLED_BATTERY_MEASUREMENT
+        return true;
+    #else
+        return false;
+    #endif
+    }
+
+    static uint32_t getBatteryAnalogValue()
+    {
+    #if ENABLED_BATTERY_MEASUREMENT
+        return analogRead(GPIO_BATTERY_ADC);
+    #else
+        return 0;
+    #endif
+    }
+
+    static float getBatteryVoltage()
+    {
+    #if ENABLED_BATTERY_MEASUREMENT
+        return (analogReadMilliVolts(GPIO_BATTERY_ADC) * BATTERY_VOLTAGE_DIVIDER) / 1000.0f;
+    #else
+        return 0.0f;
     #endif
     }
 

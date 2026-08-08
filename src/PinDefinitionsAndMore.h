@@ -229,6 +229,7 @@ Exemple: DMAYA_FREENOVE_ESP32_S3_WROOM_1 pour MAYA_FREENOVE_ESP32_S3_WROOM_1
 #define GPIO_STATUS_LED             47      // Status LED
 #define ENABLED_IO_FILESYSTEM       true    // Enabled File system like SPIFFS or LittleFS
 #define ENABLED_BLE                 true    // Enabled Bluetooth BLE
+#define ENABLED_BATTERY_MEASUREMENT false   // Enabled Battery Measurment
 
 #elif defined(MAYA_DFROBOT_FIREBEETLE2_ESP32E_DFR0654) // DFROBOT DFR0654
 #define GPIO_IR_RECEIVER            4       // GPIO4 IR Receive Pin
@@ -240,6 +241,9 @@ Exemple: DMAYA_FREENOVE_ESP32_S3_WROOM_1 pour MAYA_FREENOVE_ESP32_S3_WROOM_1
 #define GPIO_STATUS_LED             25      // GPIO25 Status LED
 #define ENABLED_IO_FILESYSTEM       true    // Enabled File system like SPIFFS or LittleFS
 #define ENABLED_BLE                 true    // Enabled Bluetooth BLE
+#define ENABLED_BATTERY_MEASUREMENT true    // Enabled Battery Measurment
+#define GPIO_BATTERY_ADC            34      // GPIO Battery Measurment
+#define BATTERY_VOLTAGE_DIVIDER     2.0f    // Battey measurment Devider
 
 #elif defined(MAYA_DFROBOT_FIREBEETLE2_ESP32E_DFR1139) // DFROBOT DFR1139
 #define GPIO_IR_RECEIVER            4       // GPIO4 IR Receive Pin
@@ -251,6 +255,9 @@ Exemple: DMAYA_FREENOVE_ESP32_S3_WROOM_1 pour MAYA_FREENOVE_ESP32_S3_WROOM_1
 #define GPIO_STATUS_LED             25      // GPIO25 Status LED
 #define ENABLED_IO_FILESYSTEM       true    // Enabled File system like SPIFFS or LittleFS
 #define ENABLED_BLE                 true    // Enabled Bluetooth BLE
+#define ENABLED_BATTERY_MEASUREMENT true    // Enabled Battery Measurment
+#define GPIO_BATTERY_ADC            34      // GPIO Battery Measurment
+#define BATTERY_VOLTAGE_DIVIDER     2.0f    // Battey measurment Devider
 
 #elif defined(MAYA_DFROBOT_FIREBEETLE2_ESP32S3_DFR0975) // DFROBOT DFR0975
 #define GPIO_IR_RECEIVER            12      // GPIO12 IR Receive Pin
@@ -262,6 +269,9 @@ Exemple: DMAYA_FREENOVE_ESP32_S3_WROOM_1 pour MAYA_FREENOVE_ESP32_S3_WROOM_1
 #define GPIO_STATUS_LED             38      // GPIO38 Status LED
 #define ENABLED_IO_FILESYSTEM       true    // Enabled File system like SPIFFS or LittleFS
 #define ENABLED_BLE                 true    // Enabled Bluetooth BLE
+#define ENABLED_BATTERY_MEASUREMENT false   // Enabled Battery Measurment
+#define GPIO_BATTERY_ADC            34      // GPIO Battery Measurment
+#define BATTERY_VOLTAGE_DIVIDER     2.0f    // Battey measurment Devider
 
 #elif defined(MAYA_DFROBOT_FIREBEETLE2_ESP32C6_DFR1075) // DFROBOT DFR1075
 #define GPIO_IR_RECEIVER            4       // GPIO4 IR Receive Pin
@@ -273,6 +283,9 @@ Exemple: DMAYA_FREENOVE_ESP32_S3_WROOM_1 pour MAYA_FREENOVE_ESP32_S3_WROOM_1
 #define GPIO_STATUS_LED             8       // GPIO8 Status LED
 #define ENABLED_IO_FILESYSTEM       true    // Enabled File system like SPIFFS or LittleFS
 #define ENABLED_BLE                 true    // Enabled Bluetooth BLE
+#define ENABLED_BATTERY_MEASUREMENT false   // Enabled Battery Measurment
+#define GPIO_BATTERY_ADC            0       // GPIO Battery Measurment
+#define BATTERY_VOLTAGE_DIVIDER     2.0f    // Battey measurment Devider
 
 // Generic settings for ESP32 Plateform
 #else

@@ -26,6 +26,7 @@
 #include "ble_callback_uart.h"
 #include "system_infos.h"
 #include "tick_rate.h"
+#include <hardware/system_infos_hal.h>
 
 /// @brief Pointeur vers le serveur BLE
 BLEServer *pMyServer = nullptr;
@@ -40,10 +41,12 @@ BLECharacteristic *pCharacteristic_READ_TOTAL_HEAP = nullptr;
 BLECharacteristic *pCharacteristic_READ_HWATER_MARK = nullptr;
 BLECharacteristic *pCharacteristic_READ_MIN_FREE_HEAP = nullptr;
 BLECharacteristic *pCharacteristic_READ_MAX_ALLOC_HEAP = nullptr;
-BLECharacteristic *pCharacteristic_NOT_TICK_RATE = nullptr;
 BLECharacteristic *pCharacteristic_READ_USED_BYTES = nullptr;
 BLECharacteristic *pCharacteristic_READ_TOTAL_BYTES = nullptr;
 BLECharacteristic *pCharacteristic_READ_SYSTEM_INFOS = nullptr;
+BLECharacteristic *pCharacteristic_NOT_TICK_RATE = nullptr;
+BLECharacteristic *pCharacteristic_NOT_CHIP_TEMPERATURE = nullptr;
+BLECharacteristic *pCharacteristic_NOT_BATTTERY_VOLTAGE = nullptr;
 
 /// @brief Service Commands
 BLEService *pService_Commands = nullptr; // commands + notify code
@@ -105,7 +108,7 @@ void init_ble_server_HAL()
     // Comptage des Handles : service: 1 handle, characteristic: 2 handles, descriptor: 1 handle
     // ex pour 10 characteistics : 1 + 20 + 3  
     // Each characteristic needs 2 handles and descriptor 1 handle
-    pService_SystemInfos = pMyServer->createService(BLEUUID(SERVICE_SYSTEM_INFOS_UUID), 26); //39 // Don't forget to change handles count (default = 15)
+    pService_SystemInfos = pMyServer->createService(BLEUUID(SERVICE_SYSTEM_INFOS_UUID), 32); //39 // Don't forget to change handles count (default = 15)
 
     pCharacteristic_READ_CPU_CHIP_MODEL = pService_SystemInfos->createCharacteristic(
         CHARACTERISTIC_CPU_CHIP_MODEL_UUID,
@@ -122,20 +125,15 @@ void init_ble_server_HAL()
         BLECharacteristic::PROPERTY_READ);
     pCharacteristic_READ_CPU_FREQUENCY->setCallbacks(new MyCallbacksSystemInfos());
 
-    pCharacteristic_READ_FREE_HEAP = pService_SystemInfos->createCharacteristic(
-        CHARACTERISTIC_FREE_HEAP_UUID,
-        BLECharacteristic::PROPERTY_READ);
-    pCharacteristic_READ_FREE_HEAP->setCallbacks(new MyCallbacksSystemInfos());
-
     pCharacteristic_READ_TOTAL_HEAP = pService_SystemInfos->createCharacteristic(
         CHARACTERISTIC_TOTAL_HEAP_UUID,
         BLECharacteristic::PROPERTY_READ);
     pCharacteristic_READ_TOTAL_HEAP->setCallbacks(new MyCallbacksSystemInfos());
 
-    pCharacteristic_READ_HWATER_MARK = pService_SystemInfos->createCharacteristic(
-        CHARACTERISTIC_HWATER_MARK_UUID,
+    pCharacteristic_READ_FREE_HEAP = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_FREE_HEAP_UUID,
         BLECharacteristic::PROPERTY_READ);
-    pCharacteristic_READ_HWATER_MARK->setCallbacks(new MyCallbacksSystemInfos());
+    pCharacteristic_READ_FREE_HEAP->setCallbacks(new MyCallbacksSystemInfos());
 
     pCharacteristic_READ_MIN_FREE_HEAP = pService_SystemInfos->createCharacteristic(
         CHARACTERISTIC_MIN_FREE_HEAP_UUID,
@@ -147,25 +145,41 @@ void init_ble_server_HAL()
         BLECharacteristic::PROPERTY_READ);
     pCharacteristic_READ_MAX_ALLOC_HEAP->setCallbacks(new MyCallbacksSystemInfos());
 
-    pCharacteristic_NOT_TICK_RATE = pService_SystemInfos->createCharacteristic(
-        CHARACTERISTIC_TICK_RATE_UUID,
-        BLECharacteristic::PROPERTY_NOTIFY);
-    pCharacteristic_NOT_TICK_RATE->addDescriptor(new BLE2902()); // Ajouter un descripteur pour la notification
-
-    pCharacteristic_READ_USED_BYTES = pService_SystemInfos->createCharacteristic(
-        CHARACTERISTIC_USED_BYTES_UUID,
+    pCharacteristic_READ_HWATER_MARK = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_HWATER_MARK_UUID,
         BLECharacteristic::PROPERTY_READ);
-    pCharacteristic_READ_USED_BYTES->setCallbacks(new MyCallbacksSystemInfos());
+    pCharacteristic_READ_HWATER_MARK->setCallbacks(new MyCallbacksSystemInfos());
 
     pCharacteristic_READ_TOTAL_BYTES = pService_SystemInfos->createCharacteristic(
         CHARACTERISTIC_TOTAL_BYTES_UUID,
         BLECharacteristic::PROPERTY_READ);
     pCharacteristic_READ_TOTAL_BYTES->setCallbacks(new MyCallbacksSystemInfos());
 
+    pCharacteristic_READ_USED_BYTES = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_USED_BYTES_UUID,
+        BLECharacteristic::PROPERTY_READ);
+    pCharacteristic_READ_USED_BYTES->setCallbacks(new MyCallbacksSystemInfos());
+
     pCharacteristic_READ_SYSTEM_INFOS = pService_SystemInfos->createCharacteristic(
         CHARACTERISTIC_SYSTEM_INFOS_UUID,
         BLECharacteristic::PROPERTY_READ);
     pCharacteristic_READ_SYSTEM_INFOS->setCallbacks(new MyCallbacksSystemInfos());
+    
+    // Notifications
+    pCharacteristic_NOT_TICK_RATE = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_TICK_RATE_UUID,
+        BLECharacteristic::PROPERTY_NOTIFY);
+    pCharacteristic_NOT_TICK_RATE->addDescriptor(new BLE2902()); // Ajouter un descripteur pour la notification
+
+    pCharacteristic_NOT_CHIP_TEMPERATURE = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_CHIP_TEMPERATURE_UUID,
+        BLECharacteristic::PROPERTY_NOTIFY);
+    pCharacteristic_NOT_CHIP_TEMPERATURE->addDescriptor(new BLE2902());
+
+    pCharacteristic_NOT_BATTTERY_VOLTAGE = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_BATTERY_VOLTAGE_UUID,
+        BLECharacteristic::PROPERTY_NOTIFY);
+    pCharacteristic_NOT_BATTTERY_VOLTAGE->addDescriptor(new BLE2902());
 
     // ------------- SERVICE COMMANDS --------------------------
     pService_Commands = pMyServer->createService(BLEUUID(SERVICE_COMMANDS_UUID), 27); //24
@@ -316,10 +330,20 @@ void ble_server_loop_HAL()
         {
             *pStartTimeNotify = millis();
 
-            // Exécuter les actions périodiques ici
+            // Tick Rate Server
             float tickRate = getTickRate();
             pCharacteristic_NOT_TICK_RATE->setValue(tickRate);
             pCharacteristic_NOT_TICK_RATE->notify();
+
+            // Chip Temperature
+            float chipTemperature = HAL::getChipTemperature();
+            pCharacteristic_NOT_CHIP_TEMPERATURE->setValue(chipTemperature);
+            pCharacteristic_NOT_CHIP_TEMPERATURE->notify();
+
+            // Battery Voltage
+            float batteryVoltage = HAL::getBatteryVoltage();
+            pCharacteristic_NOT_BATTTERY_VOLTAGE->setValue(batteryVoltage);
+            pCharacteristic_NOT_BATTTERY_VOLTAGE->notify();
 
             pCharacteristic_NOT_Test->setValue(&txValue, 1);
             pCharacteristic_NOT_Test->notify();
