@@ -43,10 +43,11 @@
 
 #include "infrared_receiver_hal_esp32.h"
 #include "infrared_utils.h"
-#include <PinDefinitionsAndMore.h>
-#include <applicationInternal/message_data.h>
-#include <interfaces/hardwarePresenter.h>
-#include <helpers/helpers.h>
+#include "PinDefinitionsAndMore.h"
+#include "applicationInternal/message_data.h"
+#include "interfaces/hardwarePresenter.h"
+#include "helpers/helpers.h"
+#include "helpers/omote_log.h"
 
 // uint8_t IR_RX_GPIO  = IR_RECEIVE_PIN; // IR receiver input
 // uint8_t IR_VCC_GPIO = IR_RECEIVER_POWER; // IR receiver power
@@ -172,9 +173,7 @@ void start_infraredReceiver_HAL()
 
     bleLastCapturePacketsHandler.setOnTimeoutCallback([]()
                                                       {
-                                                          callbackReadPacketsTimeout();
-                                                          // Serial.println("[Timeout] expired BLE Read Packet (LastCapture)");
-                                                          // sendBleNotifyCode_HAL("104");
+                                                        callbackReadPacketsTimeout();
                                                       });
 }
 

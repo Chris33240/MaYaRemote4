@@ -6,7 +6,6 @@
 #include "ble_callback_system_infos.h"
 #include "interfaces/hardwarePresenter.h"
 #include "hardware/system_infos_hal.h"
-//#include "applicationInternal/system_infos_handler.h"
 #include "ble_loop_system_infos.h"
 
 /// Gestionnaire de listes de commandes pour le serveur BLE

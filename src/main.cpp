@@ -64,10 +64,10 @@ int main(int argc, char *argv[])
     Serial.println();
     Serial.println(F("Serial is ready"));
 
-    SleepManager2().PrintWakeUpReason();
+    SleepManager().PrintWakeUpReason();
     printSystemInfos();
     Serial.println(F("------ System initialisation begin ------"));
-    SleepManager2().init();
+    SleepManager().init();
 
     // pinMode(GPIO_CAPTURE_BUTTON, INPUT);
     initCaptureButton();
@@ -182,7 +182,6 @@ int main(int argc, char *argv[])
         loop(&IMUTaskTimer, &updateStatusTimer);
 #endif
     Serial.println(F("------ MaYaRemote System Started ------"));
-    // sendBleNotify("------ MaYaRemote System Started ------"); is not working because BLE is not started at this time.
     // printSystemInfos();
 }
 
@@ -190,16 +189,14 @@ int main(int argc, char *argv[])
 #if defined(ARDUINO)
 /// @brief Timer pour mise à jour IMU.
 unsigned long IMUTaskTimer = 0;
+unsigned long *pIMUTaskTimer = &IMUTaskTimer;
 /// @brief Timer pour mise à jour d’état du timer.
 unsigned long updateStatusTimer = 0;
-/// @brief Timer pour gestion du sommeil.
-unsigned long updateSleepTimer = 0;
-// unsigned long updateTickRateTimer = 0;
-
-unsigned long *pIMUTaskTimer = &IMUTaskTimer;
 unsigned long *pUpdateStatusTimer = &updateStatusTimer;
-// unsigned long *pUpdateTickRateTimer = &updateTickRateTimer;
-unsigned long *pUpdateSleepTimer = &updateSleepTimer;
+
+/// @brief Timer pour gestion du sommeil.
+unsigned long lastSleepManagerUpdate = 0;
+// unsigned long updateTickRateTimer = 0;
 
 /// @brief Callback appelé quand le bouton de capture IR est pressé (après délai).
 void onButtonCaptureIRPressDelayed()
@@ -303,6 +300,14 @@ void loop(unsigned long *pIMUTaskTimer, unsigned long *pUpdateStatusTimer)
         // updateHardwareStatusAndShowOnGUI();
     }
 
+    // --- every 1 s --------------------------------------
+    if (millis() - lastSleepManagerUpdate >= 1000)
+    {
+        //lastSleepManagerUpdate += 1000;
+        lastSleepManagerUpdate = millis();
+        SleepManager().update();
+    }
+
     // Affichage de l'état de la mémoire toutes les 5 secondes
     static unsigned long lastMemCheck = 0;
     if (millis() - lastMemCheck > 5000)
@@ -312,10 +317,4 @@ void loop(unsigned long *pIMUTaskTimer, unsigned long *pUpdateStatusTimer)
         // printSystemInfos();
     }
 
-    // --- every 10 s --------------------------------------
-    if (millis() - *pUpdateSleepTimer >= 10000)
-    {
-        *pUpdateSleepTimer = millis();
-        SleepManager2().update();
-    }
 }

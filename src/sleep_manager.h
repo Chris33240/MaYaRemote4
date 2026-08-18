@@ -1,14 +1,21 @@
+#pragma once
+
 #include <Arduino.h>
 #include <driver/rtc_io.h>
-#include <stdint.h>
-#include "esp_bt.h"          // Pour gérer le contrôleur Bluetooth
-#include "esp_bt_main.h"     // Pour initialiser le Bluetooth
-#include "esp_gap_bt_api.h"  // GAP API pour le Bluetooth Classic
-#include "esp_gap_ble_api.h" // GAP API pour le Bluetooth Low Energy
-#include "esp_sleep.h"       // Pour configurer les modes de veille (light sleep, deep sleep)
-#include "soc/rtc.h"
-#include "soc/rtc_cntl_reg.h"
-#include "soc/soc.h"
+#include <esp_sleep.h>
+#include <soc/rtc.h>
+#include <soc/rtc_cntl_reg.h>
+#include <soc/soc.h>
+#include "time_manager.h"
+
+#define GLOBAL_TIMER "global"
+#define GLOBAL_TIME (180UL * 60UL * 1000UL)  // 180 minutes en ms
+#define DISCONNECT_TIMER "disconnect"
+#define DISCONNECT_TIME (30UL * 60UL * 1000UL) // 30 minutes en ms
+
+// Valeurs test :
+// #define DISCONNECT_TIME (30 * 1000)  // 30 secondes en ms
+// #define GLOBAL_TIME (60 * 1000)    // 60 secondes en ms
 
 #define RTC_CNTL_RTC_WAKEUP_ENA_S 0                      // Décalage du bit
 #define RTC_CNTL_RTC_WAKEUP_ENA_M ((uint32_t)0xFFFFFFFF) // Masque pour les bits
@@ -39,38 +46,33 @@
 // #define REG_WRITE(reg, val) (*((volatile uint32_t *)(reg)) = (val))
 // #define REG_READ(reg) (*((volatile uint32_t *)(reg)))
 
-class SleepManager2
+class SleepManager
 {
-private:
-    static bool isConnected; // État de connexion
-    static unsigned long onDisconnectTimer; // Temps contrôlé par la connection
-    static unsigned long onActivityTimer;   // Temps contrôlé par l'activité
-    static unsigned long dt;                // DetaTime
-    static unsigned long lastT;
-    static bool isDisconnectTimerPause;
-    static bool isActivityTimerPause;
-    static bool isPause; // État de pause
-
-    static const unsigned long DISCONNECT_TIME = 30 * 60 * 1000; // 30 minutes en ms
-    static const unsigned long ACTIVITY_TIME = 180 * 60 * 1000;  // 180 minutes en ms
-
-    // Valeurs test :
-    // static const unsigned long DISCONNECT_TIME = 30 * 1000; // 30 secondes en ms
-    // static const unsigned long ACTIVITY_TIME = 60 * 1000;  // 60 secondes en ms
-
 public:
-    SleepManager2();
+    SleepManager();
 
     static void init();
     static void update();
+
     static void pause();
     static void resume();
+
+    static void onConnected();
+    static void onDisconnected();
+
+    static unsigned long getSleepTimerRemaining();
+    static uint32_t getSleepTimerRemainingSeconds();
+
     static void PrintWakeUpReason();
 
 private:
-    static void esp_sleep_enable_bt_wakeup();
-    // static void esp_sleep_enable_ext0_wakeup1(uint32_t gpio_pin, uint32_t level);
-    static void set_bit_in_register(uint32_t reg_addr, uint32_t bit_mask, bool value);
-    static void updateTimer(unsigned long &timer, const unsigned long limit, void (*action)());
+    //static bool isConnected;
+
+    static void onDisconnectTimerElapsed();
+    static void onGlobalTimerElapsed();
+
     static void goToSleep();
+    static void esp_sleep_enable_bt_wakeup();
+
+    static void set_bit_in_register(uint32_t reg_addr, uint32_t bit_mask, bool value);
 };

@@ -11,6 +11,7 @@
     #include <hardware/flash.h>
 #endif
 #include "filesystem_hal.h"
+#include "sleep_manager.h"
 
 //==============================================================
 // Hardware Abstraction Layer
@@ -18,6 +19,11 @@
 
 namespace HAL
 {
+    static String getBoardname()
+    {
+        return BOARD_NAME;
+    }
+
     //==========================================================
     // CPU
     //==========================================================
@@ -346,4 +352,8 @@ namespace HAL
     #endif
     }
 
+    static uint32_t getRemainingSleepTime()
+    {
+        return SleepManager::getSleepTimerRemainingSeconds();
+    }
 }

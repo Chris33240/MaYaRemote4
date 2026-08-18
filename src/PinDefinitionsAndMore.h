@@ -220,6 +220,7 @@ Exemple: DMAYA_FREENOVE_ESP32_S3_WROOM_1 pour MAYA_FREENOVE_ESP32_S3_WROOM_1
 
 #ifdef MAYA_FREENOVE_ESP32_S3_WROOM_FNK0082
 //#define GPIO_BUILT_IN_LED_IO2        2       // Built-in LED "ON"
+#define BOARD_NAME                  "FREENOVE ESP32 S3 WROOM FNK0082"
 #define GPIO_IR_RECEIVER            15      // D15 IR Receive Pin
 #define GPIO_POWER                  13      // Power
 #define GPIO_IR_LED                 14      // D4 IR send Pin
@@ -232,6 +233,7 @@ Exemple: DMAYA_FREENOVE_ESP32_S3_WROOM_1 pour MAYA_FREENOVE_ESP32_S3_WROOM_1
 #define ENABLED_BATTERY_MEASUREMENT false   // Enabled Battery Measurment
 
 #elif defined(MAYA_DFROBOT_FIREBEETLE2_ESP32E_DFR0654) // DFROBOT DFR0654
+#define BOARD_NAME                  "DFROBOT FIREBEETLE2 ESP32-E DFR0654"
 #define GPIO_IR_RECEIVER            4       // GPIO4 IR Receive Pin
 #define GPIO_POWER                  17      // GPIO17 Power
 #define GPIO_IR_LED                 16      // GPIO16 IR send Pin
@@ -246,6 +248,7 @@ Exemple: DMAYA_FREENOVE_ESP32_S3_WROOM_1 pour MAYA_FREENOVE_ESP32_S3_WROOM_1
 #define BATTERY_VOLTAGE_DIVIDER     2.0f    // Battey measurment Devider
 
 #elif defined(MAYA_DFROBOT_FIREBEETLE2_ESP32E_DFR1139) // DFROBOT DFR1139
+#define BOARD_NAME                  "DFROBOT FIREBEETLE2 ESP32-E DFR1139"
 #define GPIO_IR_RECEIVER            4       // GPIO4 IR Receive Pin
 #define GPIO_POWER                  17      // GPIO17 Power
 #define GPIO_IR_LED                 12      // GPIO16 IR send Pin
@@ -260,6 +263,7 @@ Exemple: DMAYA_FREENOVE_ESP32_S3_WROOM_1 pour MAYA_FREENOVE_ESP32_S3_WROOM_1
 #define BATTERY_VOLTAGE_DIVIDER     2.0f    // Battey measurment Devider
 
 #elif defined(MAYA_DFROBOT_FIREBEETLE2_ESP32S3_DFR0975) // DFROBOT DFR0975
+#define BOARD_NAME                  "DFROBOT FIREBEETLE2 ESP32-S3 DFR0975"
 #define GPIO_IR_RECEIVER            12      // GPIO12 IR Receive Pin
 #define GPIO_POWER                  14      // GPIO14 Power
 #define GPIO_IR_LED                 13      // GPIO13 IR send Pin
@@ -274,6 +278,7 @@ Exemple: DMAYA_FREENOVE_ESP32_S3_WROOM_1 pour MAYA_FREENOVE_ESP32_S3_WROOM_1
 #define BATTERY_VOLTAGE_DIVIDER     2.0f    // Battey measurment Devider
 
 #elif defined(MAYA_DFROBOT_FIREBEETLE2_ESP32C6_DFR1075) // DFROBOT DFR1075
+#define BOARD_NAME                  "DFROBOT FIREBEETLE2 ESP32-C6 DFR1075"
 #define GPIO_IR_RECEIVER            4       // GPIO4 IR Receive Pin
 #define GPIO_POWER                  2       // GPIO2 Power
 #define GPIO_IR_LED                 3       // GPIO3 IR send Pin

@@ -26,7 +26,7 @@
 #include "ble_callback_uart.h"
 #include "system_infos.h"
 #include "tick_rate.h"
-#include <hardware/system_infos_hal.h>
+#include "hardware/system_infos_hal.h"
 
 /// @brief Pointeur vers le serveur BLE
 BLEServer *pMyServer = nullptr;
@@ -47,6 +47,7 @@ BLECharacteristic *pCharacteristic_READ_SYSTEM_INFOS = nullptr;
 BLECharacteristic *pCharacteristic_NOT_TICK_RATE = nullptr;
 BLECharacteristic *pCharacteristic_NOT_CHIP_TEMPERATURE = nullptr;
 BLECharacteristic *pCharacteristic_NOT_BATTTERY_VOLTAGE = nullptr;
+BLECharacteristic *pCharacteristic_NOT_REMAINING_SLEEP_TIME = nullptr;
 
 /// @brief Service Commands
 BLEService *pService_Commands = nullptr; // commands + notify code
@@ -106,9 +107,9 @@ void init_ble_server_HAL()
     // ------------- SERVICE SYSTEM INFOS --------------------------
     // Créer le service BLE
     // Comptage des Handles : service: 1 handle, characteristic: 2 handles, descriptor: 1 handle
-    // ex pour 10 characteistics : 1 + 20 + 3  
+    // ex pour 10 characteistics + 3 descriptors: 1 + 20 + 3  
     // Each characteristic needs 2 handles and descriptor 1 handle
-    pService_SystemInfos = pMyServer->createService(BLEUUID(SERVICE_SYSTEM_INFOS_UUID), 32); //39 // Don't forget to change handles count (default = 15)
+    pService_SystemInfos = pMyServer->createService(BLEUUID(SERVICE_SYSTEM_INFOS_UUID), 35); // Don't forget to change handles count (default = 15)
 
     pCharacteristic_READ_CPU_CHIP_MODEL = pService_SystemInfos->createCharacteristic(
         CHARACTERISTIC_CPU_CHIP_MODEL_UUID,
@@ -180,6 +181,11 @@ void init_ble_server_HAL()
         CHARACTERISTIC_BATTERY_VOLTAGE_UUID,
         BLECharacteristic::PROPERTY_NOTIFY);
     pCharacteristic_NOT_BATTTERY_VOLTAGE->addDescriptor(new BLE2902());
+
+    pCharacteristic_NOT_REMAINING_SLEEP_TIME = pService_SystemInfos->createCharacteristic(
+        CHARACTERISTIC_REMAINING_SLEEP_TIME_UUID,
+        BLECharacteristic::PROPERTY_NOTIFY);
+    pCharacteristic_NOT_REMAINING_SLEEP_TIME->addDescriptor(new BLE2902());
 
     // ------------- SERVICE COMMANDS --------------------------
     pService_Commands = pMyServer->createService(BLEUUID(SERVICE_COMMANDS_UUID), 27); //24
@@ -344,6 +350,11 @@ void ble_server_loop_HAL()
             float batteryVoltage = HAL::getBatteryVoltage();
             pCharacteristic_NOT_BATTTERY_VOLTAGE->setValue(batteryVoltage);
             pCharacteristic_NOT_BATTTERY_VOLTAGE->notify();
+
+            // Remaining Sleep Time
+            float remainingSleepTime = HAL::getRemainingSleepTime();
+            pCharacteristic_NOT_REMAINING_SLEEP_TIME->setValue(remainingSleepTime);
+            pCharacteristic_NOT_REMAINING_SLEEP_TIME->notify();
 
             pCharacteristic_NOT_Test->setValue(&txValue, 1);
             pCharacteristic_NOT_Test->notify();

@@ -5,6 +5,8 @@
 
 struct systemInfos
 {
+    String boardName;
+
     String chipModel;
     uint32_t chipRev;
     uint32_t cpuDefFreq;

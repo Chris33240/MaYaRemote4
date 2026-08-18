@@ -4,6 +4,7 @@
 /// @brief Remplit la structure contenant les informations système.
 void fillSystemInfos(systemInfos &sysInfos)
 {
+    sysInfos.boardName = HAL::getBoardname();
     //==========================================================
     // CPU
     //==========================================================

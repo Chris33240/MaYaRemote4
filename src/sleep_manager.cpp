@@ -1,36 +1,17 @@
 #include "sleep_manager.h"
 #include "PinDefinitionsAndMore.h"
-// #include "hardware/esp32/ble_server_hal_esp32.h"
 #include "interfaces/hardwarePresenter.h"
-// #include <esp32/pm.h>
-// #include <esp_pm.h>
-
-/// @brief Timer contrôlé par l’état de connexion (ms).
-unsigned long SleepManager2::onDisconnectTimer = 0;
-/// @brief Timer contrôlé par l’activité (ms).
-unsigned long SleepManager2::onActivityTimer = 0;
-/// @brief Delta Time calculé entre deux appels à update() (ms).
-unsigned long SleepManager2::dt = 0;
-/// @brief Dernier temps enregistré (ms).
-unsigned long SleepManager2::lastT = 0;
-
-/// @brief Indique si le timer de déconnexion est en pause.
-bool SleepManager2::isDisconnectTimerPause = false;
-/// @brief Indique si le timer d’activité est en pause.
-bool SleepManager2::isActivityTimerPause = false;
-/// @brief Indique si le gestionnaire est globalement en pause.
-bool SleepManager2::isPause = false;
 
 /// @brief Constructeur de la classe SleepManager2.
 /// Initialise un gestionnaire de mise en veille.
-SleepManager2::SleepManager2()
+SleepManager::SleepManager()
 {
 }
 
 /// @brief Initialise le gestionnaire de veille.
 /// Configure le bouton de réveil GPIO et initialise les registres.
 /// Active les sources de réveil par GPIO et affiche les registres pour debug.
-void SleepManager2::init()
+void SleepManager::init()
 {
     // La pin GPIO_WAKEUP_BUTTON est configurée comme GPIO_RTC dans goToSleep() et n'est pas utilisé en dehors de cette fonction,
     // il n'est donc pas obligatoire de configurer comme GPIO standard ici.
@@ -143,70 +124,94 @@ void SleepManager2::init()
         Serial.println(esp_err_to_name(result));
     }
     */
+
+    TimeManager::init();
+
+    TimeManager::addTimer(
+        DISCONNECT_TIMER,                               // Timer key for timers
+        {
+            DISCONNECT_TIME,                            // Duration
+            0,                                          // Elapsed
+            false,                                      // Pause
+            SleepManager::onDisconnectTimerElapsed     // OnElapsed (Callback)
+        });
+
+    TimeManager::addTimer(
+        GLOBAL_TIMER,
+        {
+            GLOBAL_TIME,
+            0,
+            false,
+            SleepManager::onGlobalTimerElapsed
+        });
 }
 
 /// @brief Met à jour les timers de mise en veille.
 /// Calcule le delta temps, incrémente les compteurs et déclenche les actions
 /// (mise en veille) si les délais sont dépassés.
-void SleepManager2::update()
+void SleepManager::update()
 {
-    // Calcul du Delta Time
-    unsigned long currentTime = millis();
-    dt = currentTime - lastT;
-    lastT = currentTime;
-
-    isDisconnectTimerPause = isDeviceConnected() || isPause;
-    isActivityTimerPause = isPause;
-
-    onDisconnectTimer = isDisconnectTimerPause ? 0 : onDisconnectTimer;
-
-    if (!isDisconnectTimerPause)
-    {
-        updateTimer(onDisconnectTimer, DISCONNECT_TIME, goToSleep);
+    TimeManager::update();
+    if(isDeviceConnected()) {
+        onConnected();  
+    } else {
+        onDisconnected();
     }
-
-    if (!isActivityTimerPause)
-    {
-        updateTimer(onActivityTimer, ACTIVITY_TIME, goToSleep);
-    }
-
-    Serial.printf("Sleep timer on disconnect: %u/%us %s, on activity: %u/%us %s\r\n",
-                  onDisconnectTimer / 1000, DISCONNECT_TIME / 1000, (isDisconnectTimerPause) ? "(Pause)" : "",
-                  onActivityTimer / 1000, ACTIVITY_TIME / 1000, (isActivityTimerPause) ? "(Pause)" : "");
-    /*
-    //int cpuFreq = esp_clk_cpu_freq();
-    //int core0Freq = esp_clk_cpu_freq() / 1000000; // Fréquence CPU du Core 0 en MHz
-    //int core1Freq = esp_clk_apb_freq() / 1000000; // Fréquence APB/Core 1 en MHz
-    //Serial.println("Core 0 Frequency: " + String(core0Freq) + " MHz");
-    //Serial.println("Core 1 Frequency: " + String(core1Freq) + " MHz");
-    int currentFreq = getCpuFrequencyMhz();
-    Serial.printf("Sleep timer on disconnect: %u/%us %s, on activity: %u/%us %s, CPU frequency: %u MHz\r\n",
-     onDisconnectTimer / 1000, DISCONNECT_TIME / 1000, (isDisconnectTimerPause) ? "(Pause)" : "",
-     onActivityTimer / 1000, ACTIVITY_TIME / 1000, (isActivityTimerPause) ? "(Pause)" : "",
-     currentFreq / 1000);
-    */
-    // Serial.printf("Sleep timer (on disconnect): %u/%us %s\r\n", onDisconnectTimer / 1000, DISCONNECT_TIME / 1000, (isDisconnectTimerPause) ? "(Pause)" : "");
-    // Serial.printf("Sleep timer (on activity): %u/%us %s\r\n", onActivityTimer / 1000, ACTIVITY_TIME / 1000, (isActivityTimerPause) ? "(Pause)" : "");
 }
 
 /// @brief Met le gestionnaire en pause.
 /// Suspend temporairement la gestion des timers d’activité et de déconnexion.
-void SleepManager2::pause()
+void SleepManager::pause()
 {
-    isPause = true;
+    TimeManager::pause();
 }
 
 /// @brief Reprend la gestion des timers après une pause.
-void SleepManager2::resume()
+void SleepManager::resume()
 {
-    isPause = false;
+    TimeManager::resume();
 }
+
+void SleepManager::onConnected()
+{
+    TimeManager::resetTimer(DISCONNECT_TIMER);
+    TimeManager::pauseTimer(DISCONNECT_TIMER);
+}
+
+void SleepManager::onDisconnected()
+{
+    TimeManager::resumeTimer(DISCONNECT_TIMER);
+}
+
+void SleepManager::onDisconnectTimerElapsed()
+{
+    goToSleep();
+}
+
+void SleepManager::onGlobalTimerElapsed()
+{
+    goToSleep();
+}
+
+unsigned long SleepManager::getSleepTimerRemaining()
+{
+    return TimeManager::getMinimumRemaining();
+}
+
+uint32_t SleepManager::getSleepTimerRemainingSeconds()
+{
+    return static_cast<uint32_t>(TimeManager::getMinimumRemaining() / 1000);
+}
+
+//==============================================================
+// Gestion du registre matériel
+//==============================================================
 
 /// @brief Modifie un bit dans un registre matériel.
 /// @param reg_addr Adresse du registre.
 /// @param bit_mask Masque du bit à modifier.
 /// @param value true pour activer le bit, false pour le désactiver.
-void SleepManager2::set_bit_in_register(uint32_t reg_addr, uint32_t bit_mask, bool value)
+void SleepManager::set_bit_in_register(uint32_t reg_addr, uint32_t bit_mask, bool value)
 {
     // Lire la valeur actuelle du registre
     uint32_t reg_value = *((volatile uint32_t *)reg_addr);
@@ -251,8 +256,12 @@ void SleepManager2::esp_sleep_enable_ext0_wakeup1(uint32_t gpio_pin, uint32_t le
     Serial.printf("Configuration EXT0 : GPIO=%u, Niveau=%u, Registre=0x%08X\n", gpio_pin, level, regValue);
 }*/
 
+//==============================================================
+// Activation du réveil Bluetooth
+//==============================================================
+
 /// @brief Active la source de réveil Bluetooth via manipulation des registres RTC.
-void SleepManager2::esp_sleep_enable_bt_wakeup()
+void SleepManager::esp_sleep_enable_bt_wakeup()
 {
     uint32_t regValue = *((volatile uint32_t *)RTC_CNTL_RTC_WAKEUP_STATE_REG);
 
@@ -270,23 +279,13 @@ void SleepManager2::esp_sleep_enable_bt_wakeup()
     // Serial.printf("Valeur du registre à ecrire: 0x%08X\n", regValue);
 }
 
-/// @brief Met à jour un timer interne et déclenche une action lorsque la limite est atteinte.
-/// @param timer Référence au compteur de temps (ms).
-/// @param limit Limite de temps avant déclenchement (ms).
-/// @param action Pointeur vers la fonction à exécuter une fois la limite atteinte.
-void SleepManager2::updateTimer(unsigned long &timer, const unsigned long limit, void (*action)())
-{
-    timer += dt;
-    if (timer >= limit)
-    {
-        timer = 0;
-        action(); // Appelle DeepSleep ou une autre action
-    }
-}
+//==============================================================
+// Mise en veille
+//==============================================================
 
 /// @brief Met l’ESP32 en veille profonde (deep sleep).
 /// Désactive certains périphériques et éteint les GPIOs avant d’entrer en mode sommeil.
-void SleepManager2::goToSleep()
+void SleepManager::goToSleep()
 {
     Serial.println("Entering deep sleep...");
     Serial.flush();
@@ -360,37 +359,41 @@ delay(3000);
     esp_deep_sleep_start(); // Démarrer la mise en veille profonde
 }
 
+//==============================================================
+// Cause du réveil
+//==============================================================
+
 /// @brief Affiche la cause du réveil après une sortie de veille.
 /// Les causes possibles incluent EXT0, EXT1, TIMER, TOUCHPAD, ULP, GPIO, UART, etc.
-void SleepManager2::PrintWakeUpReason()
+void SleepManager::PrintWakeUpReason()
 {
-    esp_sleep_wakeup_cause_t wakeup_reason;
-    wakeup_reason = esp_sleep_get_wakeup_cause();
+    esp_sleep_wakeup_cause_t wakeup_reason = esp_sleep_get_wakeup_cause();
+
     switch (wakeup_reason)
     {
-    case ESP_SLEEP_WAKEUP_EXT0:
-        Serial.println("Wakeup caused by EXT0");
-        break;
-    case ESP_SLEEP_WAKEUP_EXT1:
-        Serial.println("Wakeup caused by EXT1");
-        break;
-    case ESP_SLEEP_WAKEUP_TIMER:
-        Serial.println("Wakeup caused by TIMER");
-        break;
-    case ESP_SLEEP_WAKEUP_TOUCHPAD:
-        Serial.println("Wakeup caused by TOUCHPAD");
-        break;
-    case ESP_SLEEP_WAKEUP_ULP:
-        Serial.println("Wakeup caused by ULP");
-        break;
-    case ESP_SLEEP_WAKEUP_GPIO:
-        Serial.println("Wakeup caused by GPIO");
-        break;
-    case ESP_SLEEP_WAKEUP_UART:
-        Serial.println("Wakeup caused by UART");
-        break;
-    default:
-        Serial.println("Wakeup without reason");
-        break;
+        case ESP_SLEEP_WAKEUP_EXT0:
+            Serial.println("Wakeup caused by EXT0");
+            break;
+        case ESP_SLEEP_WAKEUP_EXT1:
+            Serial.println("Wakeup caused by EXT1");
+            break;
+        case ESP_SLEEP_WAKEUP_TIMER:
+            Serial.println("Wakeup caused by TIMER");
+            break;
+        case ESP_SLEEP_WAKEUP_TOUCHPAD:
+            Serial.println("Wakeup caused by TOUCHPAD");
+            break;
+        case ESP_SLEEP_WAKEUP_ULP:
+            Serial.println("Wakeup caused by ULP");
+            break;
+        case ESP_SLEEP_WAKEUP_GPIO:
+            Serial.println("Wakeup caused by GPIO");
+            break;
+        case ESP_SLEEP_WAKEUP_UART:
+            Serial.println("Wakeup caused by UART");
+            break;
+        default:
+            Serial.println("Wakeup without reason");
+            break;
     }
 }

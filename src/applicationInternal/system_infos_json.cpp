@@ -27,6 +27,8 @@ String serializeSystemInfos(const systemInfos &systemInfos, bool JsonPretty)
 
 void to_json(JsonObject &root, const systemInfos &systemInfos)
 {
+    root["boardName"]        = systemInfos.boardName;
+
     root["chipModel"]        = systemInfos.chipModel;
     root["chipRev"]          = systemInfos.chipRev;
     root["cpuDefFreq"]       = systemInfos.cpuDefFreq;
