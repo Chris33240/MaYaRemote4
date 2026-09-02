@@ -76,7 +76,7 @@ void MyCallbacks::onRead(BLECharacteristic *pCharacteristic)
         {"command": "IR_RC6_0x0800040F", "requestType": "WRITE", "commandHandler": "3"}
         */
         // Serial.println("DEBUG: we are here 1");
-        // Serial.printf("Stack High Water Mark : %u words\n", uxTaskGetStackHighWaterMark(nullptr));
+        // Serial.printf("Stack High Water Mark : %u bytes\n", uxTaskGetStackHighWaterMark(nullptr));
         // omote_log_v("DEBUG: we are here 1\r\n");
         // omote_log_v_mem();
         /*
@@ -113,11 +113,36 @@ void MyCallbacks::onRead(BLECharacteristic *pCharacteristic)
     //TODO: créer un nouveau canal BLE et une nouvelle fonction pour lire les datas par command individuelle.
     else if (uuid == CHARACTERISTIC_LIST_COMMANDS_DATA_UUID)
     {
+        /*
         std::string str = listCommandsDataHandler.readCommandsDataKeys();
 
         Serial.print(F("[BLE-onRead] listCommandsData packet: "));
         Serial.println(str.c_str());
         pCharacteristic->setValue(str);
+        */
+
+        if (!listCommandsDataRequest.isReady())
+        {
+            uint32_t start = millis();
+
+            listCommandsDataRequest.request();
+
+            while (!listCommandsDataRequest.isReady())
+            {
+                if (millis() - start > 2000)
+                {
+                    Serial.println("Timeout BLE_ListCommandsData");
+                    break;
+                }
+
+                delay(1);
+            }
+        }
+        std::string str = listCommandsDataRequest.getPacket();
+        Serial.print(F("[BLE-onRead] listCommandsData packet: "));
+        Serial.println(str.c_str());
+        pCharacteristic->setValue(str);
+        listCommandsDataRequest.consume();
     }
     else if (uuid == CHARACTERISTIC_LAST_CAPTURE_UUID)
     {

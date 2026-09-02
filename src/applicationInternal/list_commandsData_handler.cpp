@@ -27,8 +27,10 @@ std::string ListCommandsDataHandler::readCommandsDataKeys()
 /// @return Une chaîne correspondant au prochain paquet de la commande sérialisée.
 std::string ListCommandsDataHandler::readCommandsDataKeys(const std::set<std::string> &commandsKeys)
 {
+    //Serial.println("[DEBUG] We are here 1");
+    //Serial.printf("Stack High Water Mark : %u bytes\n", uxTaskGetStackHighWaterMark(nullptr));
     std::string str;
-
+    
     if (!isInit)
     {
         isInit = true;
@@ -40,7 +42,8 @@ std::string ListCommandsDataHandler::readCommandsDataKeys(const std::set<std::st
         Serial.println("[Timeout] expired BLE Read Packet (ListCommandsData)");
         sendBleNotifyCode("101"); });
     }
-
+    //Serial.println("[DEBUG] We are here 2");
+    //Serial.printf("Stack High Water Mark : %u bytes\n", uxTaskGetStackHighWaterMark(nullptr));   
     if (!isInitCommand && currentCommandIndex < commandsKeys.size())
     {
         auto command = std::next(commandsKeys.begin(), currentCommandIndex);
@@ -52,11 +55,16 @@ std::string ListCommandsDataHandler::readCommandsDataKeys(const std::set<std::st
         // const std::pair<std::string, commandData2> &pair = loadCommand(commandName);
         // data = pair.second;
         // status = "OK";
-
+        //Serial.println("[DEBUG] We are here 1");
+        //Serial.printf("Stack High Water Mark : %u bytes\n", uxTaskGetStackHighWaterMark(nullptr));  
         if (findCommandDataFiles(commandName, data))
         {
+            //Serial.println("[DEBUG] We are here 2");
+            //Serial.printf("Stack High Water Mark : %u bytes\n", uxTaskGetStackHighWaterMark(nullptr));
             // status = "OK";
             const String &commandStr = serializeCommandWithStatusAndPayloads(commandName, data, false);
+            //Serial.println("[DEBUG] We are here 3");
+            //Serial.printf("Stack High Water Mark : %u bytes\n", uxTaskGetStackHighWaterMark(nullptr));
             packets.makePackets(commandStr.c_str());
 
             Serial.printf("[DEBUG] serialized commands %u/%u: '%s'.\r\n", currentCommandIndex + 1, commandsKeys.size(), commandStr.c_str());

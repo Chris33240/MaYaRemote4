@@ -254,6 +254,7 @@ void loop(unsigned long *pIMUTaskTimer, unsigned long *pUpdateStatusTimer)
     // TasksManager::update();
     TasksManager2::update();
     processListCommandsLoop();
+    processListCommandsDataLoop();
     processSystemInfosLoop();
     // --- do as often as possible ----------------------------------------------
     // update backlight brightness. Fade in on startup, dim before going to sleep

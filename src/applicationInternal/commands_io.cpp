@@ -51,9 +51,13 @@ std::pair<std::string, commandData2> loadCommand(const std::string &commandName)
 {
     String fileName = makeFileCommandName(commandName);
     String path = Io::combinePath("", fileName);
+    //Serial.println("[DEBUG] We are here 1a");
+    //Serial.printf("Stack High Water Mark : %u bytes\n", uxTaskGetStackHighWaterMark(nullptr));
     //omote_log_v("DEBUG: we are here 5\r\n");
     //omote_log_v_mem();
     fsMount2();
+    //Serial.println("[DEBUG] We are here 1b");
+    //Serial.printf("Stack High Water Mark : %u bytes\n", uxTaskGetStackHighWaterMark(nullptr));
     const std::pair<std::string, commandData2> &pair = loadCommand3(path);
     fsUnMount2();
     return pair;

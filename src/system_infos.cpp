@@ -17,7 +17,7 @@ void printSystemInfos()
     // ===== RAM =====
     Serial.printf("Free Heap                : %u bytes\n", HAL::getFreeHeap());
     Serial.printf("Total Heap               : %u bytes\n", HAL::getTotalHeap());
-    Serial.printf("Stack High Water Mark    : %u words\n", HAL::getStackHighWaterMark());
+    Serial.printf("Stack High Water Mark    : %u bytes\n", HAL::getStackHighWaterMark());
 
     // ===== Flash =====
     Serial.printf("Flash Size               : %u MB\n", HAL::getFlashSize() / (1024 * 1024));
